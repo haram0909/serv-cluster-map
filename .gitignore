@@ -1,0 +1,11 @@
+#Ignore node_modules folder
+node_modules/
+#Ignore logs folder
+logs/
+
+#Ignore local .env file
+.env
+#Ignore all xlsx files
+*.xlsx
+#Ignore all log files
+*.log
