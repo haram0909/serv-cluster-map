@@ -9,6 +9,9 @@ const mongoose = require('mongoose');
 const ejsMate = require('ejs-mate');
 const methodOverride = require('method-override');
 
+//dev dependencies
+const morgan = require('morgan');
+
 //models
 const Profile = require('./models/profile.js');
 const Account = require('./models/account.js');
@@ -41,9 +44,16 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 //middleware
+//dev dependencies
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
+
+//custom middlewares should return at next() to prevent any further code, even if there is, from executing after next()
+
 // --> implement pagination later 
 // npm i express-paginate
 // https://www.npmjs.com/package/express-paginate
+
+
 
 
 //routes
@@ -165,7 +175,18 @@ app.delete('/profiles/:id', async (req, res) => {
 
 
 
+//404 route
+app.use((req, res) => {
+    res.status(404).send('404 NOT FOUND');
+})
 
+//500s route 
+app.use((err, req, res, next) => {
+    const { statusCode = 500 } = err;
+    if (!err.message) err.message = "An Error occured and not able to get data!"
+    // res.status(statusCode).render('error', { err });
+    res.status(statusCode).send('Server-side issue occured');
+})
 
 
 const port = process.env.PORT || 8080;
