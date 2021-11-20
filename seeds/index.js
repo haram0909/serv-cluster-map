@@ -9,9 +9,9 @@ const { descriptors, areas } = require('./offerings.js');
 const proglangs = require('./proglang.js');
 
 //import models
-const User = require('../models/user.js');
-const ProgLang = require('../models/proglang.js');
-const Offering = require('../models/offering.js');
+const Profile = require('../models/profile.js');
+const Account = require('../models/account.js');
+const Review = require('../models/review.js');
 
 //establish mongoose connection
 const mongoDbUrl = 'mongodb://localhost:27017/serv-cluster-map'
@@ -23,66 +23,59 @@ async function connectToMongoDB() {
     console.log('##MongoDb connection SUCCESS');
 }
 
-//delete and populate proglangs collection
-const seedProgLangCol = async () => {
-    await ProgLang.deleteMany({});
-    for (let i = 0; i < proglangs.length; i++) {
-        console.log(`##Seeding proglang ${i}.`);
-        const proglangEntry = new ProgLang({
-            proglang: `${proglangs[i]}`
-        })
-        await proglangEntry.save();
-    }
-}
 
 //function to pick random item from array
 const randomItem = array => array[Math.floor(Math.random() * array.length)];
-//function to pick random number between 0 and set max
-const random0toNum = (maxNum) => Math.floor(Math.random() * maxNum);
+//function to pick random number between set min and max number both inclusive
+const randomNumToNum = (minNum, maxNum) => Math.floor(Math.random() * (maxNum - minNum + 1) + minNum);
 
-//delete and populate offerings and users collections
-//offerings colletion will be populated as users collection gets populated
-const seedUserAndOfferingCol = async () => {
+//delete and populate accounts and profiles collections
+//profiles collection will be populated as accounts collection gets populated
+//account doc's profile object id will be filled back after profile doc seeded
+const seedAccountProfileCol = async () => {
+    //drop accounts collection
+    await Account.deleteMany({});
     //drop users collection
-    await User.deleteMany({});
-    //drop offerings collection
-    await Offering.deleteMany({});
+    await Profile.deleteMany({});
+
+
+    //create account to attach profile
     for (let i = 0; i < names.length; i++) {
-        console.log(`##Seeding user ${i}.`);
+        console.log(`##Seeding account ${i}.`);
+        const accountEntry = new Account({
+            firstname: `${names[i].firstname}`,
+            lastname: `${names[i].lastname}`,
+            email: `${emails[i].email}`
+        })
+
+        console.log(`##Seeding profile ${i}.`);
+
+        //randomly assign a location from dataset
         const randomLocation = randomItem(locations);
-        //get proglang documents to be used for current iteration of user
-        const proglang1 = await ProgLang.findOne({ proglang: randomItem(proglangs) });
-        const proglang2 = await ProgLang.findOne({ proglang: randomItem(proglangs) });
-        const proglang3 = await ProgLang.findOne({ proglang: randomItem(proglangs) });
+
+        //get 3 unique proglang documents to be used for current iteration of profile
+        const indexForProglang1 = randomNumToNum(0, 11);
+        let indexForProglang2 = randomNumToNum(0, 11);
+        while (indexForProglang1 === indexForProglang2) {
+            indexForProglang2 = randomNumToNum(0, 11);
+        }
+        //property proglang's type changed to String from ObjectId
+        const proglang1 = proglangs[indexForProglang1];
+        // const proglang1 = await ProgLang.findOne({ proglang: proglangs[indexForProglang1] });
+        console.log(`>> selected proglang1 = ${proglang1}`);
+        const proglang2 = proglangs[indexForProglang2];
+        // const proglang2 = await ProgLang.findOne({ proglang: proglangs[indexForProglang2] });
+        console.log(`>> selected proglang2 = ${proglang2}`);
+        const proglang3 = proglangs[randomNumToNum(12, proglangs.length-1)];
+        // const proglang3 = await ProgLang.findOne({ proglang: proglangs[randomNumToNum(12, proglangs.length)] });
+        console.log(`>> selected proglang3 = ${proglang3}`);
+
         //randomly assign true or false
         const availOrNot = Math.random() < 0.5;
 
-        //populate offerings collections 
-        //the 3 offerings will be bound as objectId to user to be created at current iteration
-        console.log(`##Seeding offering ${i} for user ${i}.`);
-        const offering1 = new Offering({
-            service: `${randomItem(descriptors)} ${randomItem(areas)}`,
-            //random num between 0 to 150 (usd per hour)
-            price: `${random0toNum(150)}`
-        })
-        await offering1.save();
-        const offering2 = new Offering({
-            service: `${randomItem(descriptors)} ${randomItem(areas)}`,
-            price: `${random0toNum(150)}`
-        })
-        await offering2.save();
-        const offering3 = new Offering({
-            service: `${randomItem(descriptors)} ${randomItem(areas)}`,
-            price: `${random0toNum(150)}`
-        })
-        await offering3.save();
-
-
-        //new user of current iteration
-        const user = new User({
-            firstname: `${names[i].firstname}`,
-            lastname: `${names[i].lastname}`,
-            email: `${emails[i].email}`,
+        //new profile of current iteration
+        const profileEntry = new Profile({
+            account: accountEntry,
             introduction: 'Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ad laudantium totam excepturi ducimus eos amet in, dolores molestias nemo autem culpa voluptatibus sunt, vero veritatis ipsam accusamus nostrum assumenda fugiat.',
             images: [
                 {
@@ -101,39 +94,50 @@ const seedUserAndOfferingCol = async () => {
                 //passing in entire found doc will auto cast to objectId
                 proglang: proglang1,
                 //random num between 1 to 30 (year)
-                experience: `${random0toNum(30)}`
+                experience: `${randomNumToNum(0, 30)}`
             },
             {
                 proglang: proglang2,
-                experience: `${random0toNum(30)}`
+                experience: `${randomNumToNum(0, 30)}`
             },
             {
                 proglang: proglang3,
-                experience: `${random0toNum(30)}`
+                experience: `${randomNumToNum(0, 30)}`
             }
             ],
             //either true or false
             availability: availOrNot,
             offerings: [
-                offering1,
-                offering2,
-                offering3
+                {
+                    service: `${randomItem(descriptors)} ${randomItem(areas)}`,
+                    //random num between 0 to 150 (usd per hour)
+                    price: `${randomNumToNum(0, 150)}`
+                },
+                {
+                    service: `${randomItem(descriptors)} ${randomItem(areas)}`,
+                    //random num between 0 to 150 (usd per hour)
+                    price: `${randomNumToNum(0, 150)}`
+                },
+                {
+                    service: `${randomItem(descriptors)} ${randomItem(areas)}`,
+                    //random num between 0 to 150 (usd per hour)
+                    price: `${randomNumToNum(0, 150)}`
+                }
             ]
         })
-        await user.save();
+        //attach profile to account
+        accountEntry.profile = profileEntry._id;
+        await accountEntry.save();
+        await profileEntry.save();
     }
 }
 
 //using async await, 
-//1. seed proglangs collection 
-//2. seed users collection, 
-//3. lastly close mongoose connection
+//1. seed accounts, profiles, and offerings collection 
+//2. close mongoose connection
 const executeSeeding = async () => {
-    await seedProgLangCol().then(() => {
-        console.log('## proglangs collection seeded');
-    });
-    await seedUserAndOfferingCol().then(() => {
-        console.log('## users collection and offerings collection seeded');
+    await seedAccountProfileCol().then(() => {
+        console.log('## accounts and profiles collections seeded');
     });
     await mongoose.connection.close();
 }

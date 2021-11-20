@@ -8,21 +8,10 @@ const ImageSchema = new Schema({
 });
 
 
-const UserSchema = new Schema({
-    firstname: {
-        type: String,
-        required: true,
-        maxLength: 80
-    },
-    lastname: {
-        type: String,
-        required: true,
-        maxLength: 80
-    },
-    email: {
-        type: String,
-        required: true,
-        unique: true
+const ProfileSchema = new Schema({
+    account: {
+        type: Schema.Types.ObjectId,
+        ref: 'Account'
     },
     introduction: String,
     images: [ImageSchema],
@@ -40,14 +29,18 @@ const UserSchema = new Schema({
     },
     skills: [
         {
-            proglang:{
-            type: Schema.Types.ObjectId,
-            ref: 'ProgLang'
+            //changed to plain string 
+            //to allow simple insert of new programming languages, etc
+            //these arrays are not likely to be massive
+            proglang: {
+                type: String,
+                required: true
             },
             experience: {
                 type: Number,
                 required: true,
-                max: 100
+                max: 100,
+                min: 0
             }
         }
     ],
@@ -57,10 +50,19 @@ const UserSchema = new Schema({
     },
     offerings: [
         {
-        
-                type: Schema.Types.ObjectId,
-                ref: 'Offering'
-
+            //changed to plain string 
+            //to allow simple insert of new programming languages, etc
+            //these arrays are not likely to be massive
+            service: {
+                type: String,
+                required: true,
+            },
+            price: {
+                type: Number,
+                required: true,
+                max: 1000,
+                min: 0
+            }
         }
     ],
     reviews: [
@@ -71,4 +73,4 @@ const UserSchema = new Schema({
     ]
 });
 
-module.exports = mongoose.model('User', UserSchema);
+module.exports = mongoose.model('Profile', ProfileSchema);

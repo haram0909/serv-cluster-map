@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Profile</title>
+</head>
+
+<body>
+
+    <form action="/profiles" method="POST">
+        <div>
+            <label for="introduction">Introduction</label>
+            <input type="text" id="introduction" name="profile[introduction]" >
+        </div>
+        <div>
+            <label for="location">location</label>
+            <input type="text" id="location" name="profile[location]" >
+        </div>
+
+        <!-- //image file(s) input -->
+        <div>
+            <input type="file" name="image" id="image" multiple>
+            <label for="image">
+                <span>Choose image(s) to upload</span>
+                <span>Browse</span>
+            </label>
+        </div>
+
+        <!-- //https://stackoverflow.com/questions/34313657/html-form-post-an-array-of-objects
+        //https://stackoverflow.com/questions/56908497/post-list-of-objects-from-html-axios-with-multipart-form-data-to-drf-multipart-p/57013811#57013811
+        //keep only up to 5 lang, for the time, hardcoded-> but will create the array
+        //for inputs empty will be kept empty, but stay as obj in array
+        //logic check will be needed whether the obj in array have value for proglang
+        //and only then, update that array? -->
+
+        <!-- //skills  -->
+        <div>
+            <% for(let i=0; i<5; i++) { %>
+                    <%=console.log(`skills No. = ${i}`)%>
+                    <div>
+                        <label for="proglang<%=i%>">Programming Language</label>
+                        <input type="text" id="proglang<%=i%>" name="profile[skills][<%=i%>][proglang]">
+                    </div>
+                    <div>
+                        <label for="experience<%=i%>">Experience in Years</label>
+                        <input type="number" id="experience<%=i%>" name="profile[skills][<%=i%>][experience]">
+                    </div>
+            <% } %>
+        </div>
+
+          <!-- //availability  -->
+         
+        <div>
+            <input type="radio" name="profile[availability]" id="availability-true" value="true" checked >
+            <label for="availability-true">Available</label>
+            <input type="radio" name="profile[availability]" id="availability-false" value="false">
+            <label for="availability-false">Not Available</label>
+        </div>
+
+        <!-- //offerings  -->
+        <div>
+            <% for(let i=0; i<5; i++) { %>
+
+                        <div>
+                            <label for="service<%=i%>">Add Service</label>
+                            <input type="text" id="service<%=i%>" name="profile[offerings][<%=i%>][service]">
+                        </div>
+                        <div>
+                            <label for="price<%=i%>">Add Price in USD/Hour</label>
+                            <input type="number" id="price<%=i%>"
+                                name="profile[offerings][<%=i%>][price]">
+                        </div>
+            <% } %>
+        </div>
+
+
+        <button>Create Profile</button>
+
+
+    </form>
+
+
+</body>
+
+</html>

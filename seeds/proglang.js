@@ -1,8 +1,19 @@
 //list of programming language dataset = 705 entities 
 
-
+//have top 10 most popular at nearer to have weighted languages set at seed database
 module.exports = [
-    "Others",
+    "JavaScript",
+    "Python",
+    "Java",
+    "TypeScript",
+    "C++",
+    "C#",
+    "PHP",
+    "C",
+    "Ruby",
+    "Kotlin",
+    "Swift (Apple programming language)",
+    "bash",
     "A# .NET",
     "A# (Axiom)",
     "A-0 System",
@@ -75,14 +86,12 @@ module.exports = [
     "Boo",
     "Boomerang",
     "Bourne shell",
-    "bash",
     "ksh",
     "BREW",
     "BPEL",
-    "C",
+
     "C--",
-    "C++",
-    "C#",
+
     "C/AL",
     "Caché ObjectScript",
     "C Shell",
@@ -298,8 +307,6 @@ module.exports = [
     "JAL",
     "Janus",
     "JASS",
-    "Java",
-    "JavaScript",
     "JCL",
     "JEAN",
     "Join Java",
@@ -320,7 +327,7 @@ module.exports = [
     "Kixtart",
     "KIF",
     "Kojo",
-    "Kotlin",
+
     "KRC",
     "KRL",
     "KUKA",
@@ -482,7 +489,7 @@ module.exports = [
     "PeopleCode",
     "Perl",
     "PDL",
-    "PHP",
+
     "Phrogram",
     "Pico",
     "Picolisp",
@@ -526,7 +533,7 @@ module.exports = [
     "ProvideX",
     "Pro*C",
     "Pure",
-    "Python",
+
     "Q (equational programming language)",
     "Q (programming language from Kx Systems)",
     "Qalb",
@@ -556,7 +563,7 @@ module.exports = [
     "RPL",
     "RSL",
     "RTL/2",
-    "Ruby",
+
     "RuneScript",
     "Rust",
     "S",
@@ -621,7 +628,7 @@ module.exports = [
     "Subtext",
     "SuperCollider",
     "SuperTalk",
-    "Swift (Apple programming language)",
+
     "Swift (parallel scripting language)",
     "SYMPL",
     "SyncCharts",
@@ -651,7 +658,7 @@ module.exports = [
     "Turing",
     "TUTOR",
     "TXL",
-    "TypeScript",
+
     "Turbo C++",
     "Ubercode",
     "UCSD Pascal",

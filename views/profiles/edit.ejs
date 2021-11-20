@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile</title>
+</head>
+
+<body>
+    <h1>Edit Profile</h1>
+    <h2><%=profile.account.fullname%></h2>
+    <!-- might want to confirm whether the profile.account property will stay valid -->
+    <form action="/profiles/<%= profile._id %>?_method=PATCH" method="POST">
+        <div>
+            <label for="introduction">Introduction</label>
+            <input type="text" id="introduction" name="profile[introduction]" value="<%= profile.introduction %>">
+        </div>
+        <div>
+            <label for="location">location</label>
+            <input type="text" id="location" name="profile[location]" value="<%= profile.location %>">
+        </div>
+
+        <!-- //image file(s) input -->
+        <div>
+            <input type="file" name="image" id="image" multiple>
+            <label for="image">
+                <span>Choose image(s) to upload</span>
+                <span>Browse</span>
+            </label>
+        </div>
+
+        <!-- //https://stackoverflow.com/questions/34313657/html-form-post-an-array-of-objects
+        //https://stackoverflow.com/questions/56908497/post-list-of-objects-from-html-axios-with-multipart-form-data-to-drf-multipart-p/57013811#57013811-->
+        <!-- //skills  -->
+        <div>
+            <% for(let i=0; i<profile.skills.length+2; i++) { %>
+
+                <% if( i < profile.skills.length ){ %>
+                    <div>
+                        <label for="proglang<%=i%>">Programming Language</label>
+                        <input type="text" id="proglang<%=i%>" name="profile[skills][<%=i%>][proglang]"
+                            value="<%= profile.skills[i].proglang %>">
+                    </div>
+                    <div>
+                        <label for="experience<%=i%>">Experience in Years</label>
+                        <input type="number" id="experience<%=i%>" name="profile[skills][<%=i%>][experience]"
+                            value="<%= profile.skills[i].experience %>">
+                    </div>
+                <% } else { %>
+                        <div>
+                            <label for="proglang<%=i%>">Add Programming Language</label>
+                            <input type="text" id="proglang<%=i%>" name="profile[skills][<%=i%>][proglang]">
+                        </div>
+                        <div>
+                            <label for="experience<%=i%>">Add Experience in Years</label>
+                            <input type="number" id="experience<%=i%>"
+                                name="profile[skills][<%=i%>][experience]">
+                        </div>
+                <% } %>
+            <% } %>
+        </div>
+
+          <!-- //availability  -->
+          <div>
+            <input type="radio" name="availability" id="availability-true" value="true" <%= (profile.availability?"checked":"") %>>
+            <label for="availability-true">Available</label>
+            <input type="radio" name="availability" id="availability-false" value="false" <%= (profile.availability?"":"checked") %>>
+            <label for="availability-false">Not Available</label>
+        </div>
+
+        <!-- //offerings  -->
+        <div>
+            <% for(let i=0; i<profile.offerings.length+2; i++) { %>
+                <% if( i < profile.offerings.length ){ %>
+                    <div>
+                        <label for="service<%=i%>">Service</label>
+                        <input type="text" id="service<%=i%>" name="profile[offerings][<%=i%>][service]"
+                            value="<%= profile.offerings[i].service %>">
+                        <!-- <button type="button" onclick="clearField('service ejs i ')">Clear</button> -->
+                    </div>
+                    <div>
+                        <label for="price<%=i%>">Price in USD/Hour</label>
+                        <input type="number" id="price<%=i%>" name="profile[offerings][<%=i%>][price]"
+                            value="<%= profile.offerings[i].price %>">
+                    </div>
+                <% } else { %>
+                        <div>
+                            <label for="service<%=i%>">Add Service</label>
+                            <input type="text" id="service<%=i%>" name="profile[offerings][<%=i%>][service]">
+                        </div>
+                        <div>
+                            <label for="price<%=i%>">Add Price in USD/Hour</label>
+                            <input type="number" id="price<%=i%>"
+                                name="profile[offerings][<%=i%>][price]">
+                        </div>
+                <% } %>
+            <% } %>
+        </div>
+
+        <button>Update Profile</button>
+
+    </form>
+    <form action="/profiles/<%=profile._id%>?_method=DELETE" method="POST">
+        <button>Delete Profile</button>
+    </form>
+    <a href="/profiles/<%= profile._id%>">Back To Profile</a>
+    <a href="/profiles">All Profiles Page</a>
+
+
+</body>
+
+</html>

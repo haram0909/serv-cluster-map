@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Profile</title>
+</head>
+<body>
+    <h1><%= profile.account.fullname %> </h1>
+    <h2><%= profile.location  %> </h2>
+    <h3>Introduction : </h3>
+    <p>
+        <%= profile.introduction  %> 
+    </p>
+    <div>
+        <%= profile.location  %>
+    </div>
+    <div>
+        <ol>
+        <% for(let i=0; i<profile.skills.length; i++) { %>
+                <div>
+                    <li>
+                    Programming Language: <%= profile.skills[i].proglang %>
+                    Experience in Years: <%= profile.skills[i].experience %>
+                    </li>
+                </div>
+            <% }%>
+        </ol>
+    </div>
+    <div>
+        <%= profile.availability  %>
+    </div>
+    <div>
+        <ol>
+        <% for(let i=0; i<profile.offerings.length; i++) { %>
+                <div>
+                    <li>
+                    Service: <%= profile.offerings[i].service %>
+                    Price in USD/Hour: <%= profile.offerings[i].price %>
+                    </li>
+                </div>
+            <% }%>
+            </ol>
+    </div>
+    <form action="/profiles/<%=profile._id%>?_method=DELETE" method="POST">
+        <button>Delete Profile</button>
+    </form>
+    <footer>
+        <a href="/profiles/<%=profile._id%>/edit">Edit Profile</a>
+        <a href="/profiles">All Profiles Page</a>
+    </footer>
+</body>
+</html>

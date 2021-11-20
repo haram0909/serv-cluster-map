@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profiles</title>
+</head>
+
+<body>
+    <h1>All Profiles</h1>
+    <ul>
+        <!--  for(let profile of profiles) { -->
+            <!--  for (let i=0; i< 50; i++) {
+                <li><a href="/profiles/profile._id">
+                        View  profile.account.alias
+                    </a></li>
+                <}  -->
+
+            <!-- //load only 50 for development -->
+        <% for (let i=0; i< 50; i++) {%>
+            <li><a href="/profiles/<%=profiles[i]._id%>">
+                    View <%= profiles[i].account.fullname %>
+                </a></li>
+            <% } %>
+    </ul>
+</body>
+
+</html>

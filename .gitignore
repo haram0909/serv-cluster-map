@@ -9,3 +9,6 @@ logs/
 *.xlsx
 #Ignore all log files
 *.log
+
+#Ignore todo list file
+ToDo.md
