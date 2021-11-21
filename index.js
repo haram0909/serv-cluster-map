@@ -70,6 +70,9 @@ app.get('/profiles', async (req, res) => {
 
 //should only be allowed when current account does NOT have profile
 app.get('/profiles/new', async (req, res) => {
+
+console.log(JSON.stringify(res.body));
+
     res.render('profiles/new.ejs');
 });
 
@@ -106,7 +109,7 @@ app.get('/profiles/:id/edit', async (req, res) => {
 app.patch('/profiles/:id', async (req, res) => {
     // console.log(`skills = ${req.body.profile.skills.filter(obj => (obj.proglang !== "" && obj.experience !== "" && obj.experience >= 0))}`);
     // console.log(`offerings = ${req.body.profile.offerings.filter(obj => (obj.service !== "" && obj.price !== "" && obj.price >= 0))}`);
-    // console.log(`req.body = ${JSON.stringify(req.body)}`);
+    //console.log(`req.body = ${JSON.stringify(req.body)}`);
 
     const { id } = req.params;
     //build up an obj with properties to update, based on form data
@@ -121,7 +124,8 @@ app.patch('/profiles/:id', async (req, res) => {
         skills: req.body.profile.skills.filter(obj => (obj.proglang !== "" && obj.experience !== "" && obj.experience >= 0)),
 
         //should be boolean
-        availability: req.body.availability,
+        availability: req.body.profile.availability,
+        //req.body.availability,
 
         //should be an array of objects
         //should flash messages for items that did not meet criteria or send back

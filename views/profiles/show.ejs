@@ -1,54 +1,99 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A Profile</title>
-</head>
-<body>
-    <h1><%= profile.account.fullname %> </h1>
-    <h2><%= profile.location  %> </h2>
-    <h3>Introduction : </h3>
-    <p>
-        <%= profile.introduction  %> 
-    </p>
-    <div>
-        <%= profile.location  %>
-    </div>
-    <div>
-        <ol>
-        <% for(let i=0; i<profile.skills.length; i++) { %>
-                <div>
-                    <li>
-                    Programming Language: <%= profile.skills[i].proglang %>
-                    Experience in Years: <%= profile.skills[i].experience %>
-                    </li>
+<% layout('layouts/boilerplate.ejs') %>
+
+    <div class="row">
+        <!-- left side -->
+        <div class="col-6">
+            
+            <!-- images Carousel -->
+            <div id="profileCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="false">
+                <div class="carousel-inner">
+                    <% profile.images.forEach((img, i)=> { %>
+                        <div class="carousel-item <%= i === 0 ? 'active' : ''%>">
+                            <img src="<%= img.url%>" class="d-block w-100"
+                                alt="An image uploaded by <%=profile.account.fullname%>">
+                        </div>
+                        <% }) %>
                 </div>
-            <% }%>
-        </ol>
-    </div>
-    <div>
-        <%= profile.availability  %>
-    </div>
-    <div>
-        <ol>
-        <% for(let i=0; i<profile.offerings.length; i++) { %>
-                <div>
-                    <li>
-                    Service: <%= profile.offerings[i].service %>
-                    Price in USD/Hour: <%= profile.offerings[i].price %>
-                    </li>
+                <% if(profile.images.length> 1) {%>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#profileCarousel"
+                        data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#profileCarousel"
+                        data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                    <% } %>
+            </div>
+
+            <!-- card contents -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <p class="<%= profile.availability ? "text-success" : "text-danger" %>" ><strong>
+                        <%= profile.availability ? "Available to Work" : "Currently Unavailable to Work" %>
+                    </strong>
+                    </p>
+                    <h2 class="card-title ">
+                        <%= profile.account.firstname + ', ' + profile.account.lastname.toUpperCase() %>
+                    </h2>
+                    <p class="card-text text-muted"><%= profile.location %></p>
+                    <p class="card-text">
+                        <%= profile.introduction%>
+                    </p>
                 </div>
-            <% }%>
-            </ol>
+
+                <!-- depending on styling preference, consider dropping list-group-flush class from ol tags -->
+                <div class="card-body">
+                    <h5 class="card-title">List of Expertise</h5>
+                    <ol class="list-group list-group-flush">
+                        <% for(let i=0; i<profile.skills.length; i++) { %>
+                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                                <div class="ms-2 me-auto">
+                                    <div class="fw-bold">
+                                        <%= profile.skills[i].proglang %>
+                                    </div>
+                                    <%= profile.skills[i].experience %> Years of Experience
+                                </div>
+                            </li>
+                            <% }%>
+                    </ol>
+                </div>
+
+                <div class="card-body">
+                    <h5 class="card-title">List of Offering Services</h5>
+                    <ol class="list-group list-group-numbered list-group-flush">
+                        <% for(let i=0; i<profile.offerings.length; i++) { %>
+                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                                <div class="ms-2 me-auto">
+                                    <div class="fw-bold">
+                                        <%= profile.offerings[i].service %>
+                                    </div>
+                                    $<%= profile.offerings[i].price %> (USD) / Hour
+                                </div>
+                            </li>
+                            <% }%>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <a class="card-link btn btn-outline-warning" href="/profiles/<%=profile._id%>/edit">Edit Profile</a>
+                <form class="d-inline" action="/profiles/<%=profile._id%>?_method=DELETE" method="POST">
+                    <button class="btn btn-outline-danger">Delete Profile</button>
+                </form>
+                <a class="card-link btn btn-success" href="/profiles/">All Profiles Page</a>
+            </div>
+
+        </div>
+
+         <!-- right side -->
+         <div class="col-6">
+            <div id='map' ></div>
+
+            <h2 class="text-center">Leave a Review</h2>
+            
+        </div>
+
     </div>
-    <form action="/profiles/<%=profile._id%>?_method=DELETE" method="POST">
-        <button>Delete Profile</button>
-    </form>
-    <footer>
-        <a href="/profiles/<%=profile._id%>/edit">Edit Profile</a>
-        <a href="/profiles">All Profiles Page</a>
-    </footer>
-</body>
-</html>

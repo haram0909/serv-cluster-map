@@ -1,114 +1,126 @@
-<!DOCTYPE html>
-<html lang="en">
+<% layout('layouts/boilerplate.ejs') %>
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Profile</title>
-</head>
-
-<body>
-    <h1>Edit Profile</h1>
-    <h2><%=profile.account.fullname%></h2>
-    <!-- might want to confirm whether the profile.account property will stay valid -->
-    <form action="/profiles/<%= profile._id %>?_method=PATCH" method="POST">
-        <div>
-            <label for="introduction">Introduction</label>
-            <input type="text" id="introduction" name="profile[introduction]" value="<%= profile.introduction %>">
+    <div class="row mb-3">
+        
+        <div class="col-8 offset-2 mb-2">
+            <h1 class="text-center">Edit Profile for <%=profile.account.fullname%></h1>  
         </div>
-        <div>
-            <label for="location">location</label>
-            <input type="text" id="location" name="profile[location]" value="<%= profile.location %>">
-        </div>
+        <div class="col-8 offset-2">
+            <!-- might want to confirm whether the profile.account property will stay valid -->
+            <form action="/profiles/<%= profile._id %>?_method=PATCH" method="POST">
+                <div class="mb-3">
+                    <label class="form-label" for="introduction">Introduction</label>
+                    <textarea class="form-control" type="text" id="introduction" name="profile[introduction]"
+                        aria-label="Introduction" aria-describedby="introduction"><%= profile.introduction %></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="location">location</label>
+                    <input class="form-control" type="text" id="location" name="profile[location]"
+                        value="<%= profile.location %>" aria-label="Location" aria-describedby="location">
+                </div>
 
-        <!-- //image file(s) input -->
-        <div>
-            <input type="file" name="image" id="image" multiple>
-            <label for="image">
-                <span>Choose image(s) to upload</span>
-                <span>Browse</span>
-            </label>
-        </div>
+                <!-- //image file(s) input -->
+                <div class="mb-3">
+                    <label class="form-label" for="image">
+                        <span id="image">Choose image(s) to upload</span>
+                    </label>
+                    <input class="form-control" type="file" name="image" id="image" multiple
+                        aria-label="Upload one or multiple images" aria-describedby="image">
+                </div>
 
-        <!-- //https://stackoverflow.com/questions/34313657/html-form-post-an-array-of-objects
+                <!-- //https://stackoverflow.com/questions/34313657/html-form-post-an-array-of-objects
         //https://stackoverflow.com/questions/56908497/post-list-of-objects-from-html-axios-with-multipart-form-data-to-drf-multipart-p/57013811#57013811-->
-        <!-- //skills  -->
-        <div>
-            <% for(let i=0; i<profile.skills.length+2; i++) { %>
 
-                <% if( i < profile.skills.length ){ %>
-                    <div>
-                        <label for="proglang<%=i%>">Programming Language</label>
-                        <input type="text" id="proglang<%=i%>" name="profile[skills][<%=i%>][proglang]"
-                            value="<%= profile.skills[i].proglang %>">
-                    </div>
-                    <div>
-                        <label for="experience<%=i%>">Experience in Years</label>
-                        <input type="number" id="experience<%=i%>" name="profile[skills][<%=i%>][experience]"
-                            value="<%= profile.skills[i].experience %>">
-                    </div>
-                <% } else { %>
-                        <div>
-                            <label for="proglang<%=i%>">Add Programming Language</label>
-                            <input type="text" id="proglang<%=i%>" name="profile[skills][<%=i%>][proglang]">
-                        </div>
-                        <div>
-                            <label for="experience<%=i%>">Add Experience in Years</label>
-                            <input type="number" id="experience<%=i%>"
-                                name="profile[skills][<%=i%>][experience]">
-                        </div>
-                <% } %>
-            <% } %>
+                <!-- //skills  -->
+                <div class="mb-3">
+                    <label class="form-label" for="image">
+                        <span id="image" aria-label="List of expertise">List of Expertise</span>
+                    </label>
+                    <% for(let i=0; i<profile.skills.length+2; i++) { %>
+                        <% if( i < profile.skills.length ){ %>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text" id="proglang<%=i%>">Expertise <%=i+1%></span>
+                                <input class="form-control" type="text" id="proglang<%=i%>"
+                                    name="profile[skills][<%=i%>][proglang]" value="<%= profile.skills[i].proglang %>"
+                                    aria-label="Expertise<%=i+1%>" aria-describedby="proglang<%=i%>">
+                                <span class="input-group-text" id="experience<%=i%>">Year(s) of Experience</span>
+                                <input class="form-control" type="number" id="experience<%=i%>"
+                                    name="profile[skills][<%=i%>][experience]" value="<%= profile.skills[i].experience %>" 
+                                    aria-label="Years of Experience for Expertise<%=i+1%>"
+                                    aria-describedby="experience<%=i%>">
+                            </div>
+                            <% } else { %>
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text" id="proglang<%=i%>">Add Expertise <%=i+1%></span>
+                                    <input class="form-control" type="text" id="proglang<%=i%>"
+                                        name="profile[skills][<%=i%>][proglang]" placeholder="Programming Language"
+                                        aria-label="Expertise<%=i+1%>" aria-describedby="proglang<%=i%>">
+                                    <span class="input-group-text" id="experience<%=i%>">Year(s) of Experience</span>
+                                    <input class="form-control" type="number" id="experience<%=i%>"
+                                        name="profile[skills][<%=i%>][experience]" placeholder="Experience in Years"
+                                        aria-label="Years of Experience for Expertise<%=i+1%>"
+                                        aria-describedby="experience<%=i%>">
+                                </div>
+                            <% } %>
+                        <% } %>
+                </div>
+
+                <!-- //availability  -->
+                <div class="btn-group mb-3" role="group"
+                    aria-label="Radio toggle button group for availability for work">
+                    <input class="btn-check" type="radio" name="profile[availability]" id="availability-true"
+                        value="true" checked aria-label="Availability true" <%=(profile.availability?"checked":"") %>>
+                    <label class="btn btn-outline-success" for="availability-true">Available for Work</label>
+                    <input class="btn-check" type="radio" name="profile[availability]" id="availability-false"
+                        value="false" aria-label="Availability false" <%=(profile.availability?"":"checked") %>>
+                    <label class="btn btn-outline-secondary" for="availability-false">Not Available</label>
+                </div>
+
+                <!-- //offerings  -->
+                <div class="mb-3">
+                    <label class="form-label" for="image">
+                        <span id="image" aria-label="List of offering services">List of Offering Services</span>
+                    </label>
+
+                    <% for(let i=0; i<profile.offerings.length+2; i++) { %>
+                        <% if( i < profile.offerings.length ){ %>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text" id="service<%=i%>">Service Item <%=i+1%></span>
+                                <input class="form-control" type="text" id="service<%=i%>"
+                                    name="profile[offerings][<%=i%>][service]"
+                                    value="<%= profile.offerings[i].service %>" aria-label="Add service item <%=i+1%>"
+                                    aria-describedby="service<%=i%>">
+                                <span class="input-group-text" id="price<%=i%>">$</span>
+                                <input class="form-control" type="number" id="price<%=i%>"
+                                    name="profile[offerings][<%=i%>][price]" value="<%= profile.offerings[i].price %>"
+                                    aria-label="Price in USD per hour for service item <%=i+1%>"
+                                    aria-describedby="price<%=i%>">
+                            </div>
+                            <% } else { %>
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text" id="service<%=i%>">Add Service Item <%=i+1%></span>
+                                    <input class="form-control" type="text" id="service<%=i%>"
+                                        name="profile[offerings][<%=i%>][service]" placeholder="Service Item"
+                                        aria-label="Add service item <%=i+1%>" aria-describedby="service<%=i%>">
+                                    <span class="input-group-text" id="price<%=i%>">$</span>
+                                    <input class="form-control" type="number" id="price<%=i%>"
+                                        name="profile[offerings][<%=i%>][price]" placeholder="Price in USD / Hour"
+                                        aria-label="Price in USD per hour for service item <%=i+1%>"
+                                        aria-describedby="price<%=i%>">
+                                </div>
+                            <% } %>
+                        <% } %>
+                </div>
+
+                <div>
+                    <button class="btn btn-outline-info col-lg-3">Update Profile</button>
+                </div>
+            </form>
+            <div class="my-2">
+            <a class="btn btn-outline-warning col-lg-3" href="/profiles/<%= profile._id%>">Cancel Update</a>
+            <form class="d-inline" action="/profiles/<%=profile._id%>?_method=DELETE" method="POST">
+                <button class="btn btn-outline-danger">Delete Profile</button>
+            </form>
+            </div>
         </div>
-
-          <!-- //availability  -->
-          <div>
-            <input type="radio" name="availability" id="availability-true" value="true" <%= (profile.availability?"checked":"") %>>
-            <label for="availability-true">Available</label>
-            <input type="radio" name="availability" id="availability-false" value="false" <%= (profile.availability?"":"checked") %>>
-            <label for="availability-false">Not Available</label>
-        </div>
-
-        <!-- //offerings  -->
-        <div>
-            <% for(let i=0; i<profile.offerings.length+2; i++) { %>
-                <% if( i < profile.offerings.length ){ %>
-                    <div>
-                        <label for="service<%=i%>">Service</label>
-                        <input type="text" id="service<%=i%>" name="profile[offerings][<%=i%>][service]"
-                            value="<%= profile.offerings[i].service %>">
-                        <!-- <button type="button" onclick="clearField('service ejs i ')">Clear</button> -->
-                    </div>
-                    <div>
-                        <label for="price<%=i%>">Price in USD/Hour</label>
-                        <input type="number" id="price<%=i%>" name="profile[offerings][<%=i%>][price]"
-                            value="<%= profile.offerings[i].price %>">
-                    </div>
-                <% } else { %>
-                        <div>
-                            <label for="service<%=i%>">Add Service</label>
-                            <input type="text" id="service<%=i%>" name="profile[offerings][<%=i%>][service]">
-                        </div>
-                        <div>
-                            <label for="price<%=i%>">Add Price in USD/Hour</label>
-                            <input type="number" id="price<%=i%>"
-                                name="profile[offerings][<%=i%>][price]">
-                        </div>
-                <% } %>
-            <% } %>
-        </div>
-
-        <button>Update Profile</button>
-
-    </form>
-    <form action="/profiles/<%=profile._id%>?_method=DELETE" method="POST">
-        <button>Delete Profile</button>
-    </form>
-    <a href="/profiles/<%= profile._id%>">Back To Profile</a>
-    <a href="/profiles">All Profiles Page</a>
-
-
-</body>
-
-</html>
+    </div>
