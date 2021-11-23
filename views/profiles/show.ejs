@@ -1,6 +1,6 @@
 <% layout('layouts/boilerplate.ejs') %>
 
-    <div class="row">
+    <div class="row my-3">
         <!-- left side -->
         <div class="col-6">
             
@@ -29,7 +29,7 @@
             </div>
 
             <!-- card contents -->
-            <div class="card mb-3">
+            <div class="card mb-3 shadow">
                 <div class="card-body">
                     <p class="<%= profile.availability ? "text-success" : "text-danger" %>" ><strong>
                         <%= profile.availability ? "Available to Work" : "Currently Unavailable to Work" %>
@@ -78,12 +78,13 @@
                 </div>
             </div>
 
-            <div class="mb-3">
-                <a class="card-link btn btn-outline-warning" href="/profiles/<%=profile._id%>/edit">Edit Profile</a>
+            <div class="">
+                <a class="card-link btn btn-outline-warning mb-3" href="/profiles/<%=profile._id%>/edit">Edit Profile</a>
                 <form class="d-inline" action="/profiles/<%=profile._id%>?_method=DELETE" method="POST">
-                    <button class="btn btn-outline-danger">Delete Profile</button>
+                    <input type="hidden" id="accountId" name="accountId" value="<%=profile.account._id%>">
+                    <button class="btn btn-outline-danger mb-3">Delete Profile</button>
                 </form>
-                <a class="card-link btn btn-success" href="/profiles/">All Profiles Page</a>
+                <a class="card-link btn btn-success mb-3" href="/profiles/">All Profiles Page</a>
             </div>
 
         </div>

@@ -1,0 +1,52 @@
+<% layout('layouts/boilerplate.ejs') %>
+
+    <div class="justify-content-center align-items-center mt-5 mb-5">
+
+        <div class="card shadow">
+
+
+
+
+            <div class="card-body">
+                <form action="/account/<%=account._id%>?_method=PATCH" method="POST">
+                    <h1 class="text-center"><strong>Update My Account</strong></h1>
+
+                    <!-- email -->
+                    <div class="mb-3">
+                        <label class="form-label" for="email">Email</label>
+                        <input class="form-control" type="text" id="email" name="account[email]"
+                            value="<%= account.email %>" aria-label="Email" aria-describedby="email">
+                    </div>
+                    <!-- first and last name -->
+                    <div class="row g-3 mb-3">
+                        <div class="col">
+                            <label class="form-label" for="firstname">First Name</label>
+                            <input type="text" class="form-control" id="firstname" name="account[firstname]"
+                                value="<%= account.firstname %>" aria-label="First name">
+                        </div>
+                        <div class="col">
+                            <label class="form-label" for="lastname">Last Name</label>
+                            <input type="text" class="form-control" id="lastname" name="account[lastname]"
+                                value="<%= account.lastname %>" aria-label="Last name">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <button class="btn btn-outline-warning col-4">Update My Account Info</button>
+
+                    </div>
+                </form>
+
+                <div>
+                    <% if(haveProfile !==null) {%>
+                        <form class="d-inline" action="/account/<%=account._id%>?_method=DELETE" method="POST">
+                            <input type="hidden" id="profileId" name="profileId" value="<%=account.profile._id%>">
+                            <button class="btn btn-outline-danger">Delete Account</button>
+                            <a class="text-muted" href="/account/<%=account._id%>"> &larr; Back to My Account Info</a>
+                        </form>
+                        <% } %>
+                </div>
+
+            </div>
+        </div>
+    </div>

@@ -119,6 +119,7 @@
             <div class="my-2">
             <a class="btn btn-outline-warning col-lg-3" href="/profiles/<%= profile._id%>">Cancel Update</a>
             <form class="d-inline" action="/profiles/<%=profile._id%>?_method=DELETE" method="POST">
+                <input type="hidden" id="accountId" name="accountId" value="<%=profile.account._id%>">
                 <button class="btn btn-outline-danger">Delete Profile</button>
             </form>
             </div>

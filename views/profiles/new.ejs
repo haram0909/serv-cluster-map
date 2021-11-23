@@ -3,9 +3,10 @@
 
 
     <div class="row mb-3">
-        <h1 class="text-center">My Profile</h1>
+        <h1 class="text-center">Create My Profile</h1>
         <div class="col-8 offset-2">
             <form action="/profiles" method="POST">
+                <input type="hidden" id="accountId" name="accountId" value="<%=accountId%>">
                 <div class="mb-3" >
                     <label class="form-label" for="introduction">Introduction</label>
                     <textarea class="form-control" type="text" id="introduction" name="profile[introduction]" aria-label="Introduction" aria-describedby="introduction"></textarea>
@@ -74,7 +75,7 @@
 
                <div>
                     <button class="btn btn-outline-info col-lg-3">Create Profile</button>
-                    <a class="btn btn-outline-danger" href="/profiles">Cancel</a>
+                    <a class="btn btn-outline-danger" href="/account/<%=accountId%>/">Cancel</a>
                 </div>
             </form>
             

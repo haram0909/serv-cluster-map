@@ -16,6 +16,15 @@ const ProfileSchema = new Schema({
     introduction: String,
     images: [ImageSchema],
     location: String,
+        //if can opt out of providing location, 
+        //geometry should also be allowed to be null
+            //else, both should be required 
+                //and geometry should handle 
+                // cases where fails to forward geocode
+    // {
+    //     type: String,
+    //     required: [true, 'location is required']
+    // },
     geometry: {
         type: {
             type: String,

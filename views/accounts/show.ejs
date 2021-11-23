@@ -1,0 +1,62 @@
+<% layout('layouts/boilerplate.ejs') %>
+
+    <div class="justify-content-center align-items-center mt-5 mb-5">
+
+        <div class="card shadow">
+            <div class="card-body">
+                <h1 class="text-center"><strong>My Account Info</strong></h1>
+
+                <!-- email -->
+                <div class="mb-3">
+                    <label class="form-label" for="email">Email</label>
+                    <input class="form-control" type="text" id="email" 
+                        value="<%= account.email %>" aria-label="Email" aria-describedby="email" disabled>
+                </div>
+                <!-- first and last name -->
+                <div class="row g-3 mb-3">
+                    <div class="col">
+                        <label class="form-label" for="firstname">First Name</label>
+                        <input type="text" class="form-control" id="firstname" 
+                        value="<%= account.firstname %>" aria-label="First name" disabled>
+                    </div>
+                    <div class="col">
+                        <label class="form-label" for="lastname">Last Name</label>
+                        <input type="text" class="form-control" id="lastname" 
+                        value="<%= account.lastname %>" aria-label="Last name" disabled>
+                    </div>
+                </div>
+                <% if(haveProfile==null) {%>
+                    <div class="mb-3">
+
+<!-- has to GET a form for new profile & connect object id back to account...  -->
+                 
+                        <span class="text"> Seems like you do not yet have an account ...
+                            <a class="btn btn-outline-success col-12" href="/account/<%=account._id%>/profile/new"> Let's Make a Profile!</a>
+                            </span>
+                        </div>
+                <% }else{ %>
+                        <div class="mb-3">
+                            <a class="btn btn-outline-info col-12" href="/profiles/<%=account.profile._id%>">View My profile</a>
+                        </div>
+                <% } %>
+                            <div class="mb-3">
+                                <a class="btn btn-outline-info" href="/account/<%=account._id%>/edit">Edit My Account Info</a>
+                                
+                <% if(haveProfile !== null) {%>
+                                <form class="d-inline" action="/account/<%=account._id%>?_method=DELETE" method="POST">
+                                    
+                                    <input type="hidden" id="profileId" name="profileId" value="<%=account.profile._id%>">
+                                    
+                                    <button class="btn btn-outline-danger">Delete Account</button>
+                                </form>
+                <% } %> 
+                            </div>
+
+                            <div>
+                                <a class="text-muted" href="/profiles"> &larr; Back to All Experts Cluster Map</a>
+                            </div>
+                            
+
+            </div>
+        </div>
+    </div>

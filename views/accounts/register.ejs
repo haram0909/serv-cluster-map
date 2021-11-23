@@ -1,0 +1,52 @@
+<% layout('layouts/boilerplate.ejs') %>
+
+    <div class="row my-5">
+        
+        <div class="col-8 offset-2">
+            <h1 class="text-center"><strong>Experts all around the world<br> are just a register away!</strong></h1>
+            
+            <form action="/account/register" method="POST">
+                <div class="row g-3 mt-3">
+                    <!-- username -->
+                    <div class="col mb-3">
+                        <label class="form-label" for="username">Username</label>
+                        <input class="form-control" type="text" id="username" name="account[username]"
+                            placeholder="Choose ID" aria-label="Username" aria-describedby="username">
+                    </div>
+                    <!-- password -->
+                    <div class="col mb-3">
+                        <label class="form-label" for="password">Password</label>
+                        <input class="form-control" type="password" id="password" name="account[password]"
+                            placeholder="Choose Password" aria-label="Password" aria-describedby="password">
+                    </div>
+                </div>
+                <!-- email -->
+                <div class="mb-3">
+                    <label class="form-label" for="email">Email</label>
+                    <input class="form-control" type="text" id="email" name="account[email]" placeholder="sample@email.com" aria-label="Email"
+                        aria-describedby="email">
+                </div>
+                <!-- first and last name -->
+                <div class="row g-3 mb-3">
+                    <div class="col">
+                        <label class="form-label" for="firstname">First Name</label>
+                        <input type="text" class="form-control" id="firstname" name="account[firstname]"
+                            placeholder="First name" aria-label="First name">
+                    </div>
+                    <div class="col">
+                        <label class="form-label" for="lastname">Last Name</label>
+                        <input type="text" class="form-control" id="lastname" name="account[lastname]"
+                            placeholder="Last name" aria-label="Last name">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <button class="btn btn-outline-success col-12">Create an Account</button>
+                </div>
+                <div>
+                    <span class="text"> Already have an account? <a href="/account/login">Login</a> /
+                        <a class="text-muted" href="/profiles"> Back to All Experts Cluster Map</a>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
