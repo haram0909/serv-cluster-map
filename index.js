@@ -17,6 +17,10 @@ const Profile = require('./models/profile.js');
 const Account = require('./models/account.js');
 const Review = require('./models/review.js');
 
+//utils
+const catchAsync = require('./utils/catchAsync.js');
+const ExpressError = require('./utils/ExpressError.js');
+
 
 
 
@@ -61,25 +65,26 @@ app.get('/', (req, res) => {
     res.render('home.ejs');
 });
 
-app.get('/profiles', async (req, res) => {
+//might want pagination here, instead of full load all....
+app.get('/profiles', catchAsync(async (req, res) => {
     const profiles = await Profile.find({}).populate('account');
     res.render('profiles/index.ejs', { profiles });
-});
+}));
 
 
 
-app.get('/profiles/:id', async (req, res) => {
+app.get('/profiles/:id', catchAsync(async (req, res) => {
     const profile = await Profile.findById(req.params.id).populate('account');
     res.render('profiles/show.ejs', { profile });
-});
+}));
 
-app.get('/profiles/:id/edit', async (req, res) => {
+app.get('/profiles/:id/edit', catchAsync(async (req, res) => {
     const profile = await Profile.findById(req.params.id).populate('account');
     res.render('profiles/edit.ejs', { profile });
-});
+}));
 
 
-app.patch('/profiles/:id', async (req, res) => {
+app.patch('/profiles/:id', catchAsync(async (req, res) => {
     // console.log(`skills = ${req.body.profile.skills.filter(obj => (obj.proglang !== "" && obj.experience !== "" && obj.experience >= 0))}`);
     // console.log(`offerings = ${req.body.profile.offerings.filter(obj => (obj.service !== "" && obj.price !== "" && obj.price >= 0))}`);
     //console.log(`req.body = ${JSON.stringify(req.body)}`);
@@ -121,10 +126,10 @@ app.patch('/profiles/:id', async (req, res) => {
 
 
     res.redirect(`/profiles/${profile._id}`);
-});
+}));
 
 
-app.delete('/profiles/:id', async (req, res) => {
+app.delete('/profiles/:id', catchAsync(async (req, res) => {
     const { id } = req.params;
     const profileToDelete = await Profile.findById(id);
     await Review.deleteMany({ _id: { $in: profileToDelete.reviews } });
@@ -135,7 +140,7 @@ app.delete('/profiles/:id', async (req, res) => {
     //set the profile linked account's profile property to null -> allow the account to create new profile
     await Account.findByIdAndUpdate(req.body.accountId, { profile: null });
     res.redirect('/profiles');
-})
+}));
 
 
 
@@ -143,30 +148,30 @@ app.delete('/profiles/:id', async (req, res) => {
 
 app.get('/account/login', async (req, res) => {
     res.render('accounts/login.ejs');
-})
+});
 
 // will have to implement authtentication logic below
 app.post('/account/login', async (req, res) => {
     console.log('successfully logged in!');
     res.redirect('/profiles');
-})
+});
 
 app.get('/account/register', async (req, res) => {
     res.render('accounts/register.ejs');
-})
+});
 
-app.post('/account/register', async (req, res) => {
+app.post('/account/register', catchAsync(async (req, res) => {
     // console.log(req.body);
     // console.log(`new account = ${JSON.stringify(req.body.account)}`);
     const account = new Account(req.body.account);
     await account.save();
     res.redirect(`/account/${account._id}`);
-});
+}));
 
 
 //my account info - first name, last name, email account
 // will eventually have to update navbar to enable this
-app.get('/account/:id', async (req, res) => {
+app.get('/account/:id', async catchAsync((req, res) => {
     const account = await Account.findById(req.params.id).populate('profile');
 
     //an account may only have 1 profile = this will check whether the account has a valid profile
@@ -176,19 +181,19 @@ app.get('/account/:id', async (req, res) => {
     // console.log(`Have a profile = ${haveProfile}`);
 
     res.render('accounts/show.ejs', { account, haveProfile });
-})
+}));
 
 //edit account - first name, last name, email account
-app.get('/account/:id/edit', async (req, res) => {
+app.get('/account/:id/edit', catchAsync(async (req, res) => {
     const account = await Account.findById(req.params.id);
     const haveProfile = account.profile ? true : await Profile.findById(account.profile);
     // console.log(`Have a profile = ${haveProfile}`);
 
     res.render('accounts/edit.ejs', { account, haveProfile });
-})
+}));
 
 //updates account info
-app.patch('/account/:id', async (req, res) => {
+app.patch('/account/:id', catchAsync(async (req, res) => {
     // console.log(`req.body = ${JSON.stringify(req.body)}`);
     const { id } = req.params;
     const updateProfile = {
@@ -199,7 +204,7 @@ app.patch('/account/:id', async (req, res) => {
     const account = await Account.findByIdAndUpdate(id, { $set: updateProfile }, { new: true });
     // console.log(`Updated account = ${account}`);
     res.redirect(`/account/${account._id}`);
-})
+}));
 
 
 //$$$$$$!!!!!!! All profile routes need authorization check before any edit ability
@@ -219,7 +224,7 @@ app.get('/account/:id/profile/new', async (req, res) => {
 //    &&&& there is no 2way referencing established before redirection
 //need to have availability path
 //need to have geometry.type path, etc
-app.post('/profiles', async (req, res) => {
+app.post('/profiles', catchAsync(async (req, res) => {
     //the created profile will have to be added to the account
     // const profile = await Profile.findById(req.params.id).populate('account');
     // console.log(req.body);
@@ -256,9 +261,9 @@ app.post('/profiles', async (req, res) => {
 
     //https://stackoverflow.com/questions/38011068/how-to-remove-object-taking-into-account-references-in-mongoose-node-js
     res.redirect(`/profiles/${profile._id}`);
-});
+}));
 
-app.delete('/account/:id', async (req, res) => {
+app.delete('/account/:id', catchAsync(async (req, res) => {
 
     const profileToDelete = await Profile.findById(req.body.profileId);
     await Review.deleteMany({ _id: { $in: profileToDelete.reviews } });
@@ -267,7 +272,7 @@ app.delete('/account/:id', async (req, res) => {
 
     res.redirect(`/profiles`);
 
-});
+}));
 
 
 
@@ -279,19 +284,20 @@ app.delete('/account/:id', async (req, res) => {
 app.get('/error', (req, res) => {
     throw new Error("Artifially created error on path /error");
 
-})
+});
 
 //404 route
-app.use((req, res) => {
-    res.status(404).send('There seems to be nothing here! 404 NOT FOUND');
-})
+app.all('*', (req, res, next) => {
+    //throw new ExpressError(404, 'Oh no, 404! There seems to be nothing here');
+    next(new ExpressError(404, 'Oh no, 404! There seems to be nothing here'));
+});
 
 //500s route error handling middleware
 app.use((err, req, res, next) => {
     const { statusCode = 500 } = err;
-    if (!err.message) err.message = "Oh no! Something went wrong! A Server-side Error occured!"
-    // res.status(statusCode).render('error', { err });
-    res.status(statusCode).send(err.message);
+    if (!err.message) err.message = "Oh no! Something went wrong!"
+    res.status(statusCode).render('error.ejs', { err });
+    // res.status(statusCode).send(err.message);
     //all errors have name in express ex) err.name
     //possible to rely on default express error handler by simply passing next(err);
 
@@ -305,7 +311,7 @@ app.use((err, req, res, next) => {
     //return next() or return next(err) to stop the execution of the rest of the code
 
     //having res.send will send response to the request, thus that req's cycle will come to an end. 
-})
+});
 
 
 const port = process.env.PORT || 3000;
