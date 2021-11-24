@@ -1,42 +1,57 @@
 <% layout('layouts/boilerplate.ejs') %>
 
     <div class="row my-5">
-        
+
         <div class="col-8 offset-2">
             <h1 class="text-center"><strong>Experts all around the world<br> are just a register away!</strong></h1>
-            
-            <form action="/account/register" method="POST">
+
+            <form action="/account/register" method="POST" novalidate class="needs-validation">
                 <div class="row g-3 mt-3">
                     <!-- username -->
-                    <div class="col mb-3">
+                    <div class="col mb-3 form-group validate-me">
                         <label class="form-label" for="username">Username</label>
                         <input class="form-control" type="text" id="username" name="account[username]"
-                            placeholder="Choose ID" aria-label="Username" aria-describedby="username">
+                            placeholder="Choose ID" aria-label="Username" aria-describedby="username" required>
+                        <div class="valid-feedback">
+                            Looks good!
+                        </div>
                     </div>
                     <!-- password -->
-                    <div class="col mb-3">
+                    <div class="col mb-3 form-group validate-me">
                         <label class="form-label" for="password">Password</label>
                         <input class="form-control" type="password" id="password" name="account[password]"
-                            placeholder="Choose Password" aria-label="Password" aria-describedby="password">
+                            placeholder="Choose Password" aria-label="Password" aria-describedby="password" required>
+                        <div class="valid-feedback">
+                            Looks good!
+                        </div>
                     </div>
                 </div>
                 <!-- email -->
-                <div class="mb-3">
+                <div class="mb-3 form-group validate-me">
                     <label class="form-label" for="email">Email</label>
-                    <input class="form-control" type="text" id="email" name="account[email]" placeholder="sample@email.com" aria-label="Email"
-                        aria-describedby="email">
+                    <input class="form-control" type="text" id="email" name="account[email]"
+                        placeholder="sample@email.com" aria-label="Email" aria-describedby="email" required>
+                    <div class="valid-feedback">
+                        Looks good!
+                    </div>
                 </div>
                 <!-- first and last name -->
-                <div class="row g-3 mb-3">
+                <div class="row g-3 mb-3 form-group validate-me">
                     <div class="col">
                         <label class="form-label" for="firstname">First Name</label>
                         <input type="text" class="form-control" id="firstname" name="account[firstname]"
-                            placeholder="First name" aria-label="First name">
+                            placeholder="First name" aria-label="First name" required>
+                        <div class="valid-feedback">
+                            Looks good!
+                        </div>
                     </div>
                     <div class="col">
                         <label class="form-label" for="lastname">Last Name</label>
                         <input type="text" class="form-control" id="lastname" name="account[lastname]"
-                            placeholder="Last name" aria-label="Last name">
+                            placeholder="Last name" aria-label="Last name" required>
+                        <div class="valid-feedback">
+                            Looks good!
+                        </div>
                     </div>
                 </div>
                 <div class="mb-3">

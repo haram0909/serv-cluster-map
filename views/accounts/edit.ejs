@@ -8,26 +8,36 @@
 
 
             <div class="card-body">
-                <form action="/account/<%=account._id%>?_method=PATCH" method="POST">
+                <form action="/account/<%=account._id%>?_method=PATCH" method="POST" novalidate
+                    class="needs-validation">
                     <h1 class="text-center"><strong>Update My Account</strong></h1>
 
                     <!-- email -->
-                    <div class="mb-3">
+                    <div class="mb-3 form-group validate-me">
                         <label class="form-label" for="email">Email</label>
                         <input class="form-control" type="text" id="email" name="account[email]"
-                            value="<%= account.email %>" aria-label="Email" aria-describedby="email">
+                            value="<%= account.email %>" aria-label="Email" aria-describedby="email" required>
+                        <div class="valid-feedback">
+                            Looks good!
+                        </div>
                     </div>
                     <!-- first and last name -->
-                    <div class="row g-3 mb-3">
+                    <div class="row g-3 mb-3 form-group validate-me">
                         <div class="col">
                             <label class="form-label" for="firstname">First Name</label>
                             <input type="text" class="form-control" id="firstname" name="account[firstname]"
-                                value="<%= account.firstname %>" aria-label="First name">
+                                value="<%= account.firstname %>" aria-label="First name" required>
+                            <div class="valid-feedback">
+                                Looks good!
+                            </div>
                         </div>
                         <div class="col">
                             <label class="form-label" for="lastname">Last Name</label>
                             <input type="text" class="form-control" id="lastname" name="account[lastname]"
-                                value="<%= account.lastname %>" aria-label="Last name">
+                                value="<%= account.lastname %>" aria-label="Last name" required>
+                            <div class="valid-feedback">
+                                Looks good!
+                            </div>
                         </div>
                     </div>
 

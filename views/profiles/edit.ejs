@@ -1,22 +1,25 @@
 <% layout('layouts/boilerplate.ejs') %>
 
     <div class="row mb-3">
-        
+
         <div class="col-8 offset-2 mb-2">
-            <h1 class="text-center">Edit Profile for <%=profile.account.fullname%></h1>  
+            <h1 class="text-center">Edit Profile for <%=profile.account.fullname%>
+            </h1>
         </div>
         <div class="col-8 offset-2">
-            <!-- might want to confirm whether the profile.account property will stay valid -->
-            <form action="/profiles/<%= profile._id %>?_method=PATCH" method="POST">
-                <div class="mb-3">
+            <form action="/profiles/<%= profile._id %>?_method=PATCH" method="POST" novalidate class="needs-validation">
+                <div class="mb-3 form-group validate-me">
                     <label class="form-label" for="introduction">Introduction</label>
                     <textarea class="form-control" type="text" id="introduction" name="profile[introduction]"
                         aria-label="Introduction" aria-describedby="introduction"><%= profile.introduction %></textarea>
                 </div>
-                <div class="mb-3">
+                <div class="mb-3 form-group validate-me">
                     <label class="form-label" for="location">location</label>
                     <input class="form-control" type="text" id="location" name="profile[location]"
-                        value="<%= profile.location %>" aria-label="Location" aria-describedby="location">
+                        value="<%= profile.location %>" aria-label="Location" aria-describedby="location" required>
+                    <div class="valid-feedback">
+                        Looks good!
+                    </div>
                 </div>
 
                 <!-- //image file(s) input -->
@@ -33,8 +36,8 @@
 
                 <!-- //skills  -->
                 <div class="mb-3">
-                    <label class="form-label" for="image">
-                        <span id="image" aria-label="List of expertise">List of Expertise</span>
+                    <label class="form-label" for="expertise">
+                        <span id="expertise" aria-label="List of expertise">List of Expertise</span>
                     </label>
                     <% for(let i=0; i<profile.skills.length+2; i++) { %>
                         <% if( i < profile.skills.length ){ %>
@@ -45,7 +48,8 @@
                                     aria-label="Expertise<%=i+1%>" aria-describedby="proglang<%=i%>">
                                 <span class="input-group-text" id="experience<%=i%>">Year(s) of Experience</span>
                                 <input class="form-control" type="number" id="experience<%=i%>"
-                                    name="profile[skills][<%=i%>][experience]" value="<%= profile.skills[i].experience %>" 
+                                    name="profile[skills][<%=i%>][experience]"
+                                    value="<%= profile.skills[i].experience %>"
                                     aria-label="Years of Experience for Expertise<%=i+1%>"
                                     aria-describedby="experience<%=i%>">
                             </div>
@@ -61,8 +65,8 @@
                                         aria-label="Years of Experience for Expertise<%=i+1%>"
                                         aria-describedby="experience<%=i%>">
                                 </div>
-                            <% } %>
-                        <% } %>
+                                <% } %>
+                                    <% } %>
                 </div>
 
                 <!-- //availability  -->
@@ -78,8 +82,8 @@
 
                 <!-- //offerings  -->
                 <div class="mb-3">
-                    <label class="form-label" for="image">
-                        <span id="image" aria-label="List of offering services">List of Offering Services</span>
+                    <label class="form-label" for="offerings">
+                        <span id="offerings" aria-label="List of offering services">List of Offering Services</span>
                     </label>
 
                     <% for(let i=0; i<profile.offerings.length+2; i++) { %>
@@ -108,8 +112,8 @@
                                         aria-label="Price in USD per hour for service item <%=i+1%>"
                                         aria-describedby="price<%=i%>">
                                 </div>
-                            <% } %>
-                        <% } %>
+                                <% } %>
+                                    <% } %>
                 </div>
 
                 <div>
@@ -117,11 +121,11 @@
                 </div>
             </form>
             <div class="my-2">
-            <a class="btn btn-outline-warning col-lg-3" href="/profiles/<%= profile._id%>">Cancel Update</a>
-            <form class="d-inline" action="/profiles/<%=profile._id%>?_method=DELETE" method="POST">
-                <input type="hidden" id="accountId" name="accountId" value="<%=profile.account._id%>">
-                <button class="btn btn-outline-danger">Delete Profile</button>
-            </form>
+                <a class="btn btn-outline-warning col-lg-3" href="/profiles/<%= profile._id%>">Cancel Update</a>
+                <form class="d-inline" action="/profiles/<%=profile._id%>?_method=DELETE" method="POST">
+                    <input type="hidden" id="accountId" name="accountId" value="<%=profile.account._id%>">
+                    <button class="btn btn-outline-danger">Delete Profile</button>
+                </form>
             </div>
         </div>
     </div>
