@@ -171,7 +171,7 @@ app.post('/account/register', catchAsync(async (req, res) => {
 
 //my account info - first name, last name, email account
 // will eventually have to update navbar to enable this
-app.get('/account/:id', async catchAsync((req, res) => {
+app.get('/account/:id', catchAsync(async (req, res) => {
     const account = await Account.findById(req.params.id).populate('profile');
 
     //an account may only have 1 profile = this will check whether the account has a valid profile
