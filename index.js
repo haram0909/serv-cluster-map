@@ -7,6 +7,7 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 const ejsMate = require('ejs-mate');
+const { joiProfileSchema, joiAccountSchema } = require('./utils/validationSchemas.js');
 const methodOverride = require('method-override');
 
 //dev dependencies
@@ -42,6 +43,15 @@ app.engine('ejs', ejsMate);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+//https://stackoverflow.com/questions/23259168/what-are-express-json-and-express-urlencoded
+//https://newbedev.com/what-is-the-mean-of-bodyparser-urlencoded-extended-true-and-bodyparser-json-in-nodejs
+//need to use both .json() and .urlencoded({extended: true}) to handle both form data and JSON API requests 
+//express.json() = for requests where header has Content-Type: application/json
+//              --> convert text-based JSON into javascript-accessible variables under req.body 
+//express.urlencoded({extended: true}) = for  urlencoded requets
+//              --> convert urlencoded requests into javascript-accessible variables under req.body
+// {extended: true} option -> option to allow converted req.body object to have values of any types instead of just strings 
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -57,6 +67,46 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms'))
 // npm i express-paginate
 // https://www.npmjs.com/package/express-paginate
 
+
+
+//middleware function
+const validateProfile = (req, res, next) => {
+
+    // requires allowUnknown: false option at validate, bc images of "" is type unknown...
+    const validationResult = joiProfileSchema.validate(req.body, { abortEarly: false, allowUnknown: true });
+
+    console.log('original req.body = ' + JSON.stringify(req.body));
+    console.log('validation result = ' + JSON.stringify(validationResult))
+    console.log('cleaned req.body = ' + JSON.stringify(validationResult.value));
+
+    if (validationResult.error) {
+        const errMsg = validationResult.error.details.map(item => item.message).join(',');
+        //throw new ExpressError(400, errMsg);
+        next(new ExpressError(400, errMsg));
+    } else {
+        res.locals.profile = validationResult.value.profile;
+        next();
+    }
+}
+
+const validateAccount = (req, res, next) => {
+
+    // requires allowUnknown: false option at validate, bc images of "" is type unknown...
+    const validationResult = joiAccountSchema.validate(req.body, { abortEarly: false, allowUnknown: true });
+
+    console.log('original req.body = ' + JSON.stringify(req.body));
+    console.log('validation result = ' + JSON.stringify(validationResult))
+    console.log('cleaned req.body = ' + JSON.stringify(validationResult.value));
+
+    if (validationResult.error) {
+        const errMsg = validationResult.error.details.map(item => item.message).join(',');
+        //throw new ExpressError(400, errMsg);
+        next(new ExpressError(400, errMsg));
+    } else {
+        res.locals.account = validationResult.value.account;
+        next();
+    }
+}
 
 
 
@@ -84,32 +134,18 @@ app.get('/profiles/:id/edit', catchAsync(async (req, res) => {
 }));
 
 
-app.patch('/profiles/:id', catchAsync(async (req, res) => {
+app.patch('/profiles/:id', validateProfile, catchAsync(async (req, res) => {
     // console.log(`skills = ${req.body.profile.skills.filter(obj => (obj.proglang !== "" && obj.experience !== "" && obj.experience >= 0))}`);
     // console.log(`offerings = ${req.body.profile.offerings.filter(obj => (obj.service !== "" && obj.price !== "" && obj.price >= 0))}`);
     //console.log(`req.body = ${JSON.stringify(req.body)}`);
 
     const { id } = req.params;
-    const updateProfile = {
-        introduction: req.body.profile.introduction,
-        location: req.body.profile.location,
-        //should be an array of objects
-        //should flash messages for items that did not meet criteria or send back
-        //instead of filtering out in the back without explanation
-        skills: req.body.profile.skills.filter(obj => (obj.proglang !== "" && obj.experience !== "" && obj.experience >= 0)),
+    console.log('req.body = ');
+    console.log(req.body);
+    console.log('res.locals.profile = ')
+    console.log(JSON.stringify(res.locals.profile));
 
-        //should be boolean
-        availability: req.body.profile.availability,
-
-        //should be an array of objects
-        //should flash messages for items that did not meet criteria or send back
-        //instead of filtering on behald in the back without explanation
-        offerings: req.body.profile.offerings.filter(obj => (obj.service !== "" && obj.price !== "" && obj.price >= 0)),
-    };
-
-    console.log('type of availability of patch = ');
-    console.log(typeof updateProfile.availability);
-    const profile = await Profile.findByIdAndUpdate(id, { $set: updateProfile }, { upsert: true, new: true });
+    const profile = await Profile.findByIdAndUpdate(id, { $set: res.locals.profile }, { upsert: true, new: true });
     console.log(`Updated profile = ${profile}`);
     //need current session's account 
     //curr account.profile = profile._id; ** just like seeding
@@ -132,8 +168,19 @@ app.patch('/profiles/:id', catchAsync(async (req, res) => {
 app.delete('/profiles/:id', catchAsync(async (req, res) => {
     const { id } = req.params;
     const profileToDelete = await Profile.findById(id);
-    await Review.deleteMany({ _id: { $in: profileToDelete.reviews } });
-    // console.log(`Profile to be deleted = ${JSON.stringify(profileToDelete)}`);
+
+    console.log(`Profile to be deleted = ${JSON.stringify(profileToDelete)}`);
+    if (profileToDelete === null) {
+        throw new ExpressError(400, 'This is NOT a valid profile');   
+    }
+
+    if (profileToDelete.reviews.length > 0) {
+        console.log('Deleting linked reviews');
+        await Review.deleteMany({ _id: { $in: profileToDelete.reviews } });
+    }
+    console.log('There is no reviews linked to this profile');
+    
+    console.log('Deleting target profile');
     await Profile.findByIdAndDelete(id);
     // console.log(`Account id to delete this profile from = ${req.body.accountId}`);
 
@@ -160,10 +207,15 @@ app.get('/account/register', async (req, res) => {
     res.render('accounts/register.ejs');
 });
 
-app.post('/account/register', catchAsync(async (req, res) => {
+app.post('/account/register', validateAccount, catchAsync(async (req, res) => {
     // console.log(req.body);
     // console.log(`new account = ${JSON.stringify(req.body.account)}`);
-    const account = new Account(req.body.account);
+    console.log('req.body = ');
+    console.log(req.body);
+    console.log('res.locals.account = ')
+    console.log(JSON.stringify(res.locals.account));
+
+    const account = new Account(res.locals.account);
     await account.save();
     res.redirect(`/account/${account._id}`);
 }));
@@ -172,37 +224,44 @@ app.post('/account/register', catchAsync(async (req, res) => {
 //my account info - first name, last name, email account
 // will eventually have to update navbar to enable this
 app.get('/account/:id', catchAsync(async (req, res) => {
+
+    // console.log('Inside of account/:id - setting res.locals.accountId = ')
+    // res.locals.accountId = req.params.id;
+    // console.log(res.locals.accountId);
+
     const account = await Account.findById(req.params.id).populate('profile');
 
     //an account may only have 1 profile = this will check whether the account has a valid profile
     //if not, the account will be able to create a new profile
     //if does, the account will be able to navigate to the profile & edit 
-    const haveProfile = account.profile ? true : await Profile.findById(account.profile);
+         const haveProfile = account.profile ? true : await Profile.findById(account.profile);
+    //const haveProfile = await Profile.findById(account.profile);
     // console.log(`Have a profile = ${haveProfile}`);
 
     res.render('accounts/show.ejs', { account, haveProfile });
 }));
 
-//edit account - first name, last name, email account
+//edit account - first name, last name, email account + can DELETE my profile
 app.get('/account/:id/edit', catchAsync(async (req, res) => {
+    // console.log('Inside of account/:id/edit - accessing res.locals.accountId set from account/:id GET = ');
+    // console.log(res.locals.accountId);
+
     const account = await Account.findById(req.params.id);
+    //will NOT send entire profile object to save data & bc not needed to
     const haveProfile = account.profile ? true : await Profile.findById(account.profile);
+    //const haveProfile = await Profile.findById(account.profile);
     // console.log(`Have a profile = ${haveProfile}`);
 
     res.render('accounts/edit.ejs', { account, haveProfile });
 }));
 
 //updates account info
-app.patch('/account/:id', catchAsync(async (req, res) => {
+app.patch('/account/:id', validateAccount, catchAsync(async (req, res) => {
     // console.log(`req.body = ${JSON.stringify(req.body)}`);
     const { id } = req.params;
-    const updateProfile = {
-        firstname: req.body.account.firstname,
-        lastname: req.body.account.lastname,
-        email: req.body.account.email
-    };
-    const account = await Account.findByIdAndUpdate(id, { $set: updateProfile }, { new: true });
-    // console.log(`Updated account = ${account}`);
+    // const account = await Account.findByIdAndUpdate(id, { $set: updateProfile }, { new: true });
+    const account = await Account.findByIdAndUpdate(id, { $set: res.locals.account }, { new: true });
+    console.log(`Updated account = ${account}`);
     res.redirect(`/account/${account._id}`);
 }));
 
@@ -221,24 +280,14 @@ app.get('/account/:id/profile/new', async (req, res) => {
 
 //!!!! will have to establish 2way referencing of profile object id and account object id
 //!!!! will break for now, because cannot meet model schema's requirement for now
-//    &&&& there is no 2way referencing established before redirection
-//need to have availability path
 //need to have geometry.type path, etc
-app.post('/profiles', catchAsync(async (req, res) => {
-    //the created profile will have to be added to the account
-    // const profile = await Profile.findById(req.params.id).populate('account');
-    // console.log(req.body);
+app.post('/profiles', validateProfile, catchAsync(async (req, res) => {
 
-    //set separated availability path and add to profile
-    //req.body.profile.availability = req.body.availability;
-    // console.log(`new profile = ${JSON.stringify(req.body.profile)}`);
+    //res.locals.accountId = undefined, because res.locals been dropped as soon as they have arrived to this route and the req has been resolved
+    // console.log(`current account Id (res.locals.accountId) = ${res.locals.accountId}`);
+    console.log(`cleaned new profile = ${JSON.stringify(res.locals.profile)}`);
 
-
-
-    req.body.profile.skills = req.body.profile.skills.filter(obj => (obj.proglang !== "" && obj.experience !== "" && obj.experience >= 0));
-    req.body.profile.offerings = req.body.profile.offerings.filter(obj => (obj.service !== "" && obj.price !== "" && obj.price >= 0));
-    console.log(`cleaned new profile = ${JSON.stringify(req.body.profile)}`);
-
+    // const account = await Account.findById(req.params.id);
     const account = await Account.findById(req.body.accountId);
 
     //confirm that the account does NOT have a valid linked profile
@@ -247,8 +296,8 @@ app.post('/profiles', catchAsync(async (req, res) => {
         throw new Error("This Account already has a valid My Profile. An account is not allowed to have more than 1 valid profile.");
     }
 
-
-    const profile = new Profile(req.body.profile);
+    // const profile = new Profile(req.body.profile);
+    const profile = new Profile(res.locals.profile);
     //need current session's account 
     //!!!!!!!curr account.profile = profile._id; ** just like seeding
 
@@ -266,10 +315,16 @@ app.post('/profiles', catchAsync(async (req, res) => {
 app.delete('/account/:id', catchAsync(async (req, res) => {
 
     const profileToDelete = await Profile.findById(req.body.profileId);
-    await Review.deleteMany({ _id: { $in: profileToDelete.reviews } });
-    await Profile.findByIdAndDelete(req.body.profileId);
+    if (profileToDelete === null) {
+        console.log('There was no valid profile connected to this account');
+    }else{
+        console.log("Deleting the account's profile and reviews on the profile");
+        await Review.deleteMany({ _id: { $in: profileToDelete.reviews } });
+        await Profile.findByIdAndDelete(req.body.profileId);
+    }
+    
+    
     await Account.findByIdAndDelete(req.params.id);
-
     res.redirect(`/profiles`);
 
 }));
@@ -292,7 +347,8 @@ app.all('*', (req, res, next) => {
     next(new ExpressError(404, 'Oh no, 404! There seems to be nothing here'));
 });
 
-//500s route error handling middleware
+//500s route 
+//error handling middleware
 app.use((err, req, res, next) => {
     const { statusCode = 500 } = err;
     if (!err.message) err.message = "Oh no! Something went wrong!"

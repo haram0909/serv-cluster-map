@@ -15,24 +15,26 @@ const ProfileSchema = new Schema({
     },
     introduction: String,
     images: [ImageSchema],
-    location: String,
+    location: /*String,*/
         //if can opt out of providing location, 
         //geometry should also be allowed to be null
             //else, both should be required 
                 //and geometry should handle 
                 // cases where fails to forward geocode
-    // {
-    //     type: String,
-    //     required: [true, 'location is required']
-    // },
+    {
+        type: String,
+        required: [true, 'location is required']
+    },
     geometry: {
         type: {
             type: String,
             enum: ['Point'],
+            //comment out to be able to test profile creation
             required: true
         },
         coordinates: {
             type: [Number],
+            //comment out to be able to test profile creation
             required: true
         }
     },
@@ -48,7 +50,7 @@ const ProfileSchema = new Schema({
             experience: {
                 type: Number,
                 required: true,
-                max: 100,
+                max: 120,
                 min: 0
             }
         }
@@ -69,7 +71,7 @@ const ProfileSchema = new Schema({
             price: {
                 type: Number,
                 required: true,
-                max: 1000,
+                max: 10000,
                 min: 0
             }
         }

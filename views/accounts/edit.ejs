@@ -42,19 +42,26 @@
                     </div>
 
                     <div class="mb-3">
-                        <button class="btn btn-outline-warning col-4">Update My Account Info</button>
-
+                        <button class="btn btn-outline-info col-4">Update My Account</button>
+                        
                     </div>
                 </form>
-
+               
                 <div>
-                    <% if(haveProfile !==null) {%>
+                   
                         <form class="d-inline" action="/account/<%=account._id%>?_method=DELETE" method="POST">
+                            <a class="btn btn-outline-warning" href="/account/<%=account._id%>">Cancel Update</a>
+                            <% if(haveProfile !== null) {%>
                             <input type="hidden" id="profileId" name="profileId" value="<%=account.profile._id%>">
-                            <button class="btn btn-outline-danger">Delete Account</button>
-                            <a class="text-muted" href="/account/<%=account._id%>"> &larr; Back to My Account Info</a>
+                            <% } %>
+                            <button class="btn btn-outline-danger">Delete My Account</button>                                                    
+                            
                         </form>
-                        <% } %>
+                        
+                        
+                   
+
+                        
                 </div>
 
             </div>

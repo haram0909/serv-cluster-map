@@ -25,7 +25,7 @@
                         value="<%= account.lastname %>" aria-label="Last name" disabled>
                     </div>
                 </div>
-                <% if(haveProfile==null) {%>
+                <% if(haveProfile === null) {%>
                     <div class="mb-3">
 
 <!-- has to GET a form for new profile & connect object id back to account...  -->
@@ -40,16 +40,17 @@
                         </div>
                 <% } %>
                             <div class="mb-3">
-                                <a class="btn btn-outline-info" href="/account/<%=account._id%>/edit">Edit My Account Info</a>
+                                <a class="btn btn-outline-warning" href="/account/<%=account._id%>/edit">Edit My Account</a>
                                 
-                <% if(haveProfile !== null) {%>
+                
                                 <form class="d-inline" action="/account/<%=account._id%>?_method=DELETE" method="POST">
-                                    
+                                    <% if(haveProfile !== null) {%>         
                                     <input type="hidden" id="profileId" name="profileId" value="<%=account.profile._id%>">
-                                    
-                                    <button class="btn btn-outline-danger">Delete Account</button>
+                                    <% } %> 
+                                    <button class="btn btn-outline-danger">Delete My Account</button>
                                 </form>
-                <% } %> 
+
+                                
                             </div>
 
                             <div>
