@@ -7,6 +7,10 @@ const ReviewSchema = new Schema({
     author: {
         type: Schema.Types.ObjectId,
         ref: 'Account'
+    },
+    about: {
+            type: Schema.Types.ObjectId,
+            ref: 'Profile'
     }
 });
 

@@ -20,7 +20,13 @@ const AccountSchema = new Schema({
     profile: {
         type: Schema.Types.ObjectId,
         ref: 'Profile'
-    }
+    },
+    reviews: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'Review'
+        }
+    ]
 });
 
 AccountSchema.virtual('fullname').get(function () {

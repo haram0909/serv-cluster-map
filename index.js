@@ -121,8 +121,6 @@ app.get('/profiles', catchAsync(async (req, res) => {
     res.render('profiles/index.ejs', { profiles });
 }));
 
-
-
 app.get('/profiles/:id', catchAsync(async (req, res) => {
     const profile = await Profile.findById(req.params.id).populate('account');
     res.render('profiles/show.ejs', { profile });
@@ -131,6 +129,43 @@ app.get('/profiles/:id', catchAsync(async (req, res) => {
 app.get('/profiles/:id/edit', catchAsync(async (req, res) => {
     const profile = await Profile.findById(req.params.id).populate('account');
     res.render('profiles/edit.ejs', { profile });
+}));
+
+//$$$$$$!!!!!!! All profile routes need authorization check before any edit ability
+
+//POST '/profiles' route = ONLY ACCESSIBLE THROUGH GET '/account/:id/profile/new' route  
+    //!!!! will have to establish 2way referencing of profile object id and account object id
+    //!!!! will break for now, because cannot meet model schema's requirement for now
+    //need to have geometry.type path, etc
+app.post('/profiles', validateProfile, catchAsync(async (req, res) => {
+
+    //res.locals.accountId = undefined, because res.locals been dropped as soon as they have arrived to this route and the req has been resolved
+    // console.log(`current account Id (res.locals.accountId) = ${res.locals.accountId}`);
+    console.log(`cleaned new profile = ${JSON.stringify(res.locals.profile)}`);
+
+    // const account = await Account.findById(req.params.id);
+    const account = await Account.findById(req.body.accountId);
+
+    //confirm that the account does NOT have a valid linked profile
+    const haveProfile = account.profile ? true : await Profile.findById(account.profile);
+    if (haveProfile) {
+        throw new Error("This Account already has a valid My Profile. An account is not allowed to have more than 1 valid profile.");
+    }
+
+    // const profile = new Profile(req.body.profile);
+    const profile = new Profile(res.locals.profile);
+    //need current session's account 
+    //!!!!!!!curr account.profile = profile._id; ** just like seeding
+
+    profile.account = account;
+    await profile.save();
+    await console.log('saved profile');
+
+    const updatedProfile = await Account.findByIdAndUpdate(req.body.accountId, { profile: profile }, { upsert: true });
+    // console.log(`updated profile = ${JSON.stringify(updatedProfile)}`);
+
+    //https://stackoverflow.com/questions/38011068/how-to-remove-object-taking-into-account-references-in-mongoose-node-js
+    res.redirect(`/profiles/${profile._id}`);
 }));
 
 
@@ -265,53 +300,6 @@ app.patch('/account/:id', validateAccount, catchAsync(async (req, res) => {
     res.redirect(`/account/${account._id}`);
 }));
 
-
-//$$$$$$!!!!!!! All profile routes need authorization check before any edit ability
-
-
-//should only be allowed when current account does NOT have profile
-app.get('/account/:id/profile/new', async (req, res) => {
-    const accountId = req.params.id;
-    console.log(JSON.stringify(res.body));
-
-    //have the logic check the current account does NOT have a valid profile
-    res.render('profiles/new.ejs', { accountId });
-});
-
-//!!!! will have to establish 2way referencing of profile object id and account object id
-//!!!! will break for now, because cannot meet model schema's requirement for now
-//need to have geometry.type path, etc
-app.post('/profiles', validateProfile, catchAsync(async (req, res) => {
-
-    //res.locals.accountId = undefined, because res.locals been dropped as soon as they have arrived to this route and the req has been resolved
-    // console.log(`current account Id (res.locals.accountId) = ${res.locals.accountId}`);
-    console.log(`cleaned new profile = ${JSON.stringify(res.locals.profile)}`);
-
-    // const account = await Account.findById(req.params.id);
-    const account = await Account.findById(req.body.accountId);
-
-    //confirm that the account does NOT have a valid linked profile
-    const haveProfile = account.profile ? true : await Profile.findById(account.profile);
-    if (haveProfile) {
-        throw new Error("This Account already has a valid My Profile. An account is not allowed to have more than 1 valid profile.");
-    }
-
-    // const profile = new Profile(req.body.profile);
-    const profile = new Profile(res.locals.profile);
-    //need current session's account 
-    //!!!!!!!curr account.profile = profile._id; ** just like seeding
-
-    profile.account = account;
-    await profile.save();
-    await console.log('saved profile');
-
-    const updatedProfile = await Account.findByIdAndUpdate(req.body.accountId, { profile: profile }, { upsert: true });
-    // console.log(`updated profile = ${JSON.stringify(updatedProfile)}`);
-
-    //https://stackoverflow.com/questions/38011068/how-to-remove-object-taking-into-account-references-in-mongoose-node-js
-    res.redirect(`/profiles/${profile._id}`);
-}));
-
 app.delete('/account/:id', catchAsync(async (req, res) => {
 
     const profileToDelete = await Profile.findById(req.body.profileId);
@@ -328,6 +316,24 @@ app.delete('/account/:id', catchAsync(async (req, res) => {
     res.redirect(`/profiles`);
 
 }));
+
+//$$$$$$!!!!!!! All profile routes need authorization check before any edit ability
+//should only be allowed when current account does NOT have profile
+app.get('/account/:id/profile/new', async (req, res) => {
+    const accountId = req.params.id;
+    console.log(JSON.stringify(res.body));
+
+    //have the logic check the current account does NOT have a valid profile
+    res.render('profiles/new.ejs', { accountId });
+});
+
+
+
+//routes for reviews
+
+
+
+
 
 
 
