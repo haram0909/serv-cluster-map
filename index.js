@@ -274,8 +274,13 @@ app.delete('/profiles/:id', catchAsync(async (req, res) => {
     const profileToDelete = await Profile.findById(id);
 
     console.log(`Profile to be deleted = ${JSON.stringify(profileToDelete)}`);
-    if (profileToDelete === null) {
-        throw new ExpressError(400, 'This is NOT a valid profile');   
+    // if (profileToDelete === null) {
+    //     throw new ExpressError(400, 'This is NOT a valid profile');   
+    // }
+
+    if (!profileToDelete) {
+        req.flash('errorMsg', 'Failed to delete! Cannot find that profile!');
+        return res.redirect('/profiles');
     }
 
     if (profileToDelete.reviews.length > 0) {
