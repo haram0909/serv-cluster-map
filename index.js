@@ -9,6 +9,7 @@ const mongoose = require('mongoose');
 const ejsMate = require('ejs-mate');
 const { joiProfileSchema, joiAccountSchema } = require('./utils/validationSchemas.js');
 const session = require('express-session');
+const flash = require('connect-flash');
 const methodOverride = require('method-override');
 
 //dev dependencies
@@ -74,18 +75,18 @@ const secret = process.env.SECRET || '!SomeDevEnvSecret!';
 
 const sessionConfig = {
     //if undefined= memory store, which is barely acceptable for dev env
-        //because the memory store disappears when server restart as it is local, not a real db
-        // eventually will be replaced with mongodb store (other option = redis, etc)
+    //because the memory store disappears when server restart as it is local, not a real db
+    // eventually will be replaced with mongodb store (other option = redis, etc)
     // store: store, 
     name: 'session',
     secret: secret,
     //resave false (as was on doc)
-        //appears mongoDB session store implements 'touch' method
-        // to prevent race conditions hwere client's multiple parallel requests without session 
+    //appears mongoDB session store implements 'touch' method
+    // to prevent race conditions hwere client's multiple parallel requests without session 
     resave: false,
     //saveUninitialized false
-        //to prevent creating session for crawler bot tapping results in creating sessions
-            //also tracking recurring visitors isn't in scope for now
+    //to prevent creating session for crawler bot tapping results in creating sessions
+    //also tracking recurring visitors isn't in scope for now
     saveUninitialized: false,
     cookie: {
         httpOnly: true,
@@ -96,7 +97,7 @@ const sessionConfig = {
 }
 
 app.use(session(sessionConfig));
-
+app.use(flash());
 
 
 
@@ -111,7 +112,13 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms'))
 // npm i express-paginate
 // https://www.npmjs.com/package/express-paginate
 
-
+app.use((req, res, next) => {
+    //if there is anything under req.flash.success,
+    //set that under res.locals.sucessMsg & pass along to destination path
+    res.locals.successMsg = req.flash('successMsg');
+    res.locals.errorMsg = req.flash('errorMsg');
+    next();
+})
 
 //middleware function
 const validateProfile = (req, res, next) => {
@@ -167,20 +174,28 @@ app.get('/profiles', catchAsync(async (req, res) => {
 
 app.get('/profiles/:id', catchAsync(async (req, res) => {
     const profile = await Profile.findById(req.params.id).populate('account');
+    if (!profile) {
+        req.flash('errorMsg', 'Cannot find that profile!');
+        return res.redirect('/profiles');
+    }
     res.render('profiles/show.ejs', { profile });
 }));
 
 app.get('/profiles/:id/edit', catchAsync(async (req, res) => {
     const profile = await Profile.findById(req.params.id).populate('account');
+    if (!profile) {
+        req.flash('errorMsg', 'Cannot find that profile!');
+        return res.redirect('/profiles');
+    }
     res.render('profiles/edit.ejs', { profile });
 }));
 
 //$$$$$$!!!!!!! All profile routes need authorization check before any edit ability
 
 //POST '/profiles' route = ONLY ACCESSIBLE THROUGH GET '/account/:id/profile/new' route  
-    //!!!! will have to establish 2way referencing of profile object id and account object id
-    //!!!! will break for now, because cannot meet model schema's requirement for now
-    //need to have geometry.type path, etc
+//!!!! will have to establish 2way referencing of profile object id and account object id
+//!!!! will break for now, because cannot meet model schema's requirement for now
+//need to have geometry.type path, etc
 app.post('/profiles', validateProfile, catchAsync(async (req, res) => {
 
     //res.locals.accountId = undefined, because res.locals been dropped as soon as they have arrived to this route and the req has been resolved
@@ -196,7 +211,9 @@ app.post('/profiles', validateProfile, catchAsync(async (req, res) => {
         //  const haveProfile = await Profile.findById(account.profile);
         console.log(`Have a profile = ${haveProfile}`);
     if (haveProfile) {
-        throw new Error("This Account already has a valid My Profile. An account is not allowed to have more than 1 valid profile.");
+        // throw new Error("This Account already has a valid My Profile. An account is not allowed to have more than 1 valid profile.");
+        req.flash('errorMsg','This Account already has a valid My Profile. An account is not allowed to have more than 1 valid profile.');
+        return res.redirect(`/account/${account._id}`);
     }
 
     // const profile = new Profile(req.body.profile);
@@ -208,9 +225,10 @@ app.post('/profiles', validateProfile, catchAsync(async (req, res) => {
     await profile.save();
     await console.log('saved profile');
 
-    const updatedProfile = await Account.findByIdAndUpdate(req.body.accountId, { profile: profile }, { upsert: true });
-    // console.log(`updated profile = ${JSON.stringify(updatedProfile)}`);
+    const updatedAccount = await Account.findByIdAndUpdate(req.body.accountId, { profile: profile }, { upsert: true });
+    // console.log(`updated profile = ${JSON.stringify(updatedAccount)}`);
 
+    req.flash('successMsg', 'Successfully created my profile!');
     //https://stackoverflow.com/questions/38011068/how-to-remove-object-taking-into-account-references-in-mongoose-node-js
     res.redirect(`/profiles/${profile._id}`);
 }));
@@ -241,8 +259,12 @@ app.patch('/profiles/:id', validateProfile, catchAsync(async (req, res) => {
     //     }
     //     await campground.updateOne({ $pull: { images: { filename: { $in: req.body.deleteImages } } } })
     // }
+    if (!profile) {
+        req.flash('errorMsg', 'Failed to update! Cannot find that profile!');
+        return res.redirect('/profiles');
+    }
 
-
+    req.flash('successMsg', 'Successfully updated my profile!')
     res.redirect(`/profiles/${profile._id}`);
 }));
 
@@ -259,15 +281,19 @@ app.delete('/profiles/:id', catchAsync(async (req, res) => {
     if (profileToDelete.reviews.length > 0) {
         console.log('Deleting linked reviews');
         await Review.deleteMany({ _id: { $in: profileToDelete.reviews } });
+        req.flash('successMsg', 'Successfully deleted reviews on the profile.');
+    } else {
+        console.log('There is no reviews linked to this profile');
+        req.flash('successMsg', 'There was no reviews on the profile.');
     }
-    console.log('There is no reviews linked to this profile');
-    
+
     console.log('Deleting target profile');
     await Profile.findByIdAndDelete(id);
     // console.log(`Account id to delete this profile from = ${req.body.accountId}`);
 
     //set the profile linked account's profile property to null -> allow the account to create new profile
     await Account.findByIdAndUpdate(req.body.accountId, { profile: null });
+    req.flash('successMsg', 'Successfully deleted the profile!');
     res.redirect('/profiles');
 }));
 
@@ -282,6 +308,7 @@ app.get('/account/login', async (req, res) => {
 // will have to implement authtentication logic below
 app.post('/account/login', async (req, res) => {
     console.log('successfully logged in!');
+    req.flash('successMsg', 'Successfully logged in!');
     res.redirect('/profiles');
 });
 
@@ -299,6 +326,7 @@ app.post('/account/register', validateAccount, catchAsync(async (req, res) => {
 
     const account = new Account(res.locals.account);
     await account.save();
+    req.flash('successMsg', 'Successfully created a new account!');
     res.redirect(`/account/${account._id}`);
 }));
 
@@ -313,6 +341,15 @@ app.get('/account/:id', catchAsync(async (req, res) => {
 
     const account = await Account.findById(req.params.id).populate('profile');
 
+    console.log('found account = ');
+    console.log(account);
+    console.log('found account dir = ');
+    console.dir(account);
+
+    if (!account) {
+        req.flash('errorMsg', 'Cannot find that account!');
+        return res.redirect('/profiles');
+    }
     //an account may only have 1 profile = this will check whether the account has a valid profile
     //if not, the account will be able to create a new profile
     //if does, the account will be able to navigate to the profile & edit 
@@ -320,7 +357,7 @@ app.get('/account/:id', catchAsync(async (req, res) => {
         //  const haveProfile = account.profile ? true : await Profile.findById(account.profile);
         //  const haveProfile = await Profile.findById(account.profile);
     //const haveProfile = await Profile.findById(account.profile);
-     console.log(`Have a profile = ${haveProfile}`);
+    console.log(`Have a profile = ${haveProfile}`);
 
     res.render('accounts/show.ejs', { account, haveProfile });
 }));
@@ -331,12 +368,17 @@ app.get('/account/:id/edit', catchAsync(async (req, res) => {
     // console.log(res.locals.accountId);
 
     const account = await Account.findById(req.params.id);
+
+    if (!account) {
+        req.flash('errorMsg', 'Cannot find that account!');
+        return res.redirect('/profiles');
+    }
     //will NOT send entire profile object to save data & bc not needed to
         const haveProfile = account.profile !== null;
         //  const haveProfile = account.profile ? true : await Profile.findById(account.profile);
         //  const haveProfile = await Profile.findById(account.profile);
     //const haveProfile = await Profile.findById(account.profile);
-     console.log(`Have a profile = ${haveProfile}`);
+    console.log(`Have a profile = ${haveProfile}`);
 
     res.render('accounts/edit.ejs', { account, haveProfile });
 }));
@@ -348,6 +390,13 @@ app.patch('/account/:id', validateAccount, catchAsync(async (req, res) => {
     // const account = await Account.findByIdAndUpdate(id, { $set: updateProfile }, { new: true });
     const account = await Account.findByIdAndUpdate(id, { $set: res.locals.account }, { new: true });
     console.log(`Updated account = ${account}`);
+
+    if (!account) {
+        req.flash('errorMsg', 'Failed to update! Cannot find that account!');
+        return res.redirect('/profiles');
+    }
+
+    req.flash('successMsg', 'Successfully updated my account!');
     res.redirect(`/account/${account._id}`);
 }));
 
@@ -356,14 +405,18 @@ app.delete('/account/:id', catchAsync(async (req, res) => {
     const profileToDelete = await Profile.findById(req.body.profileId);
     if (profileToDelete === null) {
         console.log('There was no valid profile connected to this account');
-    }else{
+        req.flash('successMsg', 'There was no profile connected to this account.');
+    } else {
         console.log("Deleting the account's profile and reviews on the profile");
         await Review.deleteMany({ _id: { $in: profileToDelete.reviews } });
         await Profile.findByIdAndDelete(req.body.profileId);
+        req.flash('successMsg', 'Successfully deleted the profile of the account');
+        req.flash('successMsg', 'Successfully deleted reviews on the profile, if any existed');
     }
-    
-    
+
+
     await Account.findByIdAndDelete(req.params.id);
+    req.flash('successMsg', 'Successfully deleted the account!');
     res.redirect(`/profiles`);
 
 }));
@@ -372,7 +425,7 @@ app.delete('/account/:id', catchAsync(async (req, res) => {
 //should only be allowed when current account does NOT have profile
 app.get('/account/:id/profile/new', async (req, res) => {
     const accountId = req.params.id;
-    
+
 
     //have the logic check the current account does NOT have a valid profile
     res.render('profiles/new.ejs', { accountId });
@@ -407,7 +460,10 @@ app.all('*', (req, res, next) => {
 //500s route 
 //error handling middleware
 app.use((err, req, res, next) => {
-    const { statusCode = 500 } = err;
+    console.log('ERR = ');
+    console.log(typeof err);
+    console.log(err);
+    let { statusCode = 500 } = err;
     if (!err.message) err.message = "Oh no! Something went wrong!"
     res.status(statusCode).render('error.ejs', { err });
     // res.status(statusCode).send(err.message);
