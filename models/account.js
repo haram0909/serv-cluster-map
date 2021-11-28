@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const passportLocalMongoose = require('passport-local-mongoose');
 
 const AccountSchema = new Schema({
     firstname: {
@@ -32,5 +33,7 @@ const AccountSchema = new Schema({
 AccountSchema.virtual('fullname').get(function () {
     return `${this.firstname}, ${this.lastname.charAt(0)}`;
 });
+
+AccountSchema.plugin(passportLocalMongoose);
 
 module.exports = mongoose.model("Account", AccountSchema);

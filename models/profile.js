@@ -30,12 +30,12 @@ const ProfileSchema = new Schema({
             type: String,
             enum: ['Point'],
             //comment out to be able to test profile creation
-            required: true
+            // required: true
         },
         coordinates: {
             type: [Number],
             //comment out to be able to test profile creation
-            required: true
+            // required: true
         }
     },
     skills: [

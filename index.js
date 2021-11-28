@@ -8,6 +8,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 const ejsMate = require('ejs-mate');
 const { joiProfileSchema, joiAccountSchema } = require('./utils/validationSchemas.js');
+const session = require('express-session');
 const methodOverride = require('method-override');
 
 //dev dependencies
@@ -55,6 +56,49 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
+
+
+
+//session configuration 
+const secret = process.env.SECRET || '!SomeDevEnvSecret!';
+
+// const store = new MongoDBStore({
+//     url: dbUrl,
+//     secret,
+//     touchAfter: 24 * 60 * 60
+// });
+
+// store.on("error", function (e) {
+//     console.log("SESSION STORE ERROR", e)
+// })
+
+const sessionConfig = {
+    //if undefined= memory store, which is barely acceptable for dev env
+        //because the memory store disappears when server restart as it is local, not a real db
+        // eventually will be replaced with mongodb store (other option = redis, etc)
+    // store: store, 
+    name: 'session',
+    secret: secret,
+    //resave false (as was on doc)
+        //appears mongoDB session store implements 'touch' method
+        // to prevent race conditions hwere client's multiple parallel requests without session 
+    resave: false,
+    //saveUninitialized false
+        //to prevent creating session for crawler bot tapping results in creating sessions
+            //also tracking recurring visitors isn't in scope for now
+    saveUninitialized: false,
+    cookie: {
+        httpOnly: true,
+        // secure: true,
+        expires: Date.now() + 1000 * 60 * 60 * 24 * 30,
+        maxAge: 1000 * 60 * 60 * 24 * 30
+    }
+}
+
+app.use(session(sessionConfig));
+
+
+
 
 
 //middleware
@@ -147,7 +191,10 @@ app.post('/profiles', validateProfile, catchAsync(async (req, res) => {
     const account = await Account.findById(req.body.accountId);
 
     //confirm that the account does NOT have a valid linked profile
-    const haveProfile = account.profile ? true : await Profile.findById(account.profile);
+        const haveProfile = account.profile !== null;
+        //  const haveProfile = account.profile ? true : await Profile.findById(account.profile);
+        //  const haveProfile = await Profile.findById(account.profile);
+        console.log(`Have a profile = ${haveProfile}`);
     if (haveProfile) {
         throw new Error("This Account already has a valid My Profile. An account is not allowed to have more than 1 valid profile.");
     }
@@ -269,9 +316,11 @@ app.get('/account/:id', catchAsync(async (req, res) => {
     //an account may only have 1 profile = this will check whether the account has a valid profile
     //if not, the account will be able to create a new profile
     //if does, the account will be able to navigate to the profile & edit 
-         const haveProfile = account.profile ? true : await Profile.findById(account.profile);
+         const haveProfile = account.profile !== null;
+        //  const haveProfile = account.profile ? true : await Profile.findById(account.profile);
+        //  const haveProfile = await Profile.findById(account.profile);
     //const haveProfile = await Profile.findById(account.profile);
-    // console.log(`Have a profile = ${haveProfile}`);
+     console.log(`Have a profile = ${haveProfile}`);
 
     res.render('accounts/show.ejs', { account, haveProfile });
 }));
@@ -283,9 +332,11 @@ app.get('/account/:id/edit', catchAsync(async (req, res) => {
 
     const account = await Account.findById(req.params.id);
     //will NOT send entire profile object to save data & bc not needed to
-    const haveProfile = account.profile ? true : await Profile.findById(account.profile);
+        const haveProfile = account.profile !== null;
+        //  const haveProfile = account.profile ? true : await Profile.findById(account.profile);
+        //  const haveProfile = await Profile.findById(account.profile);
     //const haveProfile = await Profile.findById(account.profile);
-    // console.log(`Have a profile = ${haveProfile}`);
+     console.log(`Have a profile = ${haveProfile}`);
 
     res.render('accounts/edit.ejs', { account, haveProfile });
 }));
@@ -321,7 +372,7 @@ app.delete('/account/:id', catchAsync(async (req, res) => {
 //should only be allowed when current account does NOT have profile
 app.get('/account/:id/profile/new', async (req, res) => {
     const accountId = req.params.id;
-    console.log(JSON.stringify(res.body));
+    
 
     //have the logic check the current account does NOT have a valid profile
     res.render('profiles/new.ejs', { accountId });
