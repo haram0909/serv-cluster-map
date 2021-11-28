@@ -465,6 +465,15 @@ app.use((err, req, res, next) => {
     console.log(err);
     let { statusCode = 500 } = err;
     if (!err.message) err.message = "Oh no! Something went wrong!"
+
+    if (err.message.includes('E11000') && err.message.includes('dup key: { email:')) {
+        // statusCode = 400;
+        // err.message = "This email address is not available. Please use different email address to register."
+
+        req.flash('errorMsg','This email address is not available. Please use different email address to register.');
+        return res.redirect('/account/register');
+    }
+
     res.status(statusCode).render('error.ejs', { err });
     // res.status(statusCode).send(err.message);
     //all errors have name in express ex) err.name
