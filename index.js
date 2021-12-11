@@ -7,10 +7,10 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 const ejsMate = require('ejs-mate');
-const { joiProfileSchema, joiAccountSchema } = require('./utils/validationSchemas.js');
+const methodOverride = require('method-override');
+const { joiProfileSchema, joiAccountUpdateSchema, joiAccountRegisterSchema, joiReviewSchema } = require('./utils/validationSchemas.js');
 const session = require('express-session');
 const flash = require('connect-flash');
-const methodOverride = require('method-override');
 
 //dev dependencies
 const morgan = require('morgan');
@@ -140,7 +140,43 @@ const validateProfile = (req, res, next) => {
     }
 }
 
-const validateAccount = (req, res, next) => {
+const validateAccountUpdate = (req, res, next) => {
+
+    // requires allowUnknown: false option at validate, bc images of "" is type unknown...
+    const validationResult = joiAccountUpdateSchema.validate(req.body, { abortEarly: false, allowUnknown: true });
+
+    // console.log('original req.body = ' + JSON.stringify(req.body));
+    // console.log('validation result = ' + JSON.stringify(validationResult))
+    // console.log('cleaned req.body = ' + JSON.stringify(validationResult.value));
+
+    if (validationResult.error) {
+        const errMsg = validationResult.error.details.map(item => item.message).join(',');
+        //throw new ExpressError(400, errMsg);
+        next(new ExpressError(400, errMsg));
+    } else {
+        res.locals.account = validationResult.value.account;
+        next();
+    }
+}
+
+const validateAccountRegister = (req, res, next) => {
+
+    // requires allowUnknown: false option at validate, bc images of "" is type unknown...
+    const validationResult = joiAccountRegisterSchema.validate(req.body, { abortEarly: false, allowUnknown: true });
+
+    // console.log('original req.body = ' + JSON.stringify(req.body));
+    // console.log('validation result = ' + JSON.stringify(validationResult))
+    // console.log('cleaned req.body = ' + JSON.stringify(validationResult.value));
+
+    if (validationResult.error) {
+        const errMsg = validationResult.error.details.map(item => item.message).join(',');
+        //throw new ExpressError(400, errMsg);
+        next(new ExpressError(400, errMsg));
+    } else {
+        res.locals.account = validationResult.value.account;
+        next();
+    }
+}
 
     // requires allowUnknown: false option at validate, bc images of "" is type unknown...
     const validationResult = joiAccountSchema.validate(req.body, { abortEarly: false, allowUnknown: true });
