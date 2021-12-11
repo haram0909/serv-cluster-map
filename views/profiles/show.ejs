@@ -1,4 +1,6 @@
 <% layout('layouts/boilerplate.ejs') %>
+<link rel="stylesheet" href="/stylesheets/stars.css">
+
 
     <div class="row my-3">
         <!-- left side -->
@@ -124,11 +126,12 @@
                         <ol class="list-group list-group-flush">
 
                             <% for(let i=0; i<reviewsForProfile.length; i++){ %> 
-                                
-                                <h5 class="mb-0 mt-1">Rating : <%= reviewsForProfile[i].rating %></h5>
+
+
                                 <li class="list-group-item d-flex justify-content-between align-items-start">
                                     <div class="ms-2 me-auto">
-                                        <div class="fw-bold">
+                                        
+                                        <div class="card-text fw-bold">
                                             <!-- should be getting the fullname, but will be undefined for now-->
                                             <!--eventually drop by written by, just leave the author-->
 
@@ -136,10 +139,12 @@
                                              <!--THUS AT THIS STAGE, IT IS NULL THROWING NULL ERROR.......  -->
                                             <!-- Written by : < profile.reviews[i].author%> -->
                                             <!-- Written by : < reviewsForProfile[i].author.fullname%> -->
-                                                Written by : <%= reviewsForProfile[i].author.firstname%>, <%=reviewsForProfile[i].author.lastname[0]%> 
+                                             <%= reviewsForProfile[i].author.firstname%>, <%=reviewsForProfile[i].author.lastname[0]%> 
                                         </div>
+                                        <p class=" my-1 starability-result" data-rating="<%= reviewsForProfile[i].rating %>"> Rating : <%= reviewsForProfile[i].rating %> stars </p> 
+                                        <div class="card-text">
                                         <%= reviewsForProfile[i].body %> 
-                                        
+                                        </div>
                                       
                                          <!-- IF the author of the review is identical to the currentAccount by objectId, give delete button -->
                                         <% if(currentAccount && reviewsForProfile[i].author._id.equals(currentAccount._id)){ %> 
@@ -174,14 +179,36 @@
                 <input type="hidden" id="profileId" name="profileId" value="<%=profile._id%>">
 
                 <div class="form-group validate-me">
-                <div class="mb-3">
+                <!-- <div class="mb-3">
                     <label class="form-label" for="rating">Rating</label>
                     <input class="form-range" type="range" min="1" max="5" name="review[rating]" id="rating">
+                </div> -->
+
+
+                <div class="mb-3">
+                <fieldset class="starability-basic">
+                    
+                    <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="0" checked
+                    aria-label="No rating." />
+                    <input type="radio" id="first-rate1" name="review[rating]" value="1" />
+                    <label for="first-rate1" title="Terrible">1 star</label>
+                    <input type="radio" id="first-rate2" name="review[rating]" value="2" />
+                    <label for="first-rate2" title="Not good">2 stars</label>
+                    <input type="radio" id="first-rate3" name="review[rating]" value="3" />
+                    <label for="first-rate3" title="Average">3 stars</label>
+                    <input type="radio" id="first-rate4" name="review[rating]" value="4" />
+                    <label for="first-rate4" title="Very good">4 stars</label>
+                    <input type="radio" id="first-rate5" name="review[rating]" value="5" />
+                    <label for="first-rate5" title="Amazing">5 stars</label>
+                </fieldset>
                 </div>
 
                 <div class="mb-3 ">
-                    <label class="form-label" for="body">Review</label>
-                    <textarea class="form-control" name="review[body]" id="body" cols="30" rows="5"></textarea>
+                    <label class="form-label" for="body">Write Review:</label>
+                    <textarea class="form-control" name="review[body]" id="body" cols="30" rows="5" required></textarea>
+                    <div class="valid-feedback">
+                        Looks good!
+                    </div>
                 </div>
               </div>
 
