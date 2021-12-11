@@ -8,21 +8,36 @@
         <div class="navbar-nav">
           <a class="nav-link" href="/">Home</a>
           <a class="nav-link" href="/profiles">All Experts</a>
-          <a class="nav-link" href="/account/login">Login / Register</a>
+        </div> 
+          
 
+        <div class="navbar-nav ms-auto">
+        <% if(!currentAccount){ %> 
+          <a class="nav-link" href="/account/login">Login</a>
+          <a class="nav-link" href="/account/register">Register</a>
+        <% }else{ %> 
+        
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              My Account
+              Hi, <%= currentAccount.firstname %> 
             </a>
-            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <a class="dropdown-item" href="#">My Account</a>
-              <a class="dropdown-item" href="#">My Profile</a>
-              <!-- <hr class="dropdown-divider"> -->
-                <!-- <a class="dropdown-item" href="/logout">Logout</a> -->
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="<%= `/account/${currentAccount._id}` %>">My Account</a>
+              <% if(currentAccount.profile){ %> 
+              <a class="dropdown-item" href="<%= `/profiles/${currentAccount.profile._id}` %>">My Profile</a>
+              <% }else{ %>
+                <a class="dropdown-item" href="<%= `/account/${currentAccount._id}/profile/new` %>">Create My Profile</a>
+                <% } %>
+              <hr class="dropdown-divider">
+                <a class="dropdown-item" href="/account/logout">Logout</a>
+                
             </ul>
           </li>
-
+     
+          <% } %> 
         </div>
+
+
       </div>
     </div>
   </nav>

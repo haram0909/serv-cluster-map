@@ -3,7 +3,7 @@
     <div class="row my-3">
         <!-- left side -->
         <div class="col-6">
-            
+
             <!-- images Carousel -->
             <div id="profileCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="false">
                 <div class="carousel-inner">
@@ -31,14 +31,15 @@
             <!-- card contents -->
             <div class="card mb-3 shadow">
                 <div class="card-body">
-                    <p class="<%= profile.availability ? "text-success" : "text-danger" %>" ><strong>
-                        <%= profile.availability ? "Available to Work" : "Currently Unavailable to Work" %>
-                    </strong>
-                    </p>
+                    
                     <h2 class="card-title ">
                         <%= profile.account.firstname + ', ' + profile.account.lastname.toUpperCase() %>
                     </h2>
-                    <p class="card-text text-muted"><%= profile.location %></p>
+                    
+                    <p class="card-text text-muted">
+                        <%= profile.location %>
+                    </p>
+                    
                     <p class="card-text">
                         <%= profile.introduction%>
                     </p>
@@ -76,14 +77,36 @@
                             <% }%>
                     </ol>
                 </div>
+
+                <div class="card-body">
+                    <div class=" card-title <%= profile.availability ? " text-success" : "text-danger" %>" ><strong>
+                        <%= profile.availability ? "Available to Work" : "Currently Unavailable to Work" %>
+                    </strong>
+                </div>
+                <% if(currentAccount ){ %> 
+                    <div class="card-text my-0">
+                        Contact: <%= profile.account.email %> 
+                    </div>
+                <% }else{ %>
+                    <div class="card-text my-0">
+                        <a class="text-primary" href="/account/register">Register</a> or <a class="text-primary"href="/account/login">Login</a> to view contacts of profiles 
+                    </div>
+                    <% } %> 
+                </div>
+
             </div>
 
             <div class="">
-                <a class="card-link btn btn-outline-warning mb-3" href="/profiles/<%=profile._id%>/edit">Edit Profile</a>
+
+                <% if(isProfileOwner){ %> 
+                <a class="card-link btn btn-outline-warning mb-3" href="/profiles/<%=profile._id%>/edit">Edit
+                    Profile</a>
                 <form class="d-inline" action="/profiles/<%=profile._id%>?_method=DELETE" method="POST">
                     <input type="hidden" id="accountId" name="accountId" value="<%=profile.account._id%>">
                     <button class="btn btn-outline-danger mb-3">Delete Profile</button>
                 </form>
+                <% } %> 
+
                 <a class="card-link btn btn-success mb-3" href="/profiles/">All Profiles Page</a>
             </div>
 
