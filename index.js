@@ -313,13 +313,13 @@ app.patch('/profiles/:id', validateProfile, catchAsync(async (req, res) => {
     //     }
     //     await campground.updateOne({ $pull: { images: { filename: { $in: req.body.deleteImages } } } })
     // }
-    if (!profile) {
-        req.flash('errorMsg', 'Failed to update! Cannot find that profile!');
+    if (!updatedProfile) {
+        req.flash('error', 'Failed to update! Cannot find that profile!');
         return res.redirect('/profiles');
     }
 
-    req.flash('successMsg', 'Successfully updated my profile!')
-    res.redirect(`/profiles/${profile._id}`);
+    req.flash('success', 'Successfully updated my profile!')
+    res.redirect(`/profiles/${updatedProfile._id}`);
 }));
 
 
@@ -333,17 +333,17 @@ app.delete('/profiles/:id', catchAsync(async (req, res) => {
     // }
 
     if (!profileToDelete) {
-        req.flash('errorMsg', 'Failed to delete! Cannot find that profile!');
+        req.flash('error', 'Failed to delete! Cannot find that profile!');
         return res.redirect('/profiles');
     }
 
     if (profileToDelete.reviews.length > 0) {
         console.log('Deleting linked reviews');
         await Review.deleteMany({ _id: { $in: profileToDelete.reviews } });
-        req.flash('successMsg', 'Successfully deleted reviews on the profile.');
+        req.flash('success', 'Successfully deleted reviews on the profile.');
     } else {
         console.log('There is no reviews linked to this profile');
-        req.flash('successMsg', 'There was no reviews on the profile.');
+        req.flash('success', 'There was no reviews on the profile.');
     }
 
     console.log('Deleting target profile');
@@ -352,7 +352,7 @@ app.delete('/profiles/:id', catchAsync(async (req, res) => {
 
     //set the profile linked account's profile property to null -> allow the account to create new profile
     await Account.findByIdAndUpdate(req.body.accountId, { profile: null });
-    req.flash('successMsg', 'Successfully deleted the profile!');
+    req.flash('success', 'Successfully deleted the profile!');
     res.redirect('/profiles');
 }));
 
@@ -367,8 +367,8 @@ app.get('/account/login', async (req, res) => {
 // will have to implement authtentication logic below
 app.post('/account/login', async (req, res) => {
     console.log('successfully logged in!');
-    req.flash('successMsg', 'Successfully logged in!');
     res.redirect('/profiles');
+    req.flash('success', 'Successfully logged in!');
 });
 
 app.get('/account/register', async (req, res) => {
@@ -385,9 +385,9 @@ app.post('/account/register', validateAccount, catchAsync(async (req, res) => {
 
     const account = new Account(res.locals.account);
     await account.save();
-    req.flash('successMsg', 'Successfully created a new account!');
     res.redirect(`/account/${account._id}`);
 }));
+        req.flash('success', 'Successfully created a new account!');
 
 
 //my account info - first name, last name, email account
@@ -406,7 +406,7 @@ app.get('/account/:id', catchAsync(async (req, res) => {
     console.dir(account);
 
     if (!account) {
-        req.flash('errorMsg', 'Cannot find that account!');
+        req.flash('error', 'Cannot find that account!');
         return res.redirect('/profiles');
     }
     //an account may only have 1 profile = this will check whether the account has a valid profile
@@ -434,7 +434,7 @@ app.get('/account/:id/edit', catchAsync(async (req, res) => {
     const account = await Account.findById(req.params.id);
 
     if (!account) {
-        req.flash('errorMsg', 'Cannot find that account!');
+        req.flash('error', 'Cannot find that account!');
         return res.redirect('/profiles');
     }
     //will NOT send entire profile object to save data & bc not needed to
@@ -456,11 +456,11 @@ app.patch('/account/:id', validateAccount, catchAsync(async (req, res) => {
     console.log(`Updated account = ${account}`);
 
     if (!account) {
-        req.flash('errorMsg', 'Failed to update! Cannot find that account!');
+        req.flash('error', 'Failed to update! Cannot find that account!');
         return res.redirect('/profiles');
     }
 
-    req.flash('successMsg', 'Successfully updated my account!');
+    req.flash('success', 'Successfully updated my account!');
     res.redirect(`/account/${account._id}`);
 }));
 
@@ -469,18 +469,18 @@ app.delete('/account/:id', catchAsync(async (req, res) => {
     const profileToDelete = await Profile.findById(req.body.profileId);
     if (profileToDelete === null) {
         console.log('There was no valid profile connected to this account');
-        req.flash('successMsg', 'There was no profile connected to this account.');
+        req.flash('success', 'There was no profile connected to this account.');
     } else {
         console.log("Deleting the account's profile and reviews on the profile");
         await Review.deleteMany({ _id: { $in: profileToDelete.reviews } });
         await Profile.findByIdAndDelete(req.body.profileId);
-        req.flash('successMsg', 'Successfully deleted the profile of the account');
-        req.flash('successMsg', 'Successfully deleted reviews on the profile, if any existed');
+        req.flash('success', 'Successfully deleted the profile of the account');
+        req.flash('success', 'Successfully deleted reviews on the profile, if any existed');
     }
 
 
     await Account.findByIdAndDelete(req.params.id);
-    req.flash('successMsg', 'Successfully deleted the account!');
+    req.flash('success', 'Successfully deleted the account!');
     res.redirect(`/profiles`);
 
 }));
@@ -534,7 +534,7 @@ app.use((err, req, res, next) => {
         // statusCode = 400;
         // err.message = "This email address is not available. Please use different email address to register."
 
-        req.flash('errorMsg','This email address is not available. Please use different email address to register.');
+        req.flash('error', 'This email address is not available. Please use different email address to register.');
         return res.redirect('/account/register');
     }
 
