@@ -589,8 +589,7 @@ app.get('/account/:id/edit', isLoggedIn, isAccountOwner, catchAsync(async (req, 
 
 
 app.patch('/account/:id', isLoggedIn, isAccountOwner, validateAccountUpdate, catchAsync(async (req, res) => {
-    const { id } = req.params;
-    const account = await Account.findByIdAndUpdate(id, { $set: res.locals.account }, { new: true });
+    const account = await Account.findByIdAndUpdate(req.params.id, { $set: res.locals.account }, { new: true });
     if (!account) {
         req.flash('error', 'Failed to update! Cannot find that account!');
         return res.redirect('/profiles');
