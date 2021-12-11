@@ -601,6 +601,10 @@ app.patch('/account/:id', isLoggedIn, isAccountOwner, validateAccountUpdate, cat
 
 app.delete('/account/:id', isLoggedIn, isAccountOwner, catchAsync(async (req, res) => {
     const accountToDelete = await Account.findById(req.params.id);
+    if (!accountToDelete) {
+        req.flash('error', 'Failed to delete! Cannot find that account!');
+        return res.redirect('/profiles');
+    }
  
     //find and delete all reviews left by this account 
     for (let reviewId of accountToDelete.reviews) {
