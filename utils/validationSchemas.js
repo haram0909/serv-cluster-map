@@ -23,10 +23,31 @@ module.exports.joiProfileSchema = Joi.object({
     }).required()
 });
 
-module.exports.joiAccountSchema = Joi.object({
+
+module.exports.joiAccountUpdateSchema = Joi.object({
     account: Joi.object({
         firstname: Joi.string().required(),
         lastname: Joi.string().required(),
         email: Joi.string().email({ tlds: false }).required(),
+        
+    }).required()
+});
+
+
+module.exports.joiAccountRegisterSchema = Joi.object({
+    account: Joi.object({
+        firstname: Joi.string().required(),
+        lastname: Joi.string().required(),
+        email: Joi.string().email({ tlds: false }).required(),
+        username: Joi.string().required(),
+        password: Joi.string()./*.pattern(new RegExp('^[a-zA-Z0-9]{3,30}$'))*/required()
+    }).required()/*.with('password','confirm_password')*/
+});
+
+
+module.exports.joiReviewSchema = Joi.object({
+    review: Joi.object({
+        body: Joi.string().required(),
+        rating: Joi.number().required()
     }).required()
 });
