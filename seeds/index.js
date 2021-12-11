@@ -42,11 +42,19 @@ const seedAccountProfileCol = async () => {
     //create account to attach profile
     for (let i = 0; i < names.length; i++) {
         console.log(`##Seeding account ${i}.`);
-        const accountEntry = new Account({
+        const accountInfo = {
             firstname: `${names[i].firstname}`,
             lastname: `${names[i].lastname}`,
-            email: `${emails[i].email}`
-        })
+            email: `${emails[i].email}`,
+            //will use email address as username and password because emails are unique 
+            username: `${emails[i].email}`
+        };
+
+        
+            const password = `${emails[i].email}`;
+            const accountEntry = new Account(accountInfo);
+            
+            
 
         console.log(`##Seeding profile ${i}.`);
 
@@ -127,7 +135,11 @@ const seedAccountProfileCol = async () => {
         })
         //attach profile to account
         accountEntry.profile = profileEntry._id;
-        await accountEntry.save();
+        //register the account and save the account to accounts collection
+        const registeredAccount = await Account.register(accountEntry, password);
+            console.log('registered account = ');
+            console.log(registeredAccount);
+        // await accountEntry.save();
         await profileEntry.save();
     }
 }
