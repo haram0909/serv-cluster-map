@@ -269,6 +269,33 @@ const isAccountOwner = (req, res, next) => {
     }
 }
 
+//checks for authorization for profiles
+//checks whether the currentAccount is the owner of the profile
+const isProfileOwner = (req, res, next) => {
+
+    // const profileToDelete = await Profile.findById(req.params.id);
+
+    console.log();
+    console.log('Inside of isProfileOwner middleware = ');
+    console.log(req.params.id);
+    console.log(res.locals.currentAccount.profile);
+    console.log( res.locals.currentAccount.profile? true:false );
+    // console.log(req.params.id === res.locals.currentAccount.profile.toString());
+
+    //authorization : check whether the currentAccount has a profile AND ALSO is the owner of this profile
+    if (res.locals.currentAccount.profile && req.params.id === res.locals.currentAccount.profile.toString()) {
+        console.log('IS the profile owner');
+        console.log();
+        next();
+    }else{
+        console.log('NOT the profile owner');
+        req.flash('error', 'Only the owner of the profile can do that!');
+        return res.redirect(`/profiles`);
+    }
+
+}
+
+
 //routes
 app.get('/', (req, res) => {
     res.render('home.ejs');
@@ -324,7 +351,7 @@ app.get('/profiles/:id', catchAsync(async (req, res) => {
 }));
 
 
-app.get('/profiles/:id/edit', isLoggedIn, catchAsync(async (req, res) => {
+app.get('/profiles/:id/edit', isLoggedIn, isProfileOwner, catchAsync(async (req, res) => {
     const profile = await Profile.findById(req.params.id).populate('account');
 
     if (!profile) {
@@ -332,12 +359,12 @@ app.get('/profiles/:id/edit', isLoggedIn, catchAsync(async (req, res) => {
         return res.redirect('/profiles');
     }
 
-    //authorization : check whether the currentAccount is the owner of this profile
-    // if (!res.locals.currentAccount.profile.equals(req.params.id)) {
-        if (!res.locals.currentAccount._id.equals(profile.account._id)) {
-            req.flash('error', 'Cannot edit profile of other accounts!');
-            return res.redirect(`/account/${req.params.id}`)
-        }
+    // //authorization : check whether the currentAccount is the owner of this profile
+    // // if (!res.locals.currentAccount.profile.equals(req.params.id)) {
+    //     if (!res.locals.currentAccount._id.equals(profile.account._id)) {
+    //         req.flash('error', 'Cannot edit profile of other accounts!');
+    //         return res.redirect(`/account/${req.params.id}`)
+    //     }
 
     res.render('profiles/edit.ejs', { profile });
 }));
@@ -396,7 +423,7 @@ app.post('/profiles', isLoggedIn, validateProfile, catchAsync(async (req, res) =
 }));
 
 
-app.patch('/profiles/:id', isLoggedIn, validateProfile, catchAsync(async (req, res) => {
+app.patch('/profiles/:id', isLoggedIn, isProfileOwner, validateProfile, catchAsync(async (req, res) => {
     // console.log(`skills = ${req.body.profile.skills.filter(obj => (obj.proglang !== "" && obj.experience !== "" && obj.experience >= 0))}`);
     // console.log(`offerings = ${req.body.profile.offerings.filter(obj => (obj.service !== "" && obj.price !== "" && obj.price >= 0))}`);
     //console.log(`req.body = ${JSON.stringify(req.body)}`);
@@ -408,14 +435,14 @@ app.patch('/profiles/:id', isLoggedIn, validateProfile, catchAsync(async (req, r
     console.log(JSON.stringify(res.locals.profile));
 
 
-    const profileToUpdate = await Profile.findById(req.params.id)
-    //authorization : check whether the currentAccount is the owner of this profile
-    // if (!res.locals.currentAccount.profile.equals(req.params.id)) {
-        if (!res.locals.currentAccount._id.equals(profileToUpdate.account._id)) {
-            console.log('CURRENT ACCOUNT _ID !== REQ.BODY.REVIEW ID');
-            req.flash('error', 'Cannot edit profile of other accounts!');
-            return res.redirect(`/account/${req.params.id}`)
-        }
+    // const profileToUpdate = await Profile.findById(req.params.id)
+    // //authorization : check whether the currentAccount is the owner of this profile
+    // // if (!res.locals.currentAccount.profile.equals(req.params.id)) {
+    //     if (!res.locals.currentAccount._id.equals(profileToUpdate.account._id)) {
+    //         console.log('CURRENT ACCOUNT _ID !== REQ.BODY.REVIEW ID');
+    //         req.flash('error', 'Cannot edit profile of other accounts!');
+    //         return res.redirect(`/account/${req.params.id}`)
+    //     }
 
     const updatedProfile = await Profile.findByIdAndUpdate(req.params.id, { $set: res.locals.profile }, { upsert: true, new: true });
     console.log(`Updated profile = ${updatedProfile}`);
@@ -441,7 +468,7 @@ app.patch('/profiles/:id', isLoggedIn, validateProfile, catchAsync(async (req, r
 }));
 
 
-app.delete('/profiles/:id', isLoggedIn, catchAsync(async (req, res) => {
+app.delete('/profiles/:id', isLoggedIn, isProfileOwner, catchAsync(async (req, res) => {
     
     const profileToDelete = await Profile.findById(req.params.id);
 
@@ -457,13 +484,13 @@ app.delete('/profiles/:id', isLoggedIn, catchAsync(async (req, res) => {
     }
 
 
-    //authorization : check whether the currentAccount is the owner of this profile
-    // if (!res.locals.currentAccount.profile.equals(req.params.id)) {
-    if (!res.locals.currentAccount._id.equals(profileToDelete.account._id)) {
+    // //authorization : check whether the currentAccount is the owner of this profile
+    // // if (!res.locals.currentAccount.profile.equals(req.params.id)) {
+    // if (!res.locals.currentAccount._id.equals(profileToDelete.account._id)) {
 
-        req.flash('error', 'Cannot delete profile of other accounts!');
-        return res.redirect(`/profiles`)
-    }
+    //     req.flash('error', 'Cannot delete profile of other accounts!');
+    //     return res.redirect(`/profiles`)
+    // }
 
 
 
