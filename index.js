@@ -134,6 +134,7 @@ app.use((req, res, next) => {
     //set that under res.locals.sucessMsg & pass along to destination path
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
+    res.locals.currentAccount = req.user;
     next();
 })
 
