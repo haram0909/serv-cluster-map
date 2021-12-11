@@ -229,6 +229,10 @@ const isLoggedIn = (req, res, next) => {
 
     if (!req.isAuthenticated()) {
 
+         //save the original url that was requested
+        console.log(req.originalUrl);
+        req.session.returnTo = req.originalUrl
+
         const errMsg = 'Needs to be logged in first!'
         console.log(errMsg);
         // next(new ExpressError(400, errMsg));
@@ -561,11 +565,38 @@ app.get('/account/login', async (req, res) => {
     res.render('accounts/login.ejs');
 });
 
-// will have to implement authtentication logic below
-app.post('/account/login', async (req, res) => {
+// flash will use 'success' or 'error' key, because passport package uses these keys
+    //user will be redirected back to where they were initially asked to login, if they got redirected to login 
+app.post('/account/login', passport.authenticate('local', { failureFlash: true, failureRedirect: '/account/login' }), async (req, res) => {
     console.log('successfully logged in!');
-    res.redirect('/profiles');
     req.flash('success', 'Successfully logged in!');
+    console.log();
+    console.log('current req.session.returnTo = ');
+    console.log(req.session.returnTo);
+    console.log();
+
+    if(req.session.returnTo/*.includes('/review')*/){
+        console.log('req.session.returnTo = truthy');
+        req.session.returnTo = req.session.returnTo.replace('/review','');
+        console.log('After replacing /review with empty string = ');
+        console.log(req.session.returnTo);
+    }
+    console.log('after checking for req.sesion.returnTo as truthy or falsy = ');
+    console.log(req.session.returnTo);
+    const redirectUrl = req.session.returnTo || '/profiles';
+    // //set req.session.returnTo back to undefined by setting req.originalUrl to undefined
+    // req.originalUrl = undefined;
+    // console.log('set req.originalUrl = undefined ==> ');
+    console.log('current req.originalUrl = ')
+    console.log(req.originalUrl);
+
+    //clean the record of returnTo data from session
+        //set req.session.returnTo back to undefined
+    req.session.returnTo = undefined;
+    console.log(' returnTo after setting back to undefined = ');
+    console.log(req.session.returnTo);
+
+    res.redirect(redirectUrl);
 });
 
 app.get('/account/register', async (req, res) => {
