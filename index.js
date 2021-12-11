@@ -11,6 +11,8 @@ const methodOverride = require('method-override');
 const { joiProfileSchema, joiAccountUpdateSchema, joiAccountRegisterSchema, joiReviewSchema } = require('./utils/validationSchemas.js');
 const session = require('express-session');
 const flash = require('connect-flash');
+const passport = require('passport');
+const LocalStrategy = require('passport-local');
 
 //dev dependencies
 const morgan = require('morgan');
@@ -23,6 +25,7 @@ const Review = require('./models/review.js');
 //utils
 const catchAsync = require('./utils/catchAsync.js');
 const ExpressError = require('./utils/ExpressError.js');
+const account = require('./models/account.js');
 
 
 
@@ -96,10 +99,24 @@ const sessionConfig = {
     }
 }
 
+//session should be initialized before initialize passport
 app.use(session(sessionConfig));
 app.use(flash());
 
 
+//passport configuration
+//doc = http://www.passportjs.org/docs/configure/
+app.use(passport.initialize());
+//passport.session allows persistant login session
+app.use(passport.session());
+//Account model inherits methods, including .authenticate() 
+//from plugging in passport-local-mongoose to Account model
+passport.use(new LocalStrategy(Account.authenticate()));
+
+//enable storing an account in a session
+passport.serializeUser(Account.serializeUser());
+//enable pulling an account out of a session
+passport.deserializeUser(Account.deserializeUser());
 
 
 //middleware
