@@ -213,6 +213,30 @@ const validateAccountRegister = (req, res, next) => {
     }
 }
 
+//checks for whether there is an logged in account in the session
+    //updated to use .isAuthenticated() method from passport
+const isLoggedIn = (req, res, next) => {
+
+    // if (!res.locals.currentAccount) {
+    //     const errMsg = 'No logged in account in this session!'
+    //     console.log(errMsg);
+    //     // next(new ExpressError(400, errMsg));
+    //     req.flash('error', errMsg);
+    //     return res.redirect('/account/login')
+
+    if (!req.isAuthenticated()) {
+
+        const errMsg = 'Needs to be logged in first!'
+        console.log(errMsg);
+        // next(new ExpressError(400, errMsg));
+        req.flash('error', errMsg);
+        return res.redirect('/account/login')
+    } else {
+        console.log('Logged in account exists');
+        next();
+    }
+
+}
 
 // checks for authorization for accounts
 //checks whether the currentAccount is the owner of the account
