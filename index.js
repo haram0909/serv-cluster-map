@@ -714,6 +714,15 @@ app.post('/account/register', validateAccountRegister, catchAsync(async (req, re
         console.log('registered account = ');
         console.log(registeredAccount);
         
+        //immediately enter logged in session for the newly registered account
+        req.login(registeredAccount, function(err) {
+            if (err) {
+              console.log(err);
+              req.flash('error', 'Failed to login for registered account. Please try logging in through Login page from navigation bar.');
+            }
+          });
+
+        // await account.save(); -> because .register method would have already saved
         req.flash('success', 'Successfully created a new account!');
         return res.redirect(`/account/${registeredAccount._id}`);
     } catch (err) {
