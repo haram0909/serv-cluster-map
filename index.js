@@ -509,6 +509,54 @@ app.post('/profiles/:id/review', isLoggedIn, validateReview, catchAsync(async (r
 
 }));
 
+
+app.delete('/profiles/:id/review', isLoggedIn, catchAsync(async (req, res) => {
+
+    console.log('INSIDE OF DELETE REVIEW ROUTE!');
+
+    console.log('Review to delete = reviewId = ');
+    console.log(`${req.body.reviewId}`);
+    console.log('currentAccount._id = ');
+    console.log(`${res.locals.currentAccount._id}`);
+
+
+    const reviewToDelete = await Review.findById(req.body.reviewId).populate({ path: 'author', select: '_id' }).populate({ path: 'about', select: '_id' });
+    console.log(`Review to be deleted = ${JSON.stringify(reviewToDelete)}`);
+
+    console.log('Author id of Review to delete =  ');
+    console.log(`${reviewToDelete.author}`);
+
+    //check whether the author of the review is currentAccount
+    if (!res.locals.currentAccount._id.equals(reviewToDelete.author._id)) {
+        console.log('CURRENT ACCOUNT _ID !== REQ.BODY.REVIEW ID');
+        req.flash('error', 'Cannot delete reviews written by others!');
+        return res.redirect(`/profiles/${req.params.id}`)
+    }
+    console.log('CAN delete this review');
+
+    if (!reviewToDelete) {
+        req.flash('error', 'Failed to delete! Cannot find that review!');
+        return res.redirect(`/profiles/${req.params.id}`);
+    }
+
+    console.log('$Author of the review = account Id = ');
+    console.log(reviewToDelete.author._id);
+    console.log('Deleting the record of the review from account');
+    const authorAccount = await Account.findByIdAndUpdate(reviewToDelete.author._id, { $pull: { reviews: req.body.reviewId } });
+    console.log(JSON.stringify(authorAccount));
+
+    console.log('$Profile to delete the review from = profile Id = ');
+    console.log(reviewToDelete.about._id);
+    console.log('Deleting the review from profiles');
+    const reviewedProfile = await Profile.findByIdAndUpdate(reviewToDelete.about._id, { $pull: { reviews: req.body.reviewId } });
+    console.log(JSON.stringify(reviewedProfile));
+
+    console.log('Deleting the review from reviews collection');
+    await Review.findByIdAndDelete(req.body.reviewId);
+
+    req.flash('success', 'Successfully deleted reviews on the profile.');
+    res.redirect(`/profiles/${req.params.id}`);
+}));
 app.get('/account/login', async (req, res) => {
     res.render('accounts/login.ejs');
 });
