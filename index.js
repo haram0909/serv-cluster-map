@@ -396,19 +396,19 @@ app.post('/profiles', isLoggedIn, validateProfile, catchAsync(async (req, res) =
 }));
 
 
-app.patch('/profiles/:id', validateProfile, catchAsync(async (req, res) => {
+app.patch('/profiles/:id', isLoggedIn, validateProfile, catchAsync(async (req, res) => {
     // console.log(`skills = ${req.body.profile.skills.filter(obj => (obj.proglang !== "" && obj.experience !== "" && obj.experience >= 0))}`);
     // console.log(`offerings = ${req.body.profile.offerings.filter(obj => (obj.service !== "" && obj.price !== "" && obj.price >= 0))}`);
     //console.log(`req.body = ${JSON.stringify(req.body)}`);
 
-    const { id } = req.params;
+    
     console.log('req.body = ');
     console.log(req.body);
-    console.log('res.locals.profile = ')
+    console.log('res.locals.profile = ');
     console.log(JSON.stringify(res.locals.profile));
 
-    const profile = await Profile.findByIdAndUpdate(id, { $set: res.locals.profile }, { upsert: true, new: true });
-    console.log(`Updated profile = ${profile}`);
+
+    const profileToUpdate = await Profile.findById(req.params.id)
     //authorization : check whether the currentAccount is the owner of this profile
     // if (!res.locals.currentAccount.profile.equals(req.params.id)) {
         if (!res.locals.currentAccount._id.equals(profileToUpdate.account._id)) {
@@ -416,8 +416,11 @@ app.patch('/profiles/:id', validateProfile, catchAsync(async (req, res) => {
             req.flash('error', 'Cannot edit profile of other accounts!');
             return res.redirect(`/account/${req.params.id}`)
         }
+
+    const updatedProfile = await Profile.findByIdAndUpdate(req.params.id, { $set: res.locals.profile }, { upsert: true, new: true });
+    console.log(`Updated profile = ${updatedProfile}`);
     //need current session's account 
-    //curr account.profile = profile._id; ** just like seeding
+    //curr account.updatedProfile = updatedProfile._id; ** just like seeding
 
     // const imgs = req.files.map(f => ({ url: f.path, filename: f.filename }));
     // campground.images.push(...imgs);
@@ -438,10 +441,10 @@ app.patch('/profiles/:id', validateProfile, catchAsync(async (req, res) => {
 }));
 
 
-app.delete('/profiles/:id', catchAsync(async (req, res) => {
-    const { id } = req.params;
-    const profileToDelete = await Profile.findById(id);
 app.delete('/profiles/:id', isLoggedIn, catchAsync(async (req, res) => {
+    
+    const profileToDelete = await Profile.findById(req.params.id);
+
 
     console.log(`Profile to be deleted = ${JSON.stringify(profileToDelete)}`);
     // if (profileToDelete === null) {
@@ -474,7 +477,7 @@ app.delete('/profiles/:id', isLoggedIn, catchAsync(async (req, res) => {
     }
 
     console.log('Deleting target profile');
-    await Profile.findByIdAndDelete(id);
+    await Profile.findByIdAndDelete(req.params.id);
     // console.log(`Account id to delete this profile from = ${req.body.accountId}`);
 
     //set the profile linked account's profile property to null -> allow the account to create new profile
