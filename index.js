@@ -214,6 +214,29 @@ const validateAccountRegister = (req, res, next) => {
 }
 
 
+// checks for authorization for accounts
+//checks whether the currentAccount is the owner of the account
+const isAccountOwner = (req, res, next) => {
+    console.log();
+    console.log('Checking whether currentAccount is the owner of the Account');
+    console.log('res.locals.currentAccount = ');
+    console.log(res.locals.currentAccount);
+    console.log('req.params.id = ');
+    console.log(req.params.id);
+    console.log(res.locals.currentAccount._id.equals(req.params.id));
+    console.log();
+
+    if (!res.locals.currentAccount._id.equals(req.params.id)) {
+    // if (!res.locals.currentAccount._id.equals(accountToDelete._id)) {
+        console.log('CURRENT ACCOUNT _ID !== REQ.BODY.REVIEW ID');
+        req.flash('error', 'Cannot interact with accounts that is not yours!');
+        // return res.redirect(`/account/${res.locals.currentAccount._id}`);
+        return res.redirect(`/profiles`);
+    } else{
+        console.log('isAccountOwner = TRUE');
+        next();
+    }
+}
 
 //routes
 app.get('/', (req, res) => {
