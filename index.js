@@ -411,6 +411,104 @@ app.delete('/profiles/:id', catchAsync(async (req, res) => {
 
 
 
+//routes for reviews
+//NEED VALIDATE-REVIEW MIDDLEWARE DEFINED & USED HERE!!!! = DONE
+//NEED TO VALIDATE THAT LOGGED IN FIRST! = DONE
+//NEED TO VALIDATE THAT THE ACCOUNT HAS NOT ALREADY LEFT A REVIEW = DONE
+app.post('/profiles/:id/review', isLoggedIn, validateReview, catchAsync(async (req, res) => {
+
+    console.log('PASSED isLoggedIn CHECK = there is logged in account in the session');
+    console.log('currentAccount = req.user = ')
+    console.log(JSON.stringify(req.user));
+
+    console.log(' ');
+    console.log('ENTERED POST PROFILE/ID/REVIEW ROUTE!!');
+
+    console.log(`$ res.locals = ${JSON.stringify(res.locals)}`);
+
+    // //HAVE TO CONFIGURE LOGIN SESSION BEFORE CHECKING FOR AUTHENTICATION
+    // console.log(`current user authenticated = ${req.isAuthenticated()}`);
+
+    // //authentication check  --> req.user._id?
+    // if(!req.isAuthenticated()){
+    //     req.flash('error', 'You need to be logged in.');
+    //     return res.redirect('/account/login');
+    // }
+    console.log(' ');
+    console.log(`CREATING NEW review for profile ${req.params.id}`);
+    console.log(JSON.stringify(req.body));
+
+    const profile = await Profile.findById(req.params.id).populate('reviews')/*.populate('account')*//*.populate('reviews')*/;
+    if (!profile) {
+        req.flash('error', 'Cannot find the profile to add this review!');
+        return res.redirect('/profiles');
+    }
+    console.log('LEAVING REVIEW TO PROFILE = ');
+    console.log(JSON.stringify(profile));
+
+    //this now validates whether the current account exists as an author of any of the reviews for this profile...
+    console.log('CHECKING IF CURRENT ACCOUNT HAS LEFT A REVIEW HERE = ');
+
+    let wroteReview = false;
+    for (let review of profile.reviews) {
+        if (review.author._id.equals(res.locals.currentAccount._id)) {
+            wroteReview = true;
+            break;
+        }
+    }
+    console.log('currentAccount wrote a review here = ', wroteReview);
+
+    // An account is only allowed to leave 1 review for a profile
+    if (wroteReview) {
+        req.flash('error', 'Cannot leave more than 1 review for a profile!');
+        return res.redirect(`/profiles/${req.params.id}`)
+    }
+
+    // let authorsOfReviews = [];
+    // for(let review of profile.reviews){
+    //     authorsOfReviews.push(review.author);
+    // }
+    // console.log('Authors of reviews on this profile = ');
+    // console.log(authorsOfReviews);
+    // console.log(authorsOfReviews.includes(res.locals.currentAccount._id));
+
+    // console.log(profile.reviews.author.includes(res.locals.currentAccount._id).toString());
+    console.log('current account id = ');
+    console.log(res.locals.currentAccount._id.toString());
+
+    //add to reviews array
+    const account = await Account.findById(res.locals.currentAccount._id);
+    // const account = await Account.findById(req.body.accountId);
+    if (!account) {
+        req.flash('error', 'Cannot find the account that is attempting to leave a review!');
+        return res.redirect('/profiles');
+    }
+
+
+
+    //add to reviews array
+    // const profile = new Profile(req.body.profile);
+    const review = new Review(res.locals.review);
+    review.about = req.params.id;
+    review.author = res.locals.currentAccount._id;
+    console.log('THE NEW REVIEW = ');
+    console.log(JSON.stringify(review));
+    await review.save();
+
+    profile.reviews.push(review);
+    await profile.save();
+    console.log('saved profile');
+
+    account.reviews.push(review);
+    await account.save()
+    console.log('saved account');
+
+
+    req.flash('success', 'Successfully added a new review to this profile!');
+    res.redirect(`/profiles/${profile._id}`);
+
+}));
+
 app.get('/account/login', async (req, res) => {
     res.render('accounts/login.ejs');
 });
