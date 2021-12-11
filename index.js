@@ -642,10 +642,17 @@ app.delete('/account/:id', isLoggedIn, isAccountOwner, catchAsync(async (req, re
 //$$$$$$!!!!!!! All profile routes need authorization check before any edit ability
 //should only be allowed when current account does NOT have profile
 app.get('/account/:id/profile/new', isLoggedIn, isAccountOwner, async (req, res) => {
+    const account = await Account.findById(req.params.id);
+
+    //confirm that the account does NOT have a valid linked profile
+    const haveProfile = (account.profile !== null) && (account.profile !== undefined);
+    if (haveProfile) {
+        // throw new Error("This Account already has a valid My Profile. An account is not allowed to have more than 1 valid profile.");
+        req.flash('error', 'This Account already has a valid profile. An account is not allowed to have more than 1 valid profile.');
+        return res.redirect(`/account/${account._id}`);
+    }
+
     const accountId = req.params.id;
-
-
-    //have the logic check the current account does NOT have a valid profile
     res.render('profiles/new.ejs', { accountId });
 });
 
