@@ -816,6 +816,32 @@ app.delete('/account/:id', isLoggedIn, isAccountOwner, catchAsync(async (req, re
 
  
     //find all reviews left by this account & delete all of them from the profiles
+    console.log('Trying to delete reviews wrote to other profiles by this account = ');
+    console.log(`${accountToDelete._id}`);
+
+    for (let reviewId of accountToDelete.reviews) {
+    
+        console.log('Attempting to delete this review from profiles = ');
+        console.log(reviewId);
+
+        const reviewToDelete = await Review.findById(reviewId);
+        console.log(`Review to be deleted = ${JSON.stringify(reviewToDelete)}`);
+
+        if (!reviewToDelete) {
+            req.flash('error', 'Failed to delete 1 or more reviews written by this account! Cannot find the review(s)!');
+        }
+
+        console.log('$Profile to delete the review from = profile Id = ');
+        console.log(reviewToDelete.about._id);
+
+        console.log('Deleting the review from profile = ');
+        const reviewedProfile = await Profile.findByIdAndUpdate(reviewToDelete.about._id, { $pull: { reviews: reviewId } });
+        console.log(JSON.stringify(reviewedProfile));
+
+        console.log('Deleting the review from reviews collection');
+        await Review.findByIdAndDelete(reviewId);
+    }
+    req.flash('success', 'Successfully deleted reviews written by this account.');
 
     //delete the profile of this account, if exists
     const profileToDelete = await Profile.findById(req.body.profileId);
