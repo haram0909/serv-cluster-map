@@ -30,10 +30,11 @@ const AccountSchema = new Schema({
     ]
 });
 
+// passport-local-mongoose plugin will auto add username and password fields automatically
+AccountSchema.plugin(passportLocalMongoose);
+
 AccountSchema.virtual('fullname').get(function () {
     return `${this.firstname}, ${this.lastname.charAt(0)}`;
 });
-
-AccountSchema.plugin(passportLocalMongoose);
 
 module.exports = mongoose.model("Account", AccountSchema);
