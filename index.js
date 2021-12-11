@@ -80,19 +80,21 @@ const sessionConfig = {
     //if undefined= memory store, which is barely acceptable for dev env
     //because the memory store disappears when server restart as it is local, not a real db
     // eventually will be replaced with mongodb store (other option = redis, etc)
+
     // store: store, 
     name: 'session',
     secret: secret,
     //resave false (as was on doc)
-    //appears mongoDB session store implements 'touch' method
-    // to prevent race conditions hwere client's multiple parallel requests without session 
+        //appears mongoDB session store implements 'touch' method
+        // to prevent race conditions where client's multiple parallel requests without session 
     resave: false,
     //saveUninitialized false
-    //to prevent creating session for crawler bot tapping results in creating sessions
-    //also tracking recurring visitors isn't in scope for now
+        //to prevent creating session for crawler bot tapping results in creating sessions
+        //also tracking recurring visitors isn't in scope for now
     saveUninitialized: false,
     cookie: {
         httpOnly: true,
+        //to allow http, instead of forcing https
         // secure: true,
         expires: Date.now() + 1000 * 60 * 60 * 24 * 30,
         maxAge: 1000 * 60 * 60 * 24 * 30
@@ -110,7 +112,7 @@ app.use(passport.initialize());
 //passport.session allows persistant login session
 app.use(passport.session());
 //Account model inherits methods, including .authenticate() 
-//from plugging in passport-local-mongoose to Account model
+    //from plugging in passport-local-mongoose to Account model
 passport.use(new LocalStrategy(Account.authenticate()));
 
 //enable storing an account in a session
@@ -140,13 +142,8 @@ app.use((req, res, next) => {
 
 //middleware function
 const validateProfile = (req, res, next) => {
-
     // requires allowUnknown: false option at validate, bc images of "" is type unknown...
     const validationResult = joiProfileSchema.validate(req.body, { abortEarly: false, allowUnknown: true });
-
-    console.log('original req.body = ' + JSON.stringify(req.body));
-    console.log('validation result = ' + JSON.stringify(validationResult))
-    console.log('cleaned req.body = ' + JSON.stringify(validationResult.value));
 
     if (validationResult.error) {
         const errMsg = validationResult.error.details.map(item => item.message).join(',');
@@ -159,13 +156,8 @@ const validateProfile = (req, res, next) => {
 }
 
 const validateAccountUpdate = (req, res, next) => {
-
     // requires allowUnknown: false option at validate, bc images of "" is type unknown...
     const validationResult = joiAccountUpdateSchema.validate(req.body, { abortEarly: false, allowUnknown: true });
-
-    // console.log('original req.body = ' + JSON.stringify(req.body));
-    // console.log('validation result = ' + JSON.stringify(validationResult))
-    // console.log('cleaned req.body = ' + JSON.stringify(validationResult.value));
 
     if (validationResult.error) {
         const errMsg = validationResult.error.details.map(item => item.message).join(',');
@@ -178,13 +170,8 @@ const validateAccountUpdate = (req, res, next) => {
 }
 
 const validateAccountRegister = (req, res, next) => {
-
     // requires allowUnknown: false option at validate, bc images of "" is type unknown...
     const validationResult = joiAccountRegisterSchema.validate(req.body, { abortEarly: false, allowUnknown: true });
-
-    // console.log('original req.body = ' + JSON.stringify(req.body));
-    // console.log('validation result = ' + JSON.stringify(validationResult))
-    // console.log('cleaned req.body = ' + JSON.stringify(validationResult.value));
 
     if (validationResult.error) {
         const errMsg = validationResult.error.details.map(item => item.message).join(',');
@@ -197,44 +184,28 @@ const validateAccountRegister = (req, res, next) => {
 }
 
 const validateReview = (req, res, next) => {
-
     // requires allowUnknown: false option at validate, bc images of "" is type unknown...
     const validationResult = joiReviewSchema.validate(req.body, { abortEarly: false, allowUnknown: true });
-
-    console.log('original req.body = ' + JSON.stringify(req.body));
-    console.log('validation result = ' + JSON.stringify(validationResult))
-    console.log('cleaned req.body = ' + JSON.stringify(validationResult.value));
 
     if (validationResult.error) {
         const errMsg = validationResult.error.details.map(item => item.message).join(',');
         //throw new ExpressError(400, errMsg);
         next(new ExpressError(400, errMsg));
-
     } else {
         res.locals.review = validationResult.value.review;
         next();
     }
 }
 
-//checks for whether there is an logged in account in the session
-    //updated to use .isAuthenticated() method from passport
 const isLoggedIn = (req, res, next) => {
-
-    // if (!res.locals.currentAccount) {
-    //     const errMsg = 'No logged in account in this session!'
-    //     console.log(errMsg);
-    //     // next(new ExpressError(400, errMsg));
-    //     req.flash('error', errMsg);
-    //     return res.redirect('/account/login')
-
+    //updated to use .isAuthenticated() method from passport
+        //instead of checking for res.locals.currentAccount exists
     if (!req.isAuthenticated()) {
 
          //save the original url that was requested
-        console.log(req.originalUrl);
         req.session.returnTo = req.originalUrl
 
         const errMsg = 'Needs to be logged in first!'
-        console.log(errMsg);
         // next(new ExpressError(400, errMsg));
         req.flash('error', errMsg);
         return res.redirect('/account/login')
@@ -242,26 +213,13 @@ const isLoggedIn = (req, res, next) => {
         console.log('Logged in account exists');
         next();
     }
-
 }
 
-// checks for authorization for accounts
-//checks whether the currentAccount is the owner of the account
+
 const isAccountOwner = (req, res, next) => {
-    console.log();
-    console.log('Checking whether currentAccount is the owner of the Account');
-    console.log('res.locals.currentAccount = ');
-    console.log(res.locals.currentAccount);
-    console.log('req.params.id = ');
-    console.log(req.params.id);
-    console.log(res.locals.currentAccount._id.equals(req.params.id));
-    console.log();
 
     if (!res.locals.currentAccount._id.equals(req.params.id)) {
-    // if (!res.locals.currentAccount._id.equals(accountToDelete._id)) {
-        console.log('CURRENT ACCOUNT _ID !== REQ.BODY.REVIEW ID');
         req.flash('error', 'Cannot interact with accounts that is not yours!');
-        // return res.redirect(`/account/${res.locals.currentAccount._id}`);
         return res.redirect(`/profiles`);
     } else{
         console.log('isAccountOwner = TRUE');
@@ -269,20 +227,9 @@ const isAccountOwner = (req, res, next) => {
     }
 }
 
-//checks for authorization for profiles
-//checks whether the currentAccount is the owner of the profile
 const isProfileOwner = (req, res, next) => {
 
-    // const profileToDelete = await Profile.findById(req.params.id);
-
-    console.log();
-    console.log('Inside of isProfileOwner middleware = ');
-    console.log(req.params.id);
-    console.log(res.locals.currentAccount.profile);
-    console.log( res.locals.currentAccount.profile? true:false );
-    // console.log(req.params.id === res.locals.currentAccount.profile.toString());
-
-    //authorization : check whether the currentAccount has a profile AND ALSO is the owner of this profile
+    //check whether the currentAccount has a profile AND ALSO is the owner of this profile
     if (res.locals.currentAccount.profile && req.params.id === res.locals.currentAccount.profile.toString()) {
         console.log('IS the profile owner');
         console.log();
@@ -292,7 +239,6 @@ const isProfileOwner = (req, res, next) => {
         req.flash('error', 'Only the owner of the profile can do that!');
         return res.redirect(`/profiles`);
     }
-
 }
 
 
@@ -308,114 +254,56 @@ app.get('/profiles', catchAsync(async (req, res) => {
 }));
 
 app.get('/profiles/:id', catchAsync(async (req, res) => {
-    //!!! populating nested (might need redesigning of the doc for better performance)
-    //!!! check whether the model definition option is requried to be passed in
-    // const profile = await Profile.findById(req.params.id).populate('account').populate({path: 'reviews', populate: {path: 'author', select: 'firstname'/*, model: 'Account'*/} });
-    // const profile = await Profile.findById(req.params.id).populate('account').populate({path: 'reviews', populate: {path: 'author', select: 'firstname'/*, model: 'Account'*/} });
     const profile = await Profile.findById(req.params.id).populate('account');
-
-    console.log('LOOKING UP PROFILE = ');
-    console.log(JSON.stringify(profile));
-
     if (!profile) {
         req.flash('error', 'Cannot find that profile!');
         return res.redirect('/profiles');
     }
-
-
-    //authorization : check whether the currentAccount is the owner of this profile
-    console.log()
-    console.log((res.locals.currentAccount? true : false) )
-    console.log(res.locals.currentAccount)
-    // console.log(res.locals.currentAccount._id)
-    // console.dir(res.locals.currentAccount._id.toHexString())
-    // console.log(res.locals.currentAccount._id.equals(profile.account._id))
-    console.log()
-    // const isProfileOwner = (res.locals.currentAccount && res.locals.currentAccount.profile.equals(req.params.id));  
+    //check whether the currentAccount is the owner of this profile to pass ownership flag or not
     const isProfileOwner = (res.locals.currentAccount && res.locals.currentAccount._id.equals(profile.account._id));  
-    // if (!res.locals.currentAccount._id.equals(profileToDelete.account._id))
-
+   
     const reviewsForProfile = await Review.find({ 'about': req.params.id }).populate({ path: 'author', select: 'firstname lastname _id' });
-    console.log('REVIEWS WRITTEN FOR THIS PROFILE = ');
-    console.log(JSON.stringify(reviewsForProfile));
-
-    console.log('res.locals =====')
-    console.log(res.locals.currentAccount)
-
-    // if(res.locals.currentAccount){
-    // const currentAccount = res.locals.currentAccount._id;
-    // }
-    // console.log('NO CURRENT ACCOUNT');
-
     res.render('profiles/show.ejs', { profile, reviewsForProfile, isProfileOwner });
 }));
 
 
 app.get('/profiles/:id/edit', isLoggedIn, isProfileOwner, catchAsync(async (req, res) => {
     const profile = await Profile.findById(req.params.id).populate('account');
-
     if (!profile) {
         req.flash('error', 'Cannot find that profile!');
         return res.redirect('/profiles');
     }
-
-    // //authorization : check whether the currentAccount is the owner of this profile
-    // // if (!res.locals.currentAccount.profile.equals(req.params.id)) {
-    //     if (!res.locals.currentAccount._id.equals(profile.account._id)) {
-    //         req.flash('error', 'Cannot edit profile of other accounts!');
-    //         return res.redirect(`/account/${req.params.id}`)
-    //     }
-
     res.render('profiles/edit.ejs', { profile });
 }));
 
-//$$$$$$!!!!!!! All profile routes need authorization check before any edit ability
 
 //POST '/profiles' route = ONLY ACCESSIBLE THROUGH GET '/account/:id/profile/new' route  
-//!!!! will have to establish 2way referencing of profile object id and account object id
 //!!!! will break for now, because cannot meet model schema's requirement for now
 //need to have geometry.type path, etc
 app.post('/profiles', isLoggedIn, validateProfile, catchAsync(async (req, res) => {
-
-    //res.locals.accountId = undefined, because res.locals been dropped as soon as they have arrived to this route and the req has been resolved
-    // console.log(`current account Id (res.locals.accountId) = ${res.locals.accountId}`);
-    console.log(`cleaned new profile = ${JSON.stringify(res.locals.profile)}`);
-
-    // const account = await Account.findById(req.params.id);
     const account = await Account.findById(req.body.accountId);
 
     //authorization : check whether the currentAccount is the owner of the account to create the profile
         if (!res.locals.currentAccount._id.equals(account._id)) {
-            
             req.flash('error', 'Cannot create profile of other accounts!');
             return res.redirect(`/profiles`)
         }
 
-
     //confirm that the account does NOT have a valid linked profile
-    // const haveProfile =  await Profile.findById(account.profile);
     const haveProfile = (account.profile !== null) && (account.profile !== undefined);
-    // const haveProfile =  account.profile !== (null && undefined);
-    //  const haveProfile = account.profile ? true : await Profile.findById(account.profile);
-    //  const haveProfile = await Profile.findById(account.profile);
-    console.log(`Have a profile = ${haveProfile}`);
     if (haveProfile) {
         // throw new Error("This Account already has a valid My Profile. An account is not allowed to have more than 1 valid profile.");
-        req.flash('error', 'This Account already has a valid My Profile. An account is not allowed to have more than 1 valid profile.');
+        req.flash('error', 'This Account already has a valid profile. An account is not allowed to have more than 1 valid profile.');
         return res.redirect(`/account/${account._id}`);
     }
 
-    // const profile = new Profile(req.body.profile);
+    //link the currentAccount with the newly created profile
     const profile = new Profile(res.locals.profile);
-    //need current session's account 
-    //!!!!!!!curr account.profile = profile._id; ** just like seeding
-
     profile.account = account;
     await profile.save();
-    console.log('saved profile');
-
-    const updatedAccount = await Account.findByIdAndUpdate(req.body.accountId, { profile: profile }, { upsert: true });
-    // console.log(`updated profile = ${JSON.stringify(updatedAccount)}`);
+   
+    //link the newly created profile to the currentAccount
+    await Account.findByIdAndUpdate(req.body.accountId, { profile: profile }, { upsert: true });
 
     req.flash('success', 'Successfully created my profile!');
     //https://stackoverflow.com/questions/38011068/how-to-remove-object-taking-into-account-references-in-mongoose-node-js
@@ -424,30 +312,9 @@ app.post('/profiles', isLoggedIn, validateProfile, catchAsync(async (req, res) =
 
 
 app.patch('/profiles/:id', isLoggedIn, isProfileOwner, validateProfile, catchAsync(async (req, res) => {
-    // console.log(`skills = ${req.body.profile.skills.filter(obj => (obj.proglang !== "" && obj.experience !== "" && obj.experience >= 0))}`);
-    // console.log(`offerings = ${req.body.profile.offerings.filter(obj => (obj.service !== "" && obj.price !== "" && obj.price >= 0))}`);
-    //console.log(`req.body = ${JSON.stringify(req.body)}`);
-
-    
-    console.log('req.body = ');
-    console.log(req.body);
-    console.log('res.locals.profile = ');
-    console.log(JSON.stringify(res.locals.profile));
-
-
-    // const profileToUpdate = await Profile.findById(req.params.id)
-    // //authorization : check whether the currentAccount is the owner of this profile
-    // // if (!res.locals.currentAccount.profile.equals(req.params.id)) {
-    //     if (!res.locals.currentAccount._id.equals(profileToUpdate.account._id)) {
-    //         console.log('CURRENT ACCOUNT _ID !== REQ.BODY.REVIEW ID');
-    //         req.flash('error', 'Cannot edit profile of other accounts!');
-    //         return res.redirect(`/account/${req.params.id}`)
-    //     }
-
     const updatedProfile = await Profile.findByIdAndUpdate(req.params.id, { $set: res.locals.profile }, { upsert: true, new: true });
-    console.log(`Updated profile = ${updatedProfile}`);
-    //need current session's account 
-    //curr account.updatedProfile = updatedProfile._id; ** just like seeding
+
+    //!!!! implement image upload here
 
     // const imgs = req.files.map(f => ({ url: f.path, filename: f.filename }));
     // campground.images.push(...imgs);
@@ -458,6 +325,7 @@ app.patch('/profiles/:id', isLoggedIn, isProfileOwner, validateProfile, catchAsy
     //     }
     //     await campground.updateOne({ $pull: { images: { filename: { $in: req.body.deleteImages } } } })
     // }
+
     if (!updatedProfile) {
         req.flash('error', 'Failed to update! Cannot find that profile!');
         return res.redirect('/profiles');
@@ -472,41 +340,21 @@ app.delete('/profiles/:id', isLoggedIn, isProfileOwner, catchAsync(async (req, r
     
     const profileToDelete = await Profile.findById(req.params.id);
 
-
-    console.log(`Profile to be deleted = ${JSON.stringify(profileToDelete)}`);
-    // if (profileToDelete === null) {
-    //     throw new ExpressError(400, 'This is NOT a valid profile');   
-    // }
-
     if (!profileToDelete) {
         req.flash('error', 'Failed to delete! Cannot find that profile!');
         return res.redirect('/profiles');
     }
 
-
-    // //authorization : check whether the currentAccount is the owner of this profile
-    // // if (!res.locals.currentAccount.profile.equals(req.params.id)) {
-    // if (!res.locals.currentAccount._id.equals(profileToDelete.account._id)) {
-
-    //     req.flash('error', 'Cannot delete profile of other accounts!');
-    //     return res.redirect(`/profiles`)
-    // }
-
-
-
+    //delete reviews written on the profile to delete, if any
     if (profileToDelete.reviews.length > 0) {
-        console.log('Deleting reviews on this profile');
         await Review.deleteMany({ _id: { $in: profileToDelete.reviews } });
         req.flash('success', 'Successfully deleted reviews on the profile.');
     } else {
-        console.log('There is no reviews linked to this profile');
         req.flash('success', 'There was no reviews on the profile.');
     }
 
-    console.log('Deleting target profile');
     await Profile.findByIdAndDelete(req.params.id);
-    // console.log(`Account id to delete this profile from = ${req.body.accountId}`);
-
+  
     //set the profile linked account's profile property to null -> allow the account to create new profile
     await Account.findByIdAndUpdate(req.body.accountId, { profile: null });
     req.flash('success', 'Successfully deleted the profile!');
@@ -516,45 +364,21 @@ app.delete('/profiles/:id', isLoggedIn, isProfileOwner, catchAsync(async (req, r
 
 
 
-
 //routes for reviews
-//NEED VALIDATE-REVIEW MIDDLEWARE DEFINED & USED HERE!!!! = DONE
-//NEED TO VALIDATE THAT LOGGED IN FIRST! = DONE
-//NEED TO VALIDATE THAT THE ACCOUNT HAS NOT ALREADY LEFT A REVIEW = DONE
 app.post('/profiles/:id/review', isLoggedIn, validateReview, catchAsync(async (req, res) => {
-
-    console.log('PASSED isLoggedIn CHECK = there is logged in account in the session');
-    console.log('currentAccount = req.user = ')
-    console.log(JSON.stringify(req.user));
-
-    console.log(' ');
-    console.log('ENTERED POST PROFILE/ID/REVIEW ROUTE!!');
-
-    console.log(`$ res.locals = ${JSON.stringify(res.locals)}`);
-
-    // //HAVE TO CONFIGURE LOGIN SESSION BEFORE CHECKING FOR AUTHENTICATION
-    // console.log(`current user authenticated = ${req.isAuthenticated()}`);
-
-    // //authentication check  --> req.user._id?
-    // if(!req.isAuthenticated()){
-    //     req.flash('error', 'You need to be logged in.');
-    //     return res.redirect('/account/login');
-    // }
-    console.log(' ');
-    console.log(`CREATING NEW review for profile ${req.params.id}`);
-    console.log(JSON.stringify(req.body));
-
-    const profile = await Profile.findById(req.params.id).populate('reviews')/*.populate('account')*//*.populate('reviews')*/;
+    const profile = await Profile.findById(req.params.id).populate('reviews');
     if (!profile) {
         req.flash('error', 'Cannot find the profile to add this review!');
         return res.redirect('/profiles');
     }
-    console.log('LEAVING REVIEW TO PROFILE = ');
-    console.log(JSON.stringify(profile));
+
+    const account = await Account.findById(res.locals.currentAccount._id);
+    if (!account) {
+        req.flash('error', 'Cannot find the account that is attempting to leave a review!');
+        return res.redirect('/profiles');
+    }
 
     //this now validates whether the current account exists as an author of any of the reviews for this profile...
-    console.log('CHECKING IF CURRENT ACCOUNT HAS LEFT A REVIEW HERE = ');
-
     let wroteReview = false;
     for (let review of profile.reviews) {
         if (review.author._id.equals(res.locals.currentAccount._id)) {
@@ -562,102 +386,52 @@ app.post('/profiles/:id/review', isLoggedIn, validateReview, catchAsync(async (r
             break;
         }
     }
-    console.log('currentAccount wrote a review here = ', wroteReview);
-
     // An account is only allowed to leave 1 review for a profile
     if (wroteReview) {
         req.flash('error', 'Cannot leave more than 1 review for a profile!');
         return res.redirect(`/profiles/${req.params.id}`)
     }
 
-    // let authorsOfReviews = [];
-    // for(let review of profile.reviews){
-    //     authorsOfReviews.push(review.author);
-    // }
-    // console.log('Authors of reviews on this profile = ');
-    // console.log(authorsOfReviews);
-    // console.log(authorsOfReviews.includes(res.locals.currentAccount._id));
-
-    // console.log(profile.reviews.author.includes(res.locals.currentAccount._id).toString());
-    console.log('current account id = ');
-    console.log(res.locals.currentAccount._id.toString());
-
-    //add to reviews array
-    const account = await Account.findById(res.locals.currentAccount._id);
-    // const account = await Account.findById(req.body.accountId);
-    if (!account) {
-        req.flash('error', 'Cannot find the account that is attempting to leave a review!');
-        return res.redirect('/profiles');
-    }
-
-
-
-    //add to reviews array
-    // const profile = new Profile(req.body.profile);
+   //create new review 
     const review = new Review(res.locals.review);
     review.about = req.params.id;
     review.author = res.locals.currentAccount._id;
-    console.log('THE NEW REVIEW = ');
-    console.log(JSON.stringify(review));
     await review.save();
 
+    //add new review to reviews array of profile
     profile.reviews.push(review);
     await profile.save();
-    console.log('saved profile');
 
+    //add new review to reviews array of account
     account.reviews.push(review);
     await account.save()
-    console.log('saved account');
-
 
     req.flash('success', 'Successfully added a new review to this profile!');
     res.redirect(`/profiles/${profile._id}`);
-
 }));
 
 
 app.delete('/profiles/:id/review', isLoggedIn, catchAsync(async (req, res) => {
-
-    console.log('INSIDE OF DELETE REVIEW ROUTE!');
-
-    console.log('Review to delete = reviewId = ');
-    console.log(`${req.body.reviewId}`);
-    console.log('currentAccount._id = ');
-    console.log(`${res.locals.currentAccount._id}`);
-
-
     const reviewToDelete = await Review.findById(req.body.reviewId).populate({ path: 'author', select: '_id' }).populate({ path: 'about', select: '_id' });
-    console.log(`Review to be deleted = ${JSON.stringify(reviewToDelete)}`);
 
-    console.log('Author id of Review to delete =  ');
-    console.log(`${reviewToDelete.author}`);
-
-    //check whether the author of the review is currentAccount
+    //check whether the author(owner) of the review is currentAccount
     if (!res.locals.currentAccount._id.equals(reviewToDelete.author._id)) {
-        console.log('CURRENT ACCOUNT _ID !== REQ.BODY.REVIEW ID');
         req.flash('error', 'Cannot delete reviews written by others!');
         return res.redirect(`/profiles/${req.params.id}`)
     }
-    console.log('CAN delete this review');
-
+    
     if (!reviewToDelete) {
         req.flash('error', 'Failed to delete! Cannot find that review!');
         return res.redirect(`/profiles/${req.params.id}`);
     }
 
-    console.log('$Author of the review = account Id = ');
-    console.log(reviewToDelete.author._id);
-    console.log('Deleting the record of the review from account');
+    //delete the review from the account that wrote the review
     const authorAccount = await Account.findByIdAndUpdate(reviewToDelete.author._id, { $pull: { reviews: req.body.reviewId } });
-    console.log(JSON.stringify(authorAccount));
-
-    console.log('$Profile to delete the review from = profile Id = ');
-    console.log(reviewToDelete.about._id);
-    console.log('Deleting the review from profiles');
+    
+    //delete the review from the profile the review was written for
     const reviewedProfile = await Profile.findByIdAndUpdate(reviewToDelete.about._id, { $pull: { reviews: req.body.reviewId } });
-    console.log(JSON.stringify(reviewedProfile));
-
-    console.log('Deleting the review from reviews collection');
+ 
+    //delete the review
     await Review.findByIdAndDelete(req.body.reviewId);
 
     req.flash('success', 'Successfully deleted reviews on the profile.');
@@ -707,12 +481,10 @@ app.delete('/profiles/:id/review', isLoggedIn, catchAsync(async (req, res) => {
 
 
 
-
 //routes for account
 app.get('/account/login', async (req, res) => {
 
     //check if the user is already logged in
-    console.log(req.user);
     if (req.user) {
         req.flash('error', 'You are already logged in as this account.')
         return res.redirect(`/account/${req.user._id}`);
@@ -721,47 +493,33 @@ app.get('/account/login', async (req, res) => {
     res.render('accounts/login.ejs');
 });
 
-// flash will use 'success' or 'error' key, because passport package uses these keys
-    //user will be redirected back to where they were initially asked to login, if they got redirected to login 
+
+//user will be redirected back to where they were initially asked to login, if they got redirected to login 
 app.post('/account/login', passport.authenticate('local', { failureFlash: true, failureRedirect: '/account/login' }), async (req, res) => {
-    console.log('successfully logged in!');
     req.flash('success', 'Successfully logged in!');
-    console.log();
-    console.log('current req.session.returnTo = ');
-    console.log(req.session.returnTo);
-    console.log();
 
-    if(req.session.returnTo/*.includes('/review')*/){
-        console.log('req.session.returnTo = truthy');
+    //clean out /review portion to redirect back to /profile/:id, if the req was POST to /profile/:id/review
+    if(req.session.returnTo){
         req.session.returnTo = req.session.returnTo.replace('/review','');
-        console.log('After replacing /review with empty string = ');
-        console.log(req.session.returnTo);
     }
-    console.log('after checking for req.sesion.returnTo as truthy or falsy = ');
-    console.log(req.session.returnTo);
-    const redirectUrl = req.session.returnTo || '/profiles';
-    // //set req.session.returnTo back to undefined by setting req.originalUrl to undefined
-    // req.originalUrl = undefined;
-    // console.log('set req.originalUrl = undefined ==> ');
-    console.log('current req.originalUrl = ')
-    console.log(req.originalUrl);
 
-    //clean the record of returnTo data from session
-        //set req.session.returnTo back to undefined
+    //if req.session.returnTo is falsy, redirect to /profiles path
+    const redirectUrl = req.session.returnTo || '/profiles';
+  
+    //clean the req.session.returnTo data by setting it back to undefined
     req.session.returnTo = undefined;
-    console.log(' returnTo after setting back to undefined = ');
-    console.log(req.session.returnTo);
 
     res.redirect(redirectUrl);
 });
 
 
 app.get('/account/logout', (req, res) => {
-    console.log('LOGGED OUT OF CURRENT USER ', req.user);
+    //check if there even is any currentAccount logged in
     if (!req.user) {
         req.flash('error', 'No account is currently logged in.');
         return res.redirect('/account/login')
     }
+
     req.logout();
     req.flash('success', 'Successfully logged out');
     res.redirect('/profiles');
@@ -775,17 +533,10 @@ app.get('/account/register', async (req, res) => {
 
 app.post('/account/register', validateAccountRegister, catchAsync(async (req, res) => {
 
-    console.log('req.body = ');
-    console.log(req.body);
-    console.log('res.locals.account = ')
-    console.log(JSON.stringify(res.locals.account));
-
     try {
         const password = res.locals.account.password;
         const account = new Account(res.locals.account);
         const registeredAccount = await Account.register(account, password);
-        console.log('registered account = ');
-        console.log(registeredAccount);
         
         //immediately enter logged in session for the newly registered account
         req.login(registeredAccount, function(err) {
@@ -802,79 +553,44 @@ app.post('/account/register', validateAccountRegister, catchAsync(async (req, re
         req.flash('error', err.message);
         return res.redirect('/account/register');
     }
-
-
 }));
 
-//need to have authorization , thus  should only be able to see the account info of your own
+
 app.get('/account/:id', isLoggedIn, isAccountOwner, catchAsync(async (req, res) => {
-
-    // console.log(req.isAuthenticated());
-    // console.log('Inside of account/:id - setting res.locals.accountId = ')
-    // res.locals.accountId = req.params.id;
-    // console.log(res.locals.accountId);
-
     const account = await Account.findById(req.params.id).populate('profile');
-
-    console.log('found account = ');
-    console.log(account);
-    console.log('found account dir = ');
-    console.dir(account);
-
     if (!account) {
         req.flash('error', 'Cannot find that account!');
         return res.redirect('/profiles');
     }
-    //an account may only have 1 profile = this will check whether the account has a valid profile
-    //if not, the account will be able to create a new profile
-    //if does, the account will be able to navigate to the profile & edit
+
+    //check whether the account has a valid profile or not
+        //if not, the account will be able to create a new profile
+        //if does, the account will be able to navigate to the profile & edit
     //need to account where account.profile does not exists = undefined, which is different from null 
     //account.profile should be NEITHER null nor undefined
     const haveProfile = (account.profile !== null) && (account.profile !== undefined);
-    console.log((account.profile !== null) && (account.profile !== undefined));
-    // console.log(account.profile !== (null && undefined));
-    // const haveProfile =  await Profile.findById(account.profile);
-    // const haveProfile = account.profile ? true:false;
-    //  const haveProfile = account.profile ? true : await Profile.findById(account.profile);
-    //  const haveProfile = await Profile.findById(account.profile);
-    //const haveProfile = await Profile.findById(account.profile);
-    console.log(`Have a profile = ${haveProfile}`);
 
     res.render('accounts/show.ejs', { account, haveProfile });
 }));
 
-//edit account - first name, last name, email account + can DELETE my profile
+
 app.get('/account/:id/edit', isLoggedIn, isAccountOwner, catchAsync(async (req, res) => {
-    // console.log('Inside of account/:id/edit - accessing res.locals.accountId set from account/:id GET = ');
-    // console.log(res.locals.accountId);
-
     const account = await Account.findById(req.params.id);
-
     if (!account) {
         req.flash('error', 'Cannot find that account!');
         return res.redirect('/profiles');
     }
+
     //will NOT send entire profile object to save data & bc not needed to
     const haveProfile = (account.profile !== null) && (account.profile !== undefined);
-    // const haveProfile =  account.profile !== (null && undefined);
-    //  const haveProfile = account.profile ? true : await Profile.findById(account.profile);
-    //  const haveProfile = await Profile.findById(account.profile);
-    //const haveProfile = await Profile.findById(account.profile);
-    console.log(`Have a profile = ${haveProfile}`);
 
     res.render('accounts/edit.ejs', { account, haveProfile });
 }));
 
 
-//!!!!validateAccountUpdate is requiring username, BUT, current form does not have field for username...
-//updates account info
 app.patch('/account/:id', isLoggedIn, isAccountOwner, validateAccountUpdate, catchAsync(async (req, res) => {
-    // console.log(`req.body = ${JSON.stringify(req.body)}`);
     const { id } = req.params;
-    // const account = await Account.findByIdAndUpdate(id, { $set: updateProfile }, { new: true });
     const account = await Account.findByIdAndUpdate(id, { $set: res.locals.account }, { new: true });
-    console.log(`Updated account = ${account}`);
-
     if (!account) {
         req.flash('error', 'Failed to update! Cannot find that account!');
         return res.redirect('/profiles');
@@ -885,42 +601,19 @@ app.patch('/account/:id', isLoggedIn, isAccountOwner, validateAccountUpdate, cat
 }));
 
 app.delete('/account/:id', isLoggedIn, isAccountOwner, catchAsync(async (req, res) => {
-
     const accountToDelete = await Account.findById(req.params.id);
-    
-    //authorization : check whether the currentAccount is the owner of this account
-    // if (!res.locals.currentAccount._id.equals(req.params.id)) {
-    // if (!res.locals.currentAccount._id.equals(accountToDelete._id)) {
-    //     console.log('CURRENT ACCOUNT _ID !== REQ.BODY.REVIEW ID');
-    //     req.flash('error', 'Cannot delete accounts owned by other accounts!');
-    //     res.redirect(`/account/${req.params.id}`)
-    // }
-
  
-    //find all reviews left by this account & delete all of them from the profiles
-    console.log('Trying to delete reviews wrote to other profiles by this account = ');
-    console.log(`${accountToDelete._id}`);
-
+    //find and delete all reviews left by this account 
     for (let reviewId of accountToDelete.reviews) {
-    
-        console.log('Attempting to delete this review from profiles = ');
-        console.log(reviewId);
 
         const reviewToDelete = await Review.findById(reviewId);
-        console.log(`Review to be deleted = ${JSON.stringify(reviewToDelete)}`);
-
         if (!reviewToDelete) {
             req.flash('error', 'Failed to delete 1 or more reviews written by this account! Cannot find the review(s)!');
         }
 
-        console.log('$Profile to delete the review from = profile Id = ');
-        console.log(reviewToDelete.about._id);
-
-        console.log('Deleting the review from profile = ');
-        const reviewedProfile = await Profile.findByIdAndUpdate(reviewToDelete.about._id, { $pull: { reviews: reviewId } });
-        console.log(JSON.stringify(reviewedProfile));
-
-        console.log('Deleting the review from reviews collection');
+        //delete each found review's link with profiles
+        await Profile.findByIdAndUpdate(reviewToDelete.about._id, { $pull: { reviews: reviewId } });
+        //delete the review        
         await Review.findByIdAndDelete(reviewId);
     }
     req.flash('success', 'Successfully deleted reviews written by this account.');
@@ -928,11 +621,9 @@ app.delete('/account/:id', isLoggedIn, isAccountOwner, catchAsync(async (req, re
     //delete the profile of this account, if exists
     const profileToDelete = await Profile.findById(req.body.profileId);
     if (profileToDelete === null) {
-        console.log('There was no valid profile connected to this account');
         req.flash('success', 'There was no profile connected to this account.');
     } else {
-        console.log("Deleting the account's profile and reviews wrote on profiles");
-        //find all reviews left on the profile of this account
+        //find all reviews left on the profile of this account, if any
         await Review.deleteMany({ _id: { $in: profileToDelete.reviews } });
         await Profile.findByIdAndDelete(req.body.profileId);
         req.flash('success', 'Successfully deleted the profile of the account');
@@ -943,7 +634,6 @@ app.delete('/account/:id', isLoggedIn, isAccountOwner, catchAsync(async (req, re
     await Account.findByIdAndDelete(req.params.id);
     req.flash('success', 'Successfully deleted the account!');
     res.redirect(`/profiles`);
-
 }));
 
 //$$$$$$!!!!!!! All profile routes need authorization check before any edit ability
@@ -955,7 +645,6 @@ app.get('/account/:id/profile/new', isLoggedIn, isAccountOwner, async (req, res)
     //have the logic check the current account does NOT have a valid profile
     res.render('profiles/new.ejs', { accountId });
 });
-
 
 
 
