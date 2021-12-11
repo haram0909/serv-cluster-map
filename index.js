@@ -599,6 +599,19 @@ app.post('/account/login', passport.authenticate('local', { failureFlash: true, 
     res.redirect(redirectUrl);
 });
 
+
+app.get('/account/logout', (req, res) => {
+    console.log('LOGGED OUT OF CURRENT USER ', req.user);
+    if (!req.user) {
+        req.flash('error', 'No account is currently logged in.');
+        return res.redirect('/account/login')
+    }
+    req.logout();
+    req.flash('success', 'Successfully logged out');
+    res.redirect('/profiles');
+})
+
+
 app.get('/account/register', async (req, res) => {
     res.render('accounts/register.ejs');
 });
