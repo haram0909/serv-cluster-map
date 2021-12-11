@@ -119,6 +119,50 @@
 
             <h2 class="text-center">Leave a Review</h2>
             
+            <!-- list of reviews = used to be populated profile.reviews-->
+            <% if(reviewsForProfile && reviewsForProfile.length){ %> 
+                    <div class="card-body shadow mb-3">
+                        <h3 class="card-title mb-3">Reviews about <%=profile.account.firstname%></h3>
+                        <ol class="list-group list-group-flush">
+
+                            <% for(let i=0; i<reviewsForProfile.length; i++){ %> 
+                                
+                                <h5 class="mb-0 mt-1">Rating : <%= reviewsForProfile[i].rating %></h5>
+                                <li class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div class="ms-2 me-auto">
+                                        <div class="fw-bold">
+                                            <!-- should be getting the fullname, but will be undefined for now-->
+                                            <!--eventually drop by written by, just leave the author-->
+
+                                            <!-- SEEMS THAT WITH EJS AND MONGOOSE, THE POPULATE GETS FILLED LATER ON,  -->
+                                             <!--THUS AT THIS STAGE, IT IS NULL THROWING NULL ERROR.......  -->
+                                            <!-- Written by : < profile.reviews[i].author%> -->
+                                            <!-- Written by : < reviewsForProfile[i].author.fullname%> -->
+                                                Written by : <%= reviewsForProfile[i].author.firstname%>, <%=reviewsForProfile[i].author.lastname[0]%> 
+                                        </div>
+                                        <%= reviewsForProfile[i].body %> 
+                                        
+                                      
+                                         <!-- IF the author of the review is identical to the currentAccount by objectId, give delete button -->
+                                        <% if(currentAccount && reviewsForProfile[i].author._id.equals(currentAccount._id)){ %> 
+                                           
+                                        <form class="mt-2" action="/profiles/<%=profile._id%>/review?_method=DELETE" method="POST">
+                                            <input type="hidden" id="reviewId" name="reviewId" value="<%=profile.reviews[i]._id%>">
+                                            <button class="btn btn-outline-danger">Delete</button>
+                                        </form>
+                                        <% } %> 
+                                        
+                                    </div>
+                                </li>
+                   
+                                <% } %>
+
+                        </ol>
+                    </div>
+
+
+
+                <% } %> 
         </div>
 
     </div>
