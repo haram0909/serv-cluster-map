@@ -196,8 +196,10 @@ const validateAccountRegister = (req, res, next) => {
     }
 }
 
+const validateReview = (req, res, next) => {
+
     // requires allowUnknown: false option at validate, bc images of "" is type unknown...
-    const validationResult = joiAccountSchema.validate(req.body, { abortEarly: false, allowUnknown: true });
+    const validationResult = joiReviewSchema.validate(req.body, { abortEarly: false, allowUnknown: true });
 
     console.log('original req.body = ' + JSON.stringify(req.body));
     console.log('validation result = ' + JSON.stringify(validationResult))
@@ -207,8 +209,9 @@ const validateAccountRegister = (req, res, next) => {
         const errMsg = validationResult.error.details.map(item => item.message).join(',');
         //throw new ExpressError(400, errMsg);
         next(new ExpressError(400, errMsg));
+
     } else {
-        res.locals.account = validationResult.value.account;
+        res.locals.review = validationResult.value.review;
         next();
     }
 }
