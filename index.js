@@ -132,8 +132,8 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms'))
 app.use((req, res, next) => {
     //if there is anything under req.flash.success,
     //set that under res.locals.sucessMsg & pass along to destination path
-    res.locals.successMsg = req.flash('successMsg');
-    res.locals.errorMsg = req.flash('errorMsg');
+    res.locals.success = req.flash('success');
+    res.locals.error = req.flash('error');
     next();
 })
 
@@ -228,7 +228,7 @@ app.get('/profiles', catchAsync(async (req, res) => {
 app.get('/profiles/:id', catchAsync(async (req, res) => {
     const profile = await Profile.findById(req.params.id).populate('account');
     if (!profile) {
-        req.flash('errorMsg', 'Cannot find that profile!');
+        req.flash('error', 'Cannot find that profile!');
         return res.redirect('/profiles');
     }
     res.render('profiles/show.ejs', { profile });
@@ -237,7 +237,7 @@ app.get('/profiles/:id', catchAsync(async (req, res) => {
 app.get('/profiles/:id/edit', catchAsync(async (req, res) => {
     const profile = await Profile.findById(req.params.id).populate('account');
     if (!profile) {
-        req.flash('errorMsg', 'Cannot find that profile!');
+        req.flash('error', 'Cannot find that profile!');
         return res.redirect('/profiles');
     }
     res.render('profiles/edit.ejs', { profile });
@@ -266,7 +266,7 @@ app.post('/profiles', validateProfile, catchAsync(async (req, res) => {
     console.log(`Have a profile = ${haveProfile}`);
     if (haveProfile) {
         // throw new Error("This Account already has a valid My Profile. An account is not allowed to have more than 1 valid profile.");
-        req.flash('errorMsg','This Account already has a valid My Profile. An account is not allowed to have more than 1 valid profile.');
+        req.flash('error', 'This Account already has a valid My Profile. An account is not allowed to have more than 1 valid profile.');
         return res.redirect(`/account/${account._id}`);
     }
 
@@ -282,7 +282,7 @@ app.post('/profiles', validateProfile, catchAsync(async (req, res) => {
     const updatedAccount = await Account.findByIdAndUpdate(req.body.accountId, { profile: profile }, { upsert: true });
     // console.log(`updated profile = ${JSON.stringify(updatedAccount)}`);
 
-    req.flash('successMsg', 'Successfully created my profile!');
+    req.flash('success', 'Successfully created my profile!');
     //https://stackoverflow.com/questions/38011068/how-to-remove-object-taking-into-account-references-in-mongoose-node-js
     res.redirect(`/profiles/${profile._id}`);
 }));
