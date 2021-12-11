@@ -48,6 +48,6 @@ module.exports.joiAccountRegisterSchema = Joi.object({
 module.exports.joiReviewSchema = Joi.object({
     review: Joi.object({
         body: Joi.string().required(),
-        rating: Joi.number().required()
+        rating: Joi.number().min(0).max(5).required()
     }).required()
 });
