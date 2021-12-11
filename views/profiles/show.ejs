@@ -117,8 +117,6 @@
             <!-- Clustermap placeholder -->
             <div class="text-center mb-3" id='map'> CLUSTERMAP PLACEHOLDER</div>
 
-            <h2 class="text-center">Leave a Review</h2>
-            
             <!-- list of reviews = used to be populated profile.reviews-->
             <% if(reviewsForProfile && reviewsForProfile.length){ %> 
                     <div class="card-body shadow mb-3">
@@ -163,6 +161,35 @@
 
 
                 <% } %> 
+         
+
+
+                        <!-- form to leave review -->
+<div class="card-body shadow">
+            <h3 class="text-center">Leave a Review</h3>
+            <form action="/profiles/<%=profile._id%>/review" novalidate class="needs-validation mb-3" method="POST">
+
+                    <!-- because it not the account of this profile, but the account of the review writer is needed -->
+                <!-- <input type="hidden" id="accountId" name="accountId" value=" =profile.account._id "> -->
+                <input type="hidden" id="profileId" name="profileId" value="<%=profile._id%>">
+
+                <div class="form-group validate-me">
+                <div class="mb-3">
+                    <label class="form-label" for="rating">Rating</label>
+                    <input class="form-range" type="range" min="1" max="5" name="review[rating]" id="rating">
+                </div>
+
+                <div class="mb-3 ">
+                    <label class="form-label" for="body">Review</label>
+                    <textarea class="form-control" name="review[body]" id="body" cols="30" rows="5"></textarea>
+                </div>
+              </div>
+
+                <button class="btn btn-success">Submit Review</button>
+
+            </form>
+        </div>
+
         </div>
 
     </div>
