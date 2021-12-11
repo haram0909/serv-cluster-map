@@ -281,15 +281,49 @@ app.get('/profiles', catchAsync(async (req, res) => {
 }));
 
 app.get('/profiles/:id', catchAsync(async (req, res) => {
+    //!!! populating nested (might need redesigning of the doc for better performance)
+    //!!! check whether the model definition option is requried to be passed in
+    // const profile = await Profile.findById(req.params.id).populate('account').populate({path: 'reviews', populate: {path: 'author', select: 'firstname'/*, model: 'Account'*/} });
+    // const profile = await Profile.findById(req.params.id).populate('account').populate({path: 'reviews', populate: {path: 'author', select: 'firstname'/*, model: 'Account'*/} });
     const profile = await Profile.findById(req.params.id).populate('account');
+
+    console.log('LOOKING UP PROFILE = ');
+    console.log(JSON.stringify(profile));
+
     if (!profile) {
         req.flash('error', 'Cannot find that profile!');
         return res.redirect('/profiles');
     }
-    res.render('profiles/show.ejs', { profile });
+
+
+    //authorization : check whether the currentAccount is the owner of this profile
+    console.log()
+    console.log((res.locals.currentAccount? true : false) )
+    console.log(res.locals.currentAccount)
+    // console.log(res.locals.currentAccount._id)
+    // console.dir(res.locals.currentAccount._id.toHexString())
+    // console.log(res.locals.currentAccount._id.equals(profile.account._id))
+    console.log()
+    // const isProfileOwner = (res.locals.currentAccount && res.locals.currentAccount.profile.equals(req.params.id));  
+    const isProfileOwner = (res.locals.currentAccount && res.locals.currentAccount._id.equals(profile.account._id));  
+    // if (!res.locals.currentAccount._id.equals(profileToDelete.account._id))
+
+    const reviewsForProfile = await Review.find({ 'about': req.params.id }).populate({ path: 'author', select: 'firstname lastname _id' });
+    console.log('REVIEWS WRITTEN FOR THIS PROFILE = ');
+    console.log(JSON.stringify(reviewsForProfile));
+
+    console.log('res.locals =====')
+    console.log(res.locals.currentAccount)
+
+    // if(res.locals.currentAccount){
+    // const currentAccount = res.locals.currentAccount._id;
+    // }
+    // console.log('NO CURRENT ACCOUNT');
+
+    res.render('profiles/show.ejs', { profile, reviewsForProfile, isProfileOwner });
 }));
 
-app.get('/profiles/:id/edit', catchAsync(async (req, res) => {
+
     const profile = await Profile.findById(req.params.id).populate('account');
     if (!profile) {
         req.flash('error', 'Cannot find that profile!');
