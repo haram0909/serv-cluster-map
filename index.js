@@ -375,9 +375,9 @@ app.get('/account/register', async (req, res) => {
     res.render('accounts/register.ejs');
 });
 
-app.post('/account/register', validateAccount, catchAsync(async (req, res) => {
-    // console.log(req.body);
-    // console.log(`new account = ${JSON.stringify(req.body.account)}`);
+
+app.post('/account/register', validateAccountRegister, catchAsync(async (req, res) => {
+
     console.log('req.body = ');
     console.log(req.body);
     console.log('res.locals.account = ')
@@ -448,7 +448,7 @@ app.get('/account/:id/edit', catchAsync(async (req, res) => {
 }));
 
 //updates account info
-app.patch('/account/:id', validateAccount, catchAsync(async (req, res) => {
+app.patch('/account/:id', isLoggedIn, isAccountOwner, validateAccountUpdate, catchAsync(async (req, res) => {
     // console.log(`req.body = ${JSON.stringify(req.body)}`);
     const { id } = req.params;
     // const account = await Account.findByIdAndUpdate(id, { $set: updateProfile }, { new: true });
