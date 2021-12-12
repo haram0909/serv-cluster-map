@@ -25,10 +25,9 @@ const reviewsController = require('../controllers/reviews.js');
 //all routes entering here are prefixed with '/profiles/:id/review'
 
 //routes for reviews
-router.post('/', isLoggedIn, validateReview, catchAsync(reviewsController.createReview));
-
-
-router.delete('/', isLoggedIn, catchAsync(reviewsController.destroyReview));
+router.route('/')
+    .post(isLoggedIn, validateReview, catchAsync(reviewsController.createReview))
+    .delete(isLoggedIn, catchAsync(reviewsController.destroyReview));
 
 //need edit review route - patch? 
 //--> needs form and view for review edit... will skip Edit for now... 

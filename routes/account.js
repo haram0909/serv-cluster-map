@@ -32,32 +32,23 @@ const accountController = require('../controllers/account.js');
 //all routes entering here are prefixed with '/account'
 
 //routes for account
-router.get('/login', accountController.renderLoginForm);
+router.route('/login')
+    .get(accountController.renderLoginForm)
+    //user will be redirected back to where they were initially asked to login, if they got redirected to login 
+    .post(accountController.passportLocalAuthenticate, accountController.loginAndRedirect);
 
+router.get('/logout', accountController.logout);
 
-//user will be redirected back to where they were initially asked to login, if they got redirected to login 
-router.post('/login', accountController.passportLocalAuthenticate, accountController.loginAndRedirect);
+router.route('/register')
+    .get(accountController.renderRegistrationForm)
+    .post(validateAccountRegister, catchAsync(accountController.register));
 
-
-router.get('/logout', accountController.logout)
-
-
-router.get('/register', accountController.renderRegistrationForm);
-
-
-router.post('/register', validateAccountRegister, catchAsync(accountController.register));
-
-
-router.get('/:id', isLoggedIn, isAccountOwner, catchAsync(accountController.showDetail));
-
+router.route('/:id')
+    .get(isLoggedIn, isAccountOwner, catchAsync(accountController.showDetail))
+    .patch(isLoggedIn, isAccountOwner, validateAccountUpdate, catchAsync(accountController.updateAccount))
+    .delete(isLoggedIn, isAccountOwner, catchAsync(accountController.destroyAccount));
 
 router.get('/:id/edit', isLoggedIn, isAccountOwner, catchAsync(accountController.renderUpdateAccountForm));
-
-
-router.patch('/:id', isLoggedIn, isAccountOwner, validateAccountUpdate, catchAsync(accountController.updateAccount));
-
-router.delete('/:id', isLoggedIn, isAccountOwner, catchAsync(accountController.destroyAccount));
-
 
 router.get('/:id/profile/new', isLoggedIn, isAccountOwner, catchAsync(accountController.renderCreateProfileForm));
 

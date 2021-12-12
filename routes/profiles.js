@@ -28,26 +28,22 @@ const profilesController = require('../controllers/profiles.js');
 //all routes entering here are prefixed with '/profiles'
 
 //routes for profiles
+router.route('/')
+    //might want pagination here, instead of full load all....
+    .get(catchAsync(profilesController.showIndex))
+    //POST '/profiles' route = ONLY ACCESSIBLE THROUGH GET '/account/:id/profile/new' route  
+        //!!!! will break for now, because cannot meet model schema's requirement for now
+        //need to have geometry.type path, etc
+    .post(isLoggedIn, validateProfile, catchAsync(profilesController.createProfile));
 
-//might want pagination here, instead of full load all....
-router.get('/', catchAsync(profilesController.showIndex));
-
-router.get('/:id', catchAsync(profilesController.showDetail));
-
+router.route('/:id')
+    .get(catchAsync(profilesController.showDetail))
+    .patch(isLoggedIn, isProfileOwner, validateProfile, catchAsync(profilesController.updateProfile))
+    .delete(isLoggedIn, isProfileOwner, catchAsync(profilesController.destroyProfile));
 
 router.get('/:id/edit', isLoggedIn, isProfileOwner, catchAsync(profilesController.renderUpdateProfileForm));
 
 
-//POST '/profiles' route = ONLY ACCESSIBLE THROUGH GET '/account/:id/profile/new' route  
-//!!!! will break for now, because cannot meet model schema's requirement for now
-//need to have geometry.type path, etc
-router.post('/', isLoggedIn, validateProfile, catchAsync(profilesController.createProfile));
-
-
-router.patch('/:id', isLoggedIn, isProfileOwner, validateProfile, catchAsync(profilesController.updateProfile));
-
-
-router.delete('/:id', isLoggedIn, isProfileOwner, catchAsync(profilesController.destroyProfile));
 
 
 
