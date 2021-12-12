@@ -31,6 +31,7 @@ const AccountSchema = new Schema({
 });
 
 // passport-local-mongoose plugin will auto add username and password fields automatically
+    //also gives methods such as .register, etc 
 AccountSchema.plugin(passportLocalMongoose);
 
 AccountSchema.virtual('fullname').get(function () {
