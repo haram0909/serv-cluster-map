@@ -84,15 +84,19 @@ const seedAccountProfileCol = async () => {
         //new profile of current iteration
         const profileEntry = new Profile({
             account: accountEntry,
-            introduction: 'Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ad laudantium totam excepturi ducimus eos amet in, dolores molestias nemo autem culpa voluptatibus sunt, vero veritatis ipsam accusamus nostrum assumenda fugiat.',
+            introduction: 'Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ad laudantium totam excepturi ducimus eos amet in, dolores molestias nemo autem culpa voluptatibus sunt, vero veritatis ipsam accusamus nostrum assumenda fugiat.Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ad laudantium totam excepturi ducimus eos amet in, dolores molestias nemo autem culpa voluptatibus sunt, vero veritatis ipsam accusamus nostrum assumenda fugiat.',
             images: [
                 {
-                    url: 'https://images.unsplash.com/photo-1570286424717-86d8a0082d0c?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=436&q=80',
-                    filename: 'MorseCode'
+                    url: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=872&q=80',
+                    filename: 'Mac'
                 },
                 {
-                    url: 'https://images.unsplash.com/photo-1615525137689-198778541af6?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1032&q=80',
-                    filename: 'CCode'
+                    url: 'https://images.unsplash.com/photo-1534972195531-d756b9bfa9f2?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
+                    filename: 'Monitor'
+                },
+                {
+                    url: 'https://images.unsplash.com/photo-1619410283995-43d9134e7656?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
+                    filename: 'Code'
                 }
             ],
             location: `${randomLocation.properties.location}`,
