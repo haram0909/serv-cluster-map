@@ -20,7 +20,8 @@ module.exports.joiProfileSchema = Joi.object({
             price: Joi.number().min(0).max(10000)
             //valid if either have both service AND price or have neither
         }).and('service', 'price'), Joi.object().strip())
-    }).required()
+    }).required(),
+    deleteImages: Joi.array()
 });
 
 

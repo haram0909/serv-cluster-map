@@ -3,6 +3,9 @@ const Profile = require('../models/profile.js');
 const Account = require('../models/account.js');
 const Review = require('../models/review.js');
 
+//cloudinary for image storage
+const { cloudinary } = require('../cloudinary/cloudinaryConfig.js');
+
 
 
 
@@ -49,10 +52,19 @@ module.exports.createProfile = async (req, res) => {
         req.flash('error', 'This Account already has a valid profile. An account is not allowed to have more than 1 valid profile.');
         return res.redirect(`/account/${account._id}`);
     }
+
     //link the currentAccount with the newly created profile
     const profile = new Profile(res.locals.profile);
     profile.account = account;
+
+    //save image files uploaded to cloudinary's filename and path(url)
+        //extract path and filename and create array of objects containing {url: path value, filename: filename value}
+        //!!!! we also SHOULD have file upload count and size limits for both client-side and server-side (but we dont have it yet)
+    profile.images = req.files.map(file => ({ url: file.path, filename: file.filename  }));
+
     await profile.save();
+    // console.log(profile);
+
     //link the newly created profile to the currentAccount
     await Account.findByIdAndUpdate(req.body.accountId, { profile: profile }, { upsert: true });
     req.flash('success', 'Successfully created my profile!');
@@ -62,17 +74,28 @@ module.exports.createProfile = async (req, res) => {
 
 module.exports.updateProfile = async (req, res) => {
     const updatedProfile = await Profile.findByIdAndUpdate(req.params.id, { $set: res.locals.profile }, { upsert: true, new: true });
-    //!!!! implement image upload here
+    
+    //save image files uploaded to cloudinary's filename and path(url)
+        //extract path and filename and create array of objects containing {url: path value, filename: filename value}
+        //!!!! we also SHOULD have file upload count and size limits for both client-side and server-side (but we dont have it yet)
+    const images = req.files.map(file => ({ url: file.path, filename: file.filename  }));
+    updatedProfile.images.push(...images);
+    await updatedProfile.save();
 
-    // const imgs = req.files.map(f => ({ url: f.path, filename: f.filename }));
-    // campground.images.push(...imgs);
-    // await campground.save();
-    // if (req.body.deleteImages) {
-    //     for (let filename of req.body.deleteImages) {
-    //         await cloudinary.uploader.destroy(filename);
-    //     }
-    //     await campground.updateOne({ $pull: { images: { filename: { $in: req.body.deleteImages } } } })
-    // }
+    //delete images if requested to be deleted
+    if(req.body.deleteImages){
+        // console.log(req.body.deleteImages);
+        //delete selected images from cloudinary storage
+        for(let filename of req.body.deleteImages){
+            console.log(filename);
+            //may NOT want to do await here for perceived performance...?
+            await cloudinary.uploader.destroy(filename);
+        }
+        //pull out images deleted from cloudinary for this profile
+        await updatedProfile.updateOne({ $pull: { images: { filename: { $in: req.body.deleteImages } } } });
+        req.flash('success', 'Successfully uploaded and/or deleted selected images for this profile.');
+    }    
+    console.log(updatedProfile);
 
     if (!updatedProfile) {
         req.flash('error', 'Failed to update! Cannot find that profile!');
@@ -95,6 +118,24 @@ module.exports.destroyProfile = async (req, res) => {
     } else {
         req.flash('success', 'There was no reviews on the profile.');
     }
+
+    //delete all images from cloudinary, if the profile has any image uploaded to cloudinary
+    if(profileToDelete.images.length > 0){
+        console.log('DELETING IMAGES OF PROFILE = ')
+        //delete selected images from cloudinary storage
+        for(let image of profileToDelete.images){
+            // console.log(image.filename)
+            //may NOT want to do await here for perceived performance...?
+            await cloudinary.uploader.destroy(image.filename);
+        }
+        req.flash('success', 'Successfully deleted all images uploaded by this profile.');
+    }    
+    // console.log(profileToDelete);
+
+
+
+
+
     await Profile.findByIdAndDelete(req.params.id);
     //set the profile linked account's profile property to null -> allow the account to create new profile
     await Account.findByIdAndUpdate(req.body.accountId, { profile: null });

@@ -7,6 +7,10 @@ const ImageSchema = new Schema({
     filename: String
 });
 
+//using cloudinary api to transform images to thumbnail size and set that as 'thumbnail' virtual property
+ImageSchema.virtual('thumbnail').get(function(){
+    return this.url.replace('servclustermap/image/upload','servclustermap/image/upload/h_150,w_250');
+})
 
 const ProfileSchema = new Schema({
     account: {
@@ -14,7 +18,7 @@ const ProfileSchema = new Schema({
         ref: 'Account'
     },
     introduction: String,
-    images: [ImageSchema],
+    images: [ ImageSchema ],
     location: /*String,*/
         //if can opt out of providing location, 
         //geometry should also be allowed to be null
@@ -30,12 +34,12 @@ const ProfileSchema = new Schema({
             type: String,
             enum: ['Point'],
             //comment out to be able to test profile creation
-            // required: true
+            required: false
         },
         coordinates: {
             type: [Number],
             //comment out to be able to test profile creation
-            // required: true
+            required: false
         }
     },
     skills: [

@@ -1,3 +1,8 @@
+//if in dev env, require dotenv npm package and run .config()
+    // which will give us access to data in .env file by adding those data into 
+    // process.env in the node app, so it can be accessed from anywhere in the app
+        //Example of accessing .env of key 'SECRET'
+        // = console.log(process.env.SECRET) --> would write out the value of key 'SECRET' inside .env file
 if (process.env.NODE_ENV !== "production") {
     require('dotenv').config();
 }

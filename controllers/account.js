@@ -6,6 +6,8 @@ const Review = require('../models/review.js');
 //packages
 const passport = require('passport');
 
+//cloudinary for image storage
+const { cloudinary } = require('../cloudinary/cloudinaryConfig.js');
 
 
 
@@ -133,6 +135,18 @@ module.exports.destroyAccount = async (req, res) => {
     if (profileToDelete === null) {
         req.flash('success', 'There was no profile connected to this account.');
     } else {
+        //delete all images from cloudinary, if the profile has any image uploaded to cloudinary
+        if(profileToDelete.images.length > 0){
+            //delete selected images from cloudinary storage
+            for(let image of profileToDelete.images){
+                // console.log(image.filename)
+                //may NOT want to do await here for perceived performance...?
+                await cloudinary.uploader.destroy(image.filename);
+            }
+            req.flash('success', 'Successfully deleted all images uploaded by the profile of this account.');
+        }       
+        // console.log(profileToDelete);
+        
         //find all reviews left on the profile of this account, if any
         await Review.deleteMany({ _id: { $in: profileToDelete.reviews } });
         await Profile.findByIdAndDelete(req.body.profileId);

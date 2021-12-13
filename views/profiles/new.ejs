@@ -5,7 +5,7 @@
     <div class="row mb-3">
         <h1 class="text-center">Create My Profile</h1>
         <div class="col-8 offset-2">
-            <form action="/profiles" method="POST" novalidate class="needs-validation">
+            <form action="/profiles" method="POST" novalidate class="needs-validation" enctype="multipart/form-data">
                 <input type="hidden" id="accountId" name="accountId" value="<%=accountId%>">
 
                 <div class="mb-3 form-group validate-me" >
@@ -22,11 +22,11 @@
                 </div>
 
                 <!-- //image file(s) input -->
-                <div class="mb-3" >
-                    <label class="form-label" for="images">
-                        <span id="images">Choose image(s) to upload</span>
+                <div class="mb-3 form-file custom-file" >
+                    <label class="form-file-label form-label" for="images">
+                        <span class="form-file-text" id="images">Choose image(s) to upload</span>
                     </label>
-                    <input class="form-control" type="file" name="images" id="images" multiple aria-label="Upload one or multiple images" aria-describedby="images">
+                    <input class="form-control form-file-input custom-file-label" type="file" name="images" id="images" multiple aria-label="Upload one or multiple images" aria-describedby="images">
                 </div>
 
                 <!-- //https://stackoverflow.com/questions/34313657/html-form-post-an-array-of-objects

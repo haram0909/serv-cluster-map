@@ -7,7 +7,7 @@
             </h1>
         </div>
         <div class="col-8 offset-2">
-            <form action="/profiles/<%= profile._id %>?_method=PATCH" method="POST" novalidate class="needs-validation">
+            <form action="/profiles/<%= profile._id %>?_method=PATCH" method="POST" novalidate class="needs-validation" enctype="multipart/form-data">
                 <div class="mb-3 form-group validate-me">
                     <label class="form-label" for="introduction">Introduction</label>
                     <textarea class="form-control" type="text" id="introduction" name="profile[introduction]"
@@ -24,11 +24,12 @@
                 </div>
 
                 <!-- //image file(s) input -->
-                <div class="mb-3">
-                    <label class="form-label" for="images">
-                        <span id="images">Choose image(s) to upload</span>
+                <div class="mb-3 form-file custom-file">
+                    <label class="form-file-label form-label" for="images">
+                        <span class="form-file-text">Choose more image(s) to upload</span>
+                        <!-- <span class="form-file-button">Choose Files</span> -->
                     </label>
-                    <input class="form-control" type="file" name="images" id="images" multiple
+                    <input class="form-control form-file-input custom-file-label" type="file" name="images" id="images" multiple
                         aria-label="Upload one or multiple images" aria-describedby="images">
                 </div>
 
@@ -116,6 +117,20 @@
                                 <% } %>
                                     <% } %>
                 </div>
+
+                <div class="mb-3">
+                    <% profile.images.forEach((img, i)=> { %>
+                        <img class="img-thumbnail" src="<%= img.thumbnail%>" alt="An image uploaded by <%=profile.account.fullname%>" >
+                        <div class="form-check-inline">
+                            <!-- inputs here will be inside of deleteImages, which will be an array of string (img.filename) -->
+                            <input type="checkbox" id="image-<%=i%>" name="deleteImages[]" value="<%=img.filename%>">
+                        </div>
+                        <label for="image-<%=i%>">Select To Delete</label>
+
+                        <% }) %>
+                </div>
+
+                
 
                 <div>
                     <button class="btn btn-outline-info col-lg-3">Update Profile</button>

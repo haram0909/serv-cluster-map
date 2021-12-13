@@ -7,6 +7,9 @@
 (function () {
     'use strict'
 
+    //initiate bs-custom-file-input to let that javascript to handle how much filenames to show, etc
+    bsCustomFileInput.init();
+
     // Fetch all the forms we want to apply custom Bootstrap validation styles to
     const forms = document.querySelectorAll('.needs-validation');
 
