@@ -1,19 +1,18 @@
 <% layout('layouts/boilerplate.ejs') %>
 
+    <h1 class="my-3"> All Experts</h1>
 
-    <h1>All Experts</h1>
 
-
-    <!-- //load only 50 for development -->
-    <% for (let i=0; i< 50; i++) {%>
+    <!-- //show full index of paginated profiles -->
+    <% for (let i=0; i< profiles.length; i++) {%>
             <div class="card mb-3" >
                 <div class="row">
                     <div class="col-md-4">
-                        <% if(profiles[i].images[0].url){ %>
+                        <% if(profiles[i].images.length > 0){ %>
                             <img class="img-fluid" src="<%= profiles[i].images[0].url %>" class="img-fluid rounded-start"
                                 alt="First image related to <%= profiles[i].account.fullname %>">
                         <% }else{ %>
-                            <img class="img-fluid" src="..." class="img-fluid rounded-start"
+                            <img class="img-fluid" src="https://res.cloudinary.com/servclustermap/image/upload/v1639571306/servclustermap-NO-Img_placeholder_jiijxv.jpg" class="img-fluid rounded-start"
                                 alt="There is no image related to <%= profiles[i].account.fullname %>">
                         <% } %>
                     </div>
@@ -34,4 +33,70 @@
                     </div>
                 </div>
             </div>
-    <% } %>
+
+  
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-end">
+          
+        <% if(!hasPreviousPage){ %> 
+          <li class="page-item disabled">
+            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+          </li>
+
+          <% pages.forEach((page, index) => { %> 
+            <% if(index===0){ %>
+                <li class="page-item active" aria-current="page">
+                    <span class="page-link"><%=page.number%></span>
+                </li>
+            <% }else{ %>
+            <li class="page-item"><a class="page-link" href="<%=page.url%>"><%=page.number%></a></li>
+            <% } %>
+      <% }) %>  
+
+          <li class="page-item">
+            <a class="page-link" href="<%= pages[1].url %>">Next</a>
+          </li>
+
+        <% }else if(!hasNextPage){ %> 
+            <li class="page-item ">
+                <a class="page-link" href="<%= pages[0].url %>" >Previous</a>
+              </li>
+    
+              <% pages.forEach((page, index) => { %> 
+                    <% if(index===2){ %>
+                        <li class="page-item active" aria-current="page">
+                            <span class="page-link"><%=page.number%></span>
+                        </li>
+                    <% }else{ %>
+                    <li class="page-item"><a class="page-link" href="<%=page.url%>"><%=page.number%></a></li>
+                    <% } %> 
+              <% }) %> 
+    
+              <li class="page-item disabled">
+                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Next</a>
+              </li>
+            
+
+        <% }else{ %> 
+            <li class="page-item ">
+                <a class="page-link" href="<%= pages[0].url %>" >Previous</a>
+              </li>
+    
+              <% pages.forEach((page, index) => { %> 
+                <% if(index===1){ %>
+                    <li class="page-item active" aria-current="page">
+                        <span class="page-link"><%=page.number%></span>
+                    </li>
+                <% }else{ %>
+                <li class="page-item"><a class="page-link" href="<%=page.url%>"><%=page.number%></a></li>
+                <% } %> 
+          <% }) %> 
+    
+              <li class="page-item">
+                <a class="page-link" href="<%= pages[2].url %>" >Next</a>
+              </li>
+        <% } %> 
+        </ul>
+      </nav>
+  
+

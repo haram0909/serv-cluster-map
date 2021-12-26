@@ -17,6 +17,8 @@ const multer = require('multer');
     //instead of saving to local 'uploads/' folder, save using cloudinary storage
 const upload = multer({ storage });
 
+//express-pagination
+const paginate = require('express-paginate');
 
 
 //middleware
@@ -42,7 +44,7 @@ const profilesController = require('../controllers/profiles.js');
 //routes for profiles
 router.route('/')
     //might want pagination here, instead of full load all....
-    .get(catchAsync(profilesController.showIndex))
+    .get(paginate.middleware(20, 100), catchAsync(profilesController.showIndex))
     //POST '/profiles' route = ONLY ACCESSIBLE THROUGH GET '/account/:id/profile/new' route  
         //with multer and cloudinary, mutler-cloudinary-storage pkgs, now uploads to cloudinary storage and store filename path(url) to mongoDB
             //total file upload size limits of 10MB for server-side validation 

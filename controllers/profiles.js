@@ -7,14 +7,69 @@ const Review = require('../models/review.js');
 const { cloudinary } = require('../cloudinary/cloudinaryConfig.js');
 
 
+//express-pagination
+const paginate = require('express-paginate');
+
 
 
 
 //controller functions related to profiles
 
 module.exports.showIndex = async (req, res) => {
-    const profiles = await Profile.find({}).populate('account');
-    res.render('profiles/index.ejs', { profiles });
+    //get newest profiles first
+    // const profiles = await Profile.find().sort({ _id: -1 }).populate('account');
+    //get oldest profiles first
+    // const profiles = await Profile.find().populate('account');
+
+        const [ results, itemCount ] = await Promise.all([
+          Profile.find({}).sort({ _id: -1 }).limit(req.query.limit).skip(req.skip).populate('account').exec(),
+          Profile.count({})
+        ]);
+     
+        const pageCount = Math.ceil(itemCount / req.query.limit);
+        // console.log(pageCount)
+
+        if(pageCount < parseInt(req.query.page)){
+            req.flash('error', `There is no page ${req.query.page}, but here is the last page.`);
+            return res.redirect(`/profiles?page=${pageCount}&limit=${req.query.limit}`);
+        }
+
+        const hasNextPage = res.locals.paginate.hasNextPages(pageCount);
+        // console.log(hasNextPage)
+        const hasPreviousPage = res.locals.paginate.hasPreviousPages;
+      
+            // console.log('pageCount = ')
+            // console.log(pageCount)
+            // console.log('itemCount = ')
+            // console.log(itemCount)
+            // console.log('pages = ')
+            // console.dir(paginate.getArrayPages(req)(3, pageCount, req.query.page))
+            // console.log('hasPreviousPage = ')
+            // console.log(hasPreviousPage)
+
+            // check if it is the first page
+            let profilesCluster = {};
+            if(!hasPreviousPage){
+                profilesCluster = await Profile.find().populate('account');
+            }
+
+        res.render('profiles/index.ejs', {
+            profilesCluster,
+            profiles: results,
+            // pageCount,
+            // itemCount,
+            hasPreviousPage,
+            hasNextPage,
+            pages: paginate.getArrayPages(req)(3, pageCount, req.query.page)
+          });
+        // }
+     
+
+
+    // console.dir(profiles);
+    // return res.send('SENT FROM SHOWINDEX controller fn')
+
+//    res.render('profiles/index.ejs', { profiles: results });
 }
 
 module.exports.showDetail = async (req, res) => {
