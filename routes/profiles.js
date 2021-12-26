@@ -22,7 +22,8 @@ const upload = multer({ storage });
 //middleware
 const { validateProfile, 
     isLoggedIn, 
-    isProfileOwner } = require('../middleware.js');
+    isProfileOwner, 
+    fileSizeIsBelowLimit} = require('../middleware.js');
 
 //models
 // const Profile = require('../models/profile.js');
@@ -43,12 +44,9 @@ router.route('/')
     //might want pagination here, instead of full load all....
     .get(catchAsync(profilesController.showIndex))
     //POST '/profiles' route = ONLY ACCESSIBLE THROUGH GET '/account/:id/profile/new' route  
-        //!!!! will break for now, because cannot meet model schema's requirement for now
-        //need to have geometry.type path, etc
-            //with multer and cloudinary, mutler-cloudinary-storage pkgs, now uploads to cloudinary storage and store filename path(url) to mongoDB
-                //!!!! we do NOT want to first upload images before validating profile, but for quick fix, will do this for now....
-                //!!!! we also SHOULD have file upload count and size limits for both client-side and server-side (but we dont have it yet)
-    .post(isLoggedIn, upload.array('images'), validateProfile, catchAsync(profilesController.createProfile));
+        //with multer and cloudinary, mutler-cloudinary-storage pkgs, now uploads to cloudinary storage and store filename path(url) to mongoDB
+            //total file upload size limits of 10MB for server-side validation 
+    .post(isLoggedIn, fileSizeIsBelowLimit, upload.array('images'), validateProfile, catchAsync(profilesController.createProfile));
 
     //!!!using npm multer to parse form enctype multipart/form-data     
         //upload.single() = upload single file
@@ -109,9 +107,8 @@ router.route('/')
 router.route('/:id')
     .get(catchAsync(profilesController.showDetail))
      //with multer and cloudinary, mutler-cloudinary-storage pkgs, now uploads to cloudinary storage and store filename path(url) to mongoDB
-        //!!!! we do NOT want to first upload images before validating profile, but for quick fix, will do this for now....
-        //!!!! we also SHOULD have file upload count and size limits for both client-side and server-side (but we dont have it yet)
-    .patch(isLoggedIn, isProfileOwner, upload.array('images'), validateProfile, catchAsync(profilesController.updateProfile))
+        //total file upload size limits of 10MB for server-side validation 
+    .patch(isLoggedIn, isProfileOwner, fileSizeIsBelowLimit, upload.array('images'), validateProfile, catchAsync(profilesController.updateProfile))
     .delete(isLoggedIn, isProfileOwner, catchAsync(profilesController.destroyProfile));
 
 router.get('/:id/edit', isLoggedIn, isProfileOwner, catchAsync(profilesController.renderUpdateProfileForm));
