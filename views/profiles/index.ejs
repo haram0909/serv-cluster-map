@@ -1,5 +1,11 @@
 <% layout('layouts/boilerplate.ejs') %>
 
+<div class="container">
+    <!-- load cluster map only on the 1st page? -->
+    <% if(!hasPreviousPage){ %> 
+    <div id="index-cluster-map"></div>
+    <% } %> 
+    
     <h1 class="my-3"> All Experts</h1>
 
 
@@ -33,6 +39,7 @@
                     </div>
                 </div>
             </div>
+    <% } %>
 
   
     <nav aria-label="Page navigation example">
@@ -100,3 +107,12 @@
       </nav>
   
 
+</div>
+
+<script>
+    const mapToken = '<%-process.env.MAPBOX_TOKEN%>';
+    //would be better if we could use ajax to request the target doc
+        //but at least html here has been sanitized with joi and sanitize-html packages
+    const profilesCluster = { features: <%- JSON.stringify(profilesCluster) %>};
+</script>
+<script src="/javascripts/indexClusterMap.js"></script>
