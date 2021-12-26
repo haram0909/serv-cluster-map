@@ -15,6 +15,12 @@
                                 alt="An image uploaded by <%=profile.account.fullname%>">
                         </div>
                         <% }) %>
+                        <% if(profile.images.length < 1){ %>
+                            <div class="carousel-item active">
+                                <img src="https://res.cloudinary.com/servclustermap/image/upload/v1639571306/servclustermap-NO-Img_placeholder_jiijxv.jpg" class="d-block w-100 img-fluid"
+                                    alt="No image uploaded by this profile. A placeholder image here.">
+                            </div>
+                            <% } %> 
                 </div>
                 <% if(profile.images.length> 1) {%>
                     <button class="carousel-control-prev" type="button" data-bs-target="#profileCarousel"
