@@ -6,6 +6,12 @@ const Review = require('../models/review.js');
 //cloudinary for image storage
 const { cloudinary } = require('../cloudinary/cloudinaryConfig.js');
 
+//mapbox for geocoding and map related services
+const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
+const mapboxToken = process.env.MAPBOX_TOKEN;
+
+//instantiate mapbox instance as 'geocoder'
+const geocoder = mbxGeocoding({ accessToken: mapboxToken });
 
 //express-pagination
 const paginate = require('express-paginate');
@@ -108,8 +114,39 @@ module.exports.createProfile = async (req, res) => {
         return res.redirect(`/account/${account._id}`);
     }
 
+    // console.log(req.body) //req.body.profile.location
+    // console.log();
+    // console.log(res.locals.profile) //.location
+    // // return res.send(req.body)
+
+    //using mapbox instance, forward goecode to generate long and lat for location string
+    const forwardGeocodedLocation = await geocoder.forwardGeocode({
+        // query: req.body.profile.location ,
+        query: res.locals.profile.location,
+        limit: 1
+    }).send();
+    // console.log()
+    // console.log('Forward geocoded geoData = ')
+    // console.log(forwardGeocodedLocation.body.features) //reuslts in []  null and empty --> 
+    // console.log()
+    // //If null, i.e., cannot get coordinate of the location, hardcode to Antarctic Ice shield, Antarctica coordinate
+    // console.log(  (forwardGeocodedLocation.body.features[0])? forwardGeocodedLocation.body.features[0].geometry : {type:"Point", coordinates:[38.897957, -77.036560]} );
+    
+    
+
+     if(!forwardGeocodedLocation.body.features[0]){     
+        // console.log('Failed to get geo coordinate of the location of the profile.');   
+        req.flash('error','Location of the profile was not identifiable. Location map will point to a default location.');
+     } 
+     
+    const geoData = (forwardGeocodedLocation.body.features[0])? forwardGeocodedLocation.body.features[0].geometry : {type:"Point", coordinates:[38.897957, -77.036560]} ;
+        //below's geometry will be undefined => if location string was invalid
+    // res.locals.profile.geometry = geoData;
+    // return res.send(res.locals.profile)
+
     //link the currentAccount with the newly created profile
     const profile = new Profile(res.locals.profile);
+    profile.geometry = geoData;
     profile.account = account;
 
     //save image files uploaded to cloudinary's filename and path(url)
