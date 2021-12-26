@@ -18,6 +18,8 @@ const flash = require('connect-flash');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
 
+//basic security packages
+const mongoSanitize = require('express-mongo-sanitize');
 //dev dependencies
 const morgan = require('morgan');
 
@@ -78,6 +80,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
 
+//basic security package
+    //will replace with "_" for any keys in objects that begin with a $ sign or contain a . , from req.body, req.query or req.params
+    //https://www.npmjs.com/package/express-mongo-sanitize
+app.use(mongoSanitize({
+    replaceWith: '_',
+  }),);
 
 
 //session configuration 
