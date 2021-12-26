@@ -12,6 +12,9 @@ ImageSchema.virtual('thumbnail').get(function(){
     return this.url.replace('servclustermap/image/upload','servclustermap/image/upload/h_150,w_250');
 })
 
+//Mongoose option to pass virtual properties when converting doc to JSON
+const opts = { toJSON: { virtuals: true } };
+
 const ProfileSchema = new Schema({
     account: {
         type: Schema.Types.ObjectId,
@@ -86,6 +89,13 @@ const ProfileSchema = new Schema({
             ref: 'Review'
         }
     ]
-});
+}, opts);
+
+//virtual property 'properties' for popup markup of mapbox clustermap
+ProfileSchema.virtual('properties.popUpMarkUp').get(function(){
+    return `
+    <a href="/profiles/${this._id}"> Profile Page</a>
+    <p> ${this.availability ? '<strong>Available to Work</strong>' : 'Currently Unavailable to Work'}</p>`
+})
 
 module.exports = mongoose.model('Profile', ProfileSchema);
