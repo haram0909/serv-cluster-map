@@ -99,7 +99,7 @@ const sessionConfig = {
     // eventually will be replaced with mongodb store (other option = redis, etc)
 
     // store: store, 
-    name: 'session',
+    name: 'Exp.mapped.session',
     secret: secret,
     //resave false (as was on doc)
         //appears mongoDB session store implements 'touch' method
