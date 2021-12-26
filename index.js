@@ -24,7 +24,7 @@ const helmet = require('helmet')
 
 
 //dev dependencies
-const morgan = require('morgan');
+// const morgan = require('morgan');
 
 //models
 // const Profile = require('./models/profile.js');
@@ -199,7 +199,7 @@ passport.deserializeUser(Account.deserializeUser());
 
 //middleware
 //dev dependencies
-app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
+// app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
 
 //custom middlewares should return at next() to prevent any further code, even if there is, from executing after next()
 
