@@ -1,6 +1,9 @@
 const { joiProfileSchema, joiAccountUpdateSchema, joiAccountRegisterSchema, joiReviewSchema } = require('./utils/validationSchemas.js');
 const ExpressError = require('./utils/ExpressError.js');
 
+//model
+const Profile = require('./models/profile.js');
+
 
 
 
