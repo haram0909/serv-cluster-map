@@ -169,7 +169,6 @@ module.exports.updateProfile = async (req, res) => {
     
     //save image files uploaded to cloudinary's filename and path(url)
         //extract path and filename and create array of objects containing {url: path value, filename: filename value}
-        //!!!! we also SHOULD have file upload count and size limits for both client-side and server-side (but we dont have it yet)
     const images = req.files.map(file => ({ url: file.path, filename: file.filename  }));
     updatedProfile.images.push(...images);
     await updatedProfile.save();
@@ -179,7 +178,7 @@ module.exports.updateProfile = async (req, res) => {
         // console.log(req.body.deleteImages);
         //delete selected images from cloudinary storage
         for(let filename of req.body.deleteImages){
-            console.log(filename);
+            // console.log(filename);
             //may NOT want to do await here for perceived performance...?
             await cloudinary.uploader.destroy(filename);
         }
@@ -187,7 +186,7 @@ module.exports.updateProfile = async (req, res) => {
         await updatedProfile.updateOne({ $pull: { images: { filename: { $in: req.body.deleteImages } } } });
         req.flash('success', 'Successfully uploaded and/or deleted selected images for this profile.');
     }    
-    console.log(updatedProfile);
+    // console.log(updatedProfile);
 
     if (!updatedProfile) {
         req.flash('error', 'Failed to update! Cannot find that profile!');
@@ -213,7 +212,7 @@ module.exports.destroyProfile = async (req, res) => {
 
     //delete all images from cloudinary, if the profile has any image uploaded to cloudinary
     if(profileToDelete.images.length > 0){
-        console.log('DELETING IMAGES OF PROFILE = ')
+        // console.log('DELETING IMAGES OF PROFILE = ')
         //delete selected images from cloudinary storage
         for(let image of profileToDelete.images){
             // console.log(image.filename)

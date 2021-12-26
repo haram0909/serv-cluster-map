@@ -51,7 +51,7 @@ const reviewsRouter = require('./routes/reviews.js')
 const accountRouter = require('./routes/account.js')
 
 
-
+//MongoDb Connection
 const mongoDbUrl = process.env.MONGO_DB_URL || 'mongodb://localhost:27017/serv-cluster-map'
 //doc's recommandation = https://mongoosejs.com/docs/index.html
 connectToMongoDB().catch(err => console.log(err));
@@ -63,7 +63,7 @@ async function connectToMongoDB() {
 
 
 
-
+//Express
 const app = express();
 
 app.engine('ejs', ejsMate);
@@ -122,7 +122,7 @@ const sessionConfig = {
     saveUninitialized: false,
     cookie: {
         httpOnly: true,
-        //to allow http, instead of forcing https
+        //secure is NOT set to true to allow http(for dev purpose), instead of forcing https
         // secure: true,
         expires: Date.now() + 1000 * 60 * 60 * 24 * 30,
         maxAge: 1000 * 60 * 60 * 24 * 30
@@ -209,6 +209,7 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms'))
 
 //flash and currentAccount helper
 app.use((req, res, next) => {
+    
     //if there is anything under req.flash.success,
     //set that under res.locals.sucessMsg & pass along to destination path
     res.locals.success = req.flash('success');
@@ -234,8 +235,6 @@ app.get('/', (req, res) => {
 });
 
 
-//!!!! might want pagination for index of profiles, instead of full load all....
-
 //need edit review route - patch? 
 //--> needs form and view for review edit... will skip Edit for now... 
 
@@ -248,7 +247,7 @@ app.get('/error', (req, res) => {
 
 //404 route
 app.all('*', (req, res, next) => {
-    //throw new ExpressError(404, 'Oh no, 404! There seems to be nothing here');
+    // throw new ExpressError(404, 'Oh no, 404! There seems to be nothing here');
     next(new ExpressError(404, 'Oh no, 404! There seems to be nothing here'));
 });
 
@@ -256,7 +255,6 @@ app.all('*', (req, res, next) => {
 //error handling middleware
 app.use((err, req, res, next) => {
     console.log('ERR = ');
-    console.log(typeof err);
     console.log(err);
     let { statusCode = 500 } = err;
     if (!err.message) err.message = "Oh no! Something went wrong!"
