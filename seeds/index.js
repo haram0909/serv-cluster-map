@@ -14,7 +14,7 @@ const Account = require('../models/account.js');
 const Review = require('../models/review.js');
 
 //establish mongoose connection
-const mongoDbUrl = 'mongodb://localhost:27017/serv-cluster-map'
+const mongoDbUrl = 'mongodb://localhost:27017/mapped-exps'
 //doc's recommandation = https://mongoosejs.com/docs/index.html
 connectToMongoDB().catch(err => console.log(err));
 //https://mongoosejs.com/docs/migrating_to_6.html#no-more-deprecation-warning-options

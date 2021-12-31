@@ -17,6 +17,8 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
+//use and instantiate mongoDB session store
+const MongoSessionStore = require('connect-mongo');
 
 //basic security packages
 const mongoSanitize = require('express-mongo-sanitize');
@@ -52,7 +54,11 @@ const accountRouter = require('./routes/account.js')
 
 
 //MongoDb Connection
-const mongoDbUrl = process.env.MONGO_DB_URL || 'mongodb://localhost:27017/serv-cluster-map'
+    //connect to cloud mongoDB Atlas database for production environment
+const mongoDbUrl = (process.env.NODE_ENV !== "production") ? 'mongodb://localhost:27017/mapped-exps' : process.env.MONGO_DB_URL;
+    //below connects to local dev database
+// const mongoDbUrl = 'mongodb://localhost:27017/mapped-exps';
+
 //doc's recommandation = https://mongoosejs.com/docs/index.html
 connectToMongoDB().catch(err => console.log(err));
 //https://mongoosejs.com/docs/migrating_to_6.html#no-more-deprecation-warning-options
@@ -94,22 +100,25 @@ app.use(mongoSanitize({
 //session configuration 
 const secret = process.env.SECRET || '!SomeDevEnvSecret!';
 
-// const store = new MongoDBStore({
-//     url: dbUrl,
-//     secret,
-//     touchAfter: 24 * 60 * 60
-// });
+//use mongoDB session store to store session instead of local memory store
+const store = MongoSessionStore.create({
+    mongoUrl: mongoDbUrl,
+    crypto: {
+    secret: secret
+    },
+    //update the data only after 24 hours, if nothing had been changed. If had been changed, update
+    touchAfter: 60 * 60 * 24
+});
 
-// store.on("error", function (e) {
-//     console.log("SESSION STORE ERROR", e)
-// })
+store.on("error", function (e) {
+    console.log("SESSION STORE ERROR", e)
+})
 
 const sessionConfig = {
     //if undefined= memory store, which is barely acceptable for dev env
     //because the memory store disappears when server restart as it is local, not a real db
-    // eventually will be replaced with mongodb store (other option = redis, etc)
-
-    // store: store, 
+    // store: store =  replace memory store with mongodb store (other option = redis, etc)
+    store: store, 
     name: 'Exp.mapped.session',
     secret: secret,
     //resave false (as was on doc)
