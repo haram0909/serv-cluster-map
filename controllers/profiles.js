@@ -35,6 +35,13 @@ module.exports.showIndex = async (req, res) => {
         const pageCount = Math.ceil(itemCount / req.query.limit);
         // console.log(pageCount)
 
+        //handle when there is 0 profiles (i.e., when the app has no account with valid profile in production.)
+        if(pageCount ===0){
+            req.flash('error', 'There is no profiles to show yet.');
+            req.flash('success', 'Be the first one to create an account and profile!')
+            return res.redirect('/account/login')
+        }
+
         if(pageCount < parseInt(req.query.page)){
             req.flash('error', `There is no page ${req.query.page}, but here is the last page.`);
             return res.redirect(`/profiles?page=${pageCount}&limit=${req.query.limit}`);
