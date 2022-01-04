@@ -112,14 +112,15 @@ module.exports.isProfileOwner = (req, res, next) => {
     }
 }
 
-//check whether the profile is allowed to upload the passed through count of images.
+//check if total file(s) attempted to upload is less than 10MB
+    //if truthy, next() to allow uploading
+    //if falsy, redirect to prevent uploading
 module.exports.fileSizeIsBelowLimit = async (req, res, next) => {
     // console.log()
     // console.dir(req.headers['content-length'])
     const fileSizeLimit = 10485760; // 10 Mb //5242880; //10MB  
     // console.log()
 
-  
     //profile edit form should NOT even show upload form, 
     //if the file size in total is larger than 10MB. 
     //else, next()
@@ -131,12 +132,12 @@ module.exports.fileSizeIsBelowLimit = async (req, res, next) => {
         
         //might face file size limit issue when
         Profile.countDocuments({_id: req.params.id}, function(err, count){
-            // at editing profile or
+            //at editing profile or
             if(count > 0){
                 // console.log(count)
                 console.log('Profile with the id exists, thus Was trying to edit profile')
                 return res.redirect(`/profiles/${req.params.id}/edit`);
-            // at creating new profile 
+            //at creating new profile 
             }else{
                 // console.log(count)
                 console.log('Profile does not exists, thus redirected to create new profile page')
@@ -151,11 +152,4 @@ module.exports.fileSizeIsBelowLimit = async (req, res, next) => {
 
     }
 
-
-    //if upload attempting image count is larger than 10, redirect with error flash message
-
-
-    // after making this middleware, insert it to the .patch of profiles router, before the uploading by multer starts
-
-    //when done with that, attempt pagination 
 }
