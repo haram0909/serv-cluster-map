@@ -42,7 +42,9 @@
 
                             <div class="mb-3">
 <!-- if the account has a review, show a button to to see all the reviews left by this account -->
+                            <% if(wroteReview) {%>
                                 <a class="btn btn-outline-info" href="/account/<%=account._id%>/reviews/index">Review(s) I Wrote</a>
+                            <% } %>
 
                                 <a class="btn btn-outline-warning" href="/account/<%=account._id%>/edit">Edit My Account</a>    
 

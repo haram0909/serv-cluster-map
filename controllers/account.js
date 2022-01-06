@@ -87,7 +87,8 @@ module.exports.showDetail = async (req, res) => {
     //need to account where account.profile does not exists = undefined, which is different from null 
     //account.profile should be NEITHER null nor undefined
     const haveProfile = (account.profile !== null) && (account.profile !== undefined);
-    res.render('accounts/show.ejs', { account, haveProfile });
+    const wroteReview = (account.reviews !== null) && (account.reviews !== undefined);
+    res.render('accounts/show.ejs', { account, haveProfile, wroteReview });
 }
 
 module.exports.renderUpdateAccountForm = async (req, res) => {
