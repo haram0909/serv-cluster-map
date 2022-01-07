@@ -3,6 +3,7 @@ const ExpressError = require('./utils/ExpressError.js');
 
 //model
 const Profile = require('./models/profile.js');
+const Account = require('./models/account.js');
 
 
 
@@ -152,4 +153,16 @@ module.exports.fileSizeIsBelowLimit = async (req, res, next) => {
 
     }
 
+
+//check if the account has any valid reviews
+module.exports.wroteReview = async (req, res, next) => {
+    const currentAccount = await Account.findById(req.params.id)
+    console.log(currentAccount);
+    if (!currentAccount.reviews.length > 0) {
+        req.flash('error', 'This account does NOT have any reviews written on other profiles!');
+        return res.redirect(`/account/${req.params.id}`);
+    } else {
+        // console.log('hasReviews = TRUE');
+        next();
+    }
 }
