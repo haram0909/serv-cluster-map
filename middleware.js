@@ -132,7 +132,8 @@ module.exports.fileSizeIsBelowLimit = async (req, res, next) => {
         req.flash('error', 'Cannot upload more than 10MB of images at once!');
         
         //might face file size limit issue when
-        Profile.countDocuments({_id: req.params.id}, function(err, count){
+            //because using callback function, this middleware might not need to be async/await
+        await Profile.countDocuments({_id: req.params.id}, function(err, count){
             //at editing profile or
             if(count > 0){
                 // console.log(count)
@@ -153,6 +154,7 @@ module.exports.fileSizeIsBelowLimit = async (req, res, next) => {
 
     }
 
+}
 
 //check if the account has any valid reviews
 module.exports.wroteReview = async (req, res, next) => {
