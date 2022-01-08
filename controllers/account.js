@@ -28,6 +28,7 @@ module.exports.passportLocalAuthenticate = passport.authenticate('local', { fail
 module.exports.loginAndRedirect = async (req, res) => {
     req.flash('success', 'Successfully logged in!');
     //clean out /review portion to redirect back to /profile/:id, if the req was POST to /profile/:id/review
+    //NOT THE BEST APPROACH.. more of a hack...
     if(req.session.returnTo){
         req.session.returnTo = req.session.returnTo.replace('/review','');
     }
@@ -87,7 +88,7 @@ module.exports.showDetail = async (req, res) => {
     //need to account where account.profile does not exists = undefined, which is different from null 
     //account.profile should be NEITHER null nor undefined
     const haveProfile = (account.profile !== null) && (account.profile !== undefined);
-    const wroteReview = (account.reviews !== null) && (account.reviews !== undefined);
+    const wroteReview = (account.reviews.length !== 0);
     res.render('accounts/show.ejs', { account, haveProfile, wroteReview });
 }
 
