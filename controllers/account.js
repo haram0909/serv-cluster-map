@@ -160,6 +160,29 @@ module.exports.destroyAccount = async (req, res) => {
     res.redirect(`/profiles`);
 }
 
+//should only be allowed when the account wrote at least 1 review
+module.exports.showRatingsIndex = async (req, res) => {
+    const account = await Account.findById(req.params.id).populate(
+        {
+        path: 'reviews',
+        populate: {
+            //populate just the object id & availability of field 'about' of each review on reviews
+            //populate firstname and lastname of field 'account' for each of 'about'
+            path: 'about',
+            model: 'Profile',
+            select: 'availability',
+            populate: {
+                path: 'account',
+                model: 'Account',
+                select: 'firstname lastname'
+            }
+            }
+        });
+    //reverse the array of reviews to show most recently written reviews at the top
+    const reviewsByAccount = account.reviews.reverse();
+    res.render('accounts/ratings.ejs', {reviewsByAccount} );
+}
+
 //$$$$$$!!!!!!! All profile routes need authorization check before any edit ability
 //should only be allowed when current account does NOT have profile
 module.exports.renderCreateProfileForm = async (req, res) => {
