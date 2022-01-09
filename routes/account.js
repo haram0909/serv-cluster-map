@@ -13,7 +13,8 @@ const {
     validateAccountUpdate, 
     validateAccountRegister, 
     isLoggedIn, 
-    isAccountOwner } = require('../middleware.js');
+    isAccountOwner,
+    wroteReview } = require('../middleware.js');
 
 //models
 // const Profile = require('../models/profile.js');
@@ -51,6 +52,6 @@ router.route('/:id')
 router.get('/:id/edit', isLoggedIn, isAccountOwner, catchAsync(accountController.renderUpdateAccountForm));
 
 router.get('/:id/profile/new', isLoggedIn, isAccountOwner, catchAsync(accountController.renderCreateProfileForm));
-
+router.get('/:id/ratings/index', isLoggedIn, isAccountOwner, wroteReview, catchAsync(accountController.showRatingsIndex))
 
 module.exports = router;
