@@ -1,0 +1,40 @@
+<% layout('layouts/boilerplate.ejs') %>
+
+    <div class="justify-content-center align-items-center mt-5 mb-5">
+
+        <div class="card shadow">
+            <div class="card-body">
+                <h1 class="text-center"><strong>You Wrote Reviews for ...</strong></h1>
+
+                <!-- accordian of all the reviews written -->
+                <div class="accordion mt-3" id="accordionPanelsStayOpenExample">
+
+                    <!-- looping over all reviews written  -->
+                    <% for(let i=0; i<reviewsByAccount.length; i++){ %> 
+
+                    <div class="accordion-item">
+                      <h2 class="accordion-header" id="panelsStayOpen-heading<%= i+1 %>">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapse<%= i+1 %>" aria-expanded="true" aria-controls="panelsStayOpen-collapse<%= i+1 %>">
+                        <p class="my-1">  
+                        <strong><%=reviewsByAccount[i].about.account.firstname%>, <%=reviewsByAccount[i].about.account.lastname%> </strong>  (<%= reviewsByAccount[i].rating %> out of 5 stars)
+                        <br>
+                         <%= reviewsByAccount[i].about.availability ? "✔️ Available to Work" : "❌ Currently Unavailable to Work" %>
+                        </p>
+                        </button>
+                      </h2>
+                      <div id="panelsStayOpen-collapse<%= i+1 %>" class="accordion-collapse collapse <%=(i===0)?'show':'' %>" aria-labelledby="panelsStayOpen-heading<%= i+1 %>">
+                        <div class="accordion-body">
+                            <div class="card-body mt-1 mb-1">
+                            <%= reviewsByAccount[i].body %> 
+                            </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <% } %>
+                   
+                  </div>
+
+            </div>
+        </div>
+    </div>
