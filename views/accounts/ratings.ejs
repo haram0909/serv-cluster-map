@@ -27,6 +27,10 @@
                             <div class="card-body mt-1 mb-1">
                             <%= reviewsByAccount[i].body %> 
                             </div>
+                            <a class="btn <%= reviewsByAccount[i].about.availability ? "btn-success" : "btn-outline-warning" %>" 
+                              href="/profiles/<%=reviewsByAccount[i].about._id%>">
+                              View <%=reviewsByAccount[i].about.account.firstname%>, <%=reviewsByAccount[i].about.account.lastname[0]%>
+                            </a>
                         </div>
                       </div>
                     </div>
