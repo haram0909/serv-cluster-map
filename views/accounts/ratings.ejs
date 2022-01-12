@@ -1,4 +1,5 @@
 <% layout('layouts/boilerplate.ejs') %>
+<link rel="stylesheet" href="/stylesheets/stars.css">
 
     <div class="justify-content-center align-items-center mt-5 mb-5">
 
@@ -24,6 +25,7 @@
                       </h2>
                       <div id="panelsStayOpen-collapse<%= i+1 %>" class="accordion-collapse collapse <%=(i===0)?'show':'' %>" aria-labelledby="panelsStayOpen-heading<%= i+1 %>">
                         <div class="accordion-body">
+                            <p class=" my-1 starability-result" data-rating="<%= reviewsByAccount[i].rating %>"> Rating : <%= reviewsByAccount[i].rating %> stars </p> 
                             <div class="card-body mt-1 mb-1">
                             <%= reviewsByAccount[i].body %> 
                             </div>
