@@ -29,7 +29,8 @@ module.exports.showIndex = async (req, res) => {
 
         const [ results, itemCount ] = await Promise.all([
           Profile.find({}).sort({ _id: -1 }).limit(req.query.limit).skip(req.skip).populate('account').exec(),
-          Profile.count({})
+        //   because of deprecation, Profile.count({}) has been replaced with below  
+          Profile.countDocuments({})
         ]);
      
         const pageCount = Math.ceil(itemCount / req.query.limit);
