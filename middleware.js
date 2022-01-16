@@ -1,4 +1,4 @@
-const { joiProfileSchema, joiAccountUpdateSchema, joiAccountRegisterSchema, joiReviewSchema } = require('./utils/validationSchemas.js');
+const { joiProfileSchema, joiAccountUpdateSchema, joiAccountRegisterSchema, joiReviewSchema, joiSearchProfileSchema } = require('./utils/validationSchemas.js');
 const ExpressError = require('./utils/ExpressError.js');
 
 //model
@@ -10,7 +10,7 @@ const Account = require('./models/account.js');
 
 //middleware function
 module.exports.validateProfile = (req, res, next) => {
-    // requires allowUnknown: false option at validate, bc images of "" is type unknown...
+    // requires allowUnknown: true option at validate, bc images of "" is type unknown...
     const validationResult = joiProfileSchema.validate(req.body, { abortEarly: false, allowUnknown: true });
 
     if (validationResult.error) {
@@ -24,7 +24,7 @@ module.exports.validateProfile = (req, res, next) => {
 }
 
 module.exports.validateAccountUpdate = (req, res, next) => {
-    // requires allowUnknown: false option at validate, bc images of "" is type unknown...
+    // requires allowUnknown: true option at validate, bc images of "" is type unknown...
     const validationResult = joiAccountUpdateSchema.validate(req.body, { abortEarly: false, allowUnknown: true });
 
     if (validationResult.error) {
@@ -38,7 +38,7 @@ module.exports.validateAccountUpdate = (req, res, next) => {
 }
 
 module.exports.validateAccountRegister = (req, res, next) => {
-    // requires allowUnknown: false option at validate, bc images of "" is type unknown...
+    // requires allowUnknown: true option at validate, bc images of "" is type unknown...
     const validationResult = joiAccountRegisterSchema.validate(req.body, { abortEarly: false, allowUnknown: true });
 
     if (validationResult.error) {
@@ -52,7 +52,7 @@ module.exports.validateAccountRegister = (req, res, next) => {
 }
 
 module.exports.validateReview = (req, res, next) => {
-    // requires allowUnknown: false option at validate, bc images of "" is type unknown...
+    // requires allowUnknown: true option at validate, bc images of "" is type unknown...
     const validationResult = joiReviewSchema.validate(req.body, { abortEarly: false, allowUnknown: true });
 
     if (validationResult.error) {
@@ -61,6 +61,26 @@ module.exports.validateReview = (req, res, next) => {
         next(new ExpressError(400, errMsg));
     } else {
         res.locals.review = validationResult.value.review;
+        next();
+    }
+}
+
+module.exports.validateProfileSearch = (req, res, next) => {
+    // NOT require allowUnknown option to be true
+    // Not require abortEarly option to be false
+    const validationResult = joiSearchProfileSchema.validate(req.body);
+
+    if (validationResult.error) {
+        console.log(validationResult.error)
+        
+        req.flash('error', 'Invalid keyword(s) detected! Please enter valid keyword(s)!');
+        return res.redirect(`/search/experts`);
+
+    } else {
+        console.log()
+        console.log(validationResult)
+        console.log()
+        res.locals.searchProfile = validationResult.value;
         next();
     }
 }
