@@ -76,3 +76,10 @@ module.exports.joiReviewSchema = Joi.object({
         rating: Joi.number().min(0).max(5).required()
     }).required()
 });
+
+
+module.exports.joiSearchProfileSchema = Joi.object({
+    'search-type': Joi.string().valid('all', 'location', 'skills', 'offerings', 'introduction').required().escapeHTML(),
+    availability: Joi.string().valid('any', 'available', 'unavailable').required().escapeHTML(),
+    keyword: Joi.string().required().escapeHTML()
+})
