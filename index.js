@@ -51,7 +51,7 @@ const ExpressError = require('./utils/ExpressError.js');
 const profilesRouter = require('./routes/profiles.js')
 const reviewsRouter = require('./routes/reviews.js')
 const accountRouter = require('./routes/account.js')
-
+const searchRouter = require('./routes/search.js')
 
 //MongoDb Connection
     //connect to cloud mongoDB Atlas database for production environment
@@ -95,7 +95,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(mongoSanitize({
     replaceWith: '_',
   }),);
-
 
 //session configuration 
 const secret = process.env.SECRET || '!SomeDevEnvSecret!';
@@ -236,7 +235,8 @@ app.use('/profiles', profilesRouter);
 app.use('/profiles/:id/review', reviewsRouter);
     //any routes that starts with /account, use accountRouter (reviews route)
 app.use('/account', accountRouter);
-
+    //any routes that starts with /search, use searchRouter (search route)
+app.use('/search', searchRouter);
 
 //routes
 app.get('/', (req, res) => {
