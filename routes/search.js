@@ -36,5 +36,6 @@ const searchController = require('../controllers/search.js');
 //routes for searching experts
 router.route('/experts')
     .get(isLoggedIn, clearSearchProfilesResult, searchController.renderSearchProfilesForm)
+    .post(isLoggedIn, clearSearchProfilesResult, validateProfileSearch, catchAsync(searchController.searchProfiles)); 
 
 module.exports = router;
