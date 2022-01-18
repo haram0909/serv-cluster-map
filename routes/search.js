@@ -38,4 +38,7 @@ router.route('/experts')
     .get(isLoggedIn, clearSearchProfilesResult, searchController.renderSearchProfilesForm)
     .post(isLoggedIn, clearSearchProfilesResult, validateProfileSearch, catchAsync(searchController.searchProfiles)); 
 
+//routes for rendering results of searching experts
+router.get('/experts/result', isLoggedIn, hasSearchProfilesResult, paginate.middleware(20, 100), catchAsync(searchController.renderSearchProfilesResult)); 
+
 module.exports = router;
