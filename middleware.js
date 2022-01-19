@@ -79,6 +79,14 @@ module.exports.validateProfileSearch = (req, res, next) => {
     }
 }
 
+module.exports.clearSearchProfilesResult = (req, res, next) => {
+    console.log('inside of clearSearchProfilesResult ===== ')
+    console.log(req.session.searchProfilesResult)
+    if(req.session.searchProfilesResult){
+        req.session.searchProfilesResult = null
+    }
+    next();
+}
 module.exports.isLoggedIn = (req, res, next) => {
     //updated to use .isAuthenticated() method from passport
     //instead of checking for res.locals.currentAccount exists
