@@ -87,6 +87,18 @@ module.exports.clearSearchProfilesResult = (req, res, next) => {
     }
     next();
 }
+
+module.exports.hasSearchProfilesResult = (req, res, next) => {
+    console.log('inside of hasSearchProfilesResult ===== ')
+    console.log(req.session.searchProfilesResult)
+    if(!req.session.searchProfilesResult){
+        req.flash('error', 'There was no search performed!')
+        return res.redirect('/search/experts')
+    }else{
+        next();
+    }
+}
+
 module.exports.isLoggedIn = (req, res, next) => {
     //updated to use .isAuthenticated() method from passport
     //instead of checking for res.locals.currentAccount exists
