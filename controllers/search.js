@@ -21,3 +21,7 @@ const { countDocuments } = require('../models/profile.js');
 
 //controller functions related to searching profiles
 
+
+module.exports.renderSearchProfilesForm = (req, res) => {
+    res.render('search/searchProfilesForm.ejs');
+}
