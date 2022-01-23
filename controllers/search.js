@@ -18,9 +18,6 @@ module.exports.searchProfiles = async (req, res) => {
     const searchType = res.locals.searchProfile['search-type'];
     const keyword = res.locals.searchProfile.keyword;
     const availability = res.locals.searchProfile.availability;
-    console.log()
-    console.log('received search keyword ====== ', keyword)
-    console.log('received availability criteria ===== ', availability)
 
 //search/filter after populate
 //https://stackoverflow.com/questions/11303294/querying-after-populate-in-mongoose
@@ -30,51 +27,33 @@ module.exports.searchProfiles = async (req, res) => {
     //dynamically add $or based on search-type
         //initialize dynamicMatchObject before dynamically add $or filter
     dynamicMatchObject["$or"] = []
-    console.log('after adding $or array to matchobject ======== ')
-    console.log(dynamicMatchObject)
-    console.log()
+
     //using $regex at $match stage documentation =
     //https://docs.mongodb.com/manual/reference/operator/query/regex/#-regex
         //only default case (case of search-type 'all') will have names based filter option included
         //other search-types will NOT have name based filter to prevent potential profile scanning behavior
     switch (searchType) {
         case 'location':
-            console.log()
-            console.log('searchtype = ', searchType)
-            console.log()
-            
             const orConditionLocation =  
             { "location": { $regex: keyword, $options: 'i' } };
-
             dynamicMatchObject["$or"].push(orConditionLocation);
             break;
+
         case 'skills':
-            console.log()
-            console.log('searchtype = ', searchType)
-            console.log()
             const orConditionSkills =  
             { "skills.proglang": {$regex: keyword, $options: 'i' } }; 
-            // { "skills": { $regex: keyword, $options: 'i' } };
-
             dynamicMatchObject["$or"].push(orConditionSkills);
             break;
+
         case 'offerings':
-            console.log()
-            console.log('searchtype = ', searchType)
-            console.log()
             const orConditionOfferings = 
             { "offerings.service": { $regex: keyword, $options: 'i' } };
-            // { "offerings": { $regex: keyword, $options: 'i' } };
-
             dynamicMatchObject["$or"].push(orConditionOfferings);
             break;
+
         case 'introduction':
-            console.log()
-            console.log('searchtype = ', searchType)
-            console.log()
             const orConditionIntroduction = 
             { "introduction": { $regex: keyword, $options: 'i' } };
-
             dynamicMatchObject["$or"].push(orConditionIntroduction);
             break;
         
@@ -90,32 +69,26 @@ module.exports.searchProfiles = async (req, res) => {
 
             dynamicMatchObject["$or"].push(...orConditionAll);
     }
-    console.log('after dynamically generating $or condition')
-    console.log(dynamicMatchObject)
-    console.log()
 
     //dynamically add $and based on availability filter
     switch (availability) {
         case 'available':
             dynamicMatchObject["$and"] = [{"availability" : true }]
-
             break;
+
         case 'unavailable':
             dynamicMatchObject["$and"] = [{"availability" : false }]
             break;
+
         default:
-            console.log('treating availability filter as "any"');
+            // console.log('treating availability filter as "any"');
     }
-    
-    console.log('after adding $and array to matchobject ======== ')
-    console.log(dynamicMatchObject)
-    console.log()
 
 //define and run aggregate pipeline 
     //https://stackoverflow.com/questions/52498620/mongodb-elemmatch-with-regex-return-only-one-element-from-array-of-a-single-doc?rq=1
     //https://masteringjs.io/tutorials/mongoose/aggregate
     const resultsIds = await Profile.aggregate([
-    //$lookup to grab related Account information
+    //$lookup to grab profile's related Account information
         {
             $lookup: {
                 //'from' field needs collection name = Model.collection.name
@@ -146,8 +119,8 @@ module.exports.searchProfiles = async (req, res) => {
         // }
         // ,
     //$match stage of aggregate = where actual filtering occurs
+        //pass dynamically generate match object for $match stage
         {
-        // pass dynamically generate match object for $match stage
             $match: dynamicMatchObject
         }
         ,
@@ -159,13 +132,10 @@ module.exports.searchProfiles = async (req, res) => {
         }
     ]);
 
-    console.log();
-    console.log('results grouped by id');
-    console.log(resultsIds);
-    console.log();
-
 //save the array of _id output of aggregate pipeline to session
     req.session.searchProfilesResult = resultsIds
+    res.redirect('/search/experts/result');
+}
     console.log()
     console.log('req.session.searchProfilesResult ===== ')
     console.log(req.session.searchProfilesResult)
