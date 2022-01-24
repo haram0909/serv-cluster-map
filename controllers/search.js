@@ -136,9 +136,59 @@ module.exports.searchProfiles = async (req, res) => {
     req.session.searchProfilesResult = resultsIds
     res.redirect('/search/experts/result');
 }
+
+module.exports.renderSearchProfilesResult = async (req, res) => {
+    const resultsIds = req.session.searchProfilesResult;
     console.log()
-    console.log('req.session.searchProfilesResult ===== ')
-    console.log(req.session.searchProfilesResult)
+    console.log('received res.locals.searchProfilesResult ===== ')
+    console.log(resultsIds)
     console.log()
-    res.redirect('/search/experts/result');
+    const results = await Profile.find({'_id': { $in: resultsIds}})
+                                 .sort({ _id: -1 })
+                                 .limit(req.query.limit)
+                                 .skip(req.skip)
+                                 .populate('account');
+    
+    const itemCount = resultsIds.length;
+
+    // console.log(results);
+    // console.log(results.length);
+    // console.log('itemCount ==== ')
+    // console.log(itemCount)
+
+    const pageCount = Math.ceil(itemCount / req.query.limit);
+    console.log(pageCount)
+
+    //handle when there is 0 profiles (i.e., when the app has no account with valid profile in production.)
+    if (pageCount === 0) {
+        req.flash('error', 'Oh no! There is no experts to show. Try some other keywords.');
+        return res.redirect('/search/experts')
+    }
+
+    if (pageCount < parseInt(req.query.page)) {
+        req.flash('error', `There is no page ${req.query.page} of the results, but here is the last page of the result.`);
+        return res.redirect(`/search/experts/result?page=${pageCount}&limit=${req.query.limit}`);
+    }
+
+    const hasNextPage = res.locals.paginate.hasNextPages(pageCount);
+    // console.log(hasNextPage)
+    const hasPreviousPage = res.locals.paginate.hasPreviousPages;
+
+    // check if it is the first page
+    let profilesCluster = {};
+    if (!hasPreviousPage) {
+        profilesCluster = await Profile.find({'_id': { $in: resultsIds}}).populate('account');
+    }
+
+//res.send(results);
+
+    res.render('search/searchProfilesResult.ejs', {
+        profilesCluster,
+        profiles: results,
+        // pageCount,
+        itemCount,
+        hasPreviousPage,
+        hasNextPage,
+        pages: paginate.getArrayPages(req)(3, pageCount, req.query.page)
+    });
 }
