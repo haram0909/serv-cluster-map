@@ -122,8 +122,7 @@ module.exports.searchProfiles = async (req, res) => {
         //pass dynamically generate match object for $match stage
         {
             $match: dynamicMatchObject
-        }
-        ,
+        },
     //$group by _id
         {
             $group:{
@@ -139,10 +138,6 @@ module.exports.searchProfiles = async (req, res) => {
 
 module.exports.renderSearchProfilesResult = async (req, res) => {
     const resultsIds = req.session.searchProfilesResult;
-    console.log()
-    console.log('received res.locals.searchProfilesResult ===== ')
-    console.log(resultsIds)
-    console.log()
     const results = await Profile.find({'_id': { $in: resultsIds}})
                                  .sort({ _id: -1 })
                                  .limit(req.query.limit)
@@ -150,16 +145,9 @@ module.exports.renderSearchProfilesResult = async (req, res) => {
                                  .populate('account');
     
     const itemCount = resultsIds.length;
-
-    // console.log(results);
-    // console.log(results.length);
-    // console.log('itemCount ==== ')
-    // console.log(itemCount)
-
     const pageCount = Math.ceil(itemCount / req.query.limit);
-    console.log(pageCount)
 
-    //handle when there is 0 profiles (i.e., when the app has no account with valid profile in production.)
+    //handle when there is 0 profiles (i.e., when the search yeilded no result)
     if (pageCount === 0) {
         req.flash('error', 'Oh no! There is no experts to show. Try some other keywords.');
         return res.redirect('/search/experts')
@@ -171,7 +159,6 @@ module.exports.renderSearchProfilesResult = async (req, res) => {
     }
 
     const hasNextPage = res.locals.paginate.hasNextPages(pageCount);
-    // console.log(hasNextPage)
     const hasPreviousPage = res.locals.paginate.hasPreviousPages;
 
     // check if it is the first page
@@ -180,12 +167,9 @@ module.exports.renderSearchProfilesResult = async (req, res) => {
         profilesCluster = await Profile.find({'_id': { $in: resultsIds}}).populate('account');
     }
 
-//res.send(results);
-
     res.render('search/searchProfilesResult.ejs', {
         profilesCluster,
         profiles: results,
-        // pageCount,
         itemCount,
         hasPreviousPage,
         hasNextPage,
