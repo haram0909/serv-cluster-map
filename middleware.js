@@ -66,10 +66,9 @@ module.exports.validateReview = (req, res, next) => {
 }
 
 module.exports.validateProfileSearch = (req, res, next) => {
-    // NOT require allowUnknown option to be true
+    // Not require allowUnknown option to be true
     // Not require abortEarly option to be false
     const validationResult = joiSearchProfileSchema.validate(req.body);
-
     if (validationResult.error) {
         req.flash('error', 'Invalid keyword(s) detected! Please enter valid keyword(s)!');
         return res.redirect(`/search/experts`);
@@ -80,8 +79,6 @@ module.exports.validateProfileSearch = (req, res, next) => {
 }
 
 module.exports.clearSearchProfilesResult = (req, res, next) => {
-    console.log('inside of clearSearchProfilesResult ===== ')
-    console.log(req.session.searchProfilesResult)
     if(req.session.searchProfilesResult){
         req.session.searchProfilesResult = null
     }
@@ -89,8 +86,6 @@ module.exports.clearSearchProfilesResult = (req, res, next) => {
 }
 
 module.exports.hasSearchProfilesResult = (req, res, next) => {
-    console.log('inside of hasSearchProfilesResult ===== ')
-    console.log(req.session.searchProfilesResult)
     if(!req.session.searchProfilesResult){
         req.flash('error', 'There was no search performed!')
         return res.redirect('/search/experts')
@@ -105,9 +100,7 @@ module.exports.isLoggedIn = (req, res, next) => {
     if (!req.isAuthenticated()) {
         //save the original url that was requested for redirecting back to originally requested page, after logging in
         req.session.returnTo = req.originalUrl
-
         const errMsg = 'Needs to be logged in first!'
-        // next(new ExpressError(400, errMsg));
         req.flash('error', errMsg);
         return res.redirect('/account/login')
     } else {
