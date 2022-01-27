@@ -13,10 +13,10 @@ const paginate = require('express-paginate');
 
 //middlewares
 const {  
-    isLoggedIn,
     validateProfileSearch,
     clearSearchProfilesResult,
     hasSearchProfilesResult } = require('../middleware.js');
+
 
 
 //controllers
@@ -25,20 +25,20 @@ const searchController = require('../controllers/search.js');
 
 
 //all routes entering here are prefixed with '/search'
-    //because search is a core feature and is are more expensive on the database, 
-    // will allow only logged in user to run searches... for now?
-//maybe not... because incentive to make an account already exists by
+    //although search is a core feature and is are more expensive on the database, 
+    // will not force a user to login, 
+//because incentive to make an account already exists by
     //, profile's contact only becoming visible when logged in.
     // instead, it makes sense to show what users might want already exists
         //, then pointing them to create an account --> just browsing and searching is OK,
-        // but actually want to contact and etc, need account and login to be able to use full feature(contact info & leaving reviews, etc)  
+        // but if actually want to contact and etc, need account and login to be able to use full feature(contact info & leaving reviews, etc)  
 
 //routes for searching experts
 router.route('/experts')
-    .get(isLoggedIn, clearSearchProfilesResult, searchController.renderSearchProfilesForm)
-    .post(isLoggedIn, clearSearchProfilesResult, validateProfileSearch, catchAsync(searchController.searchProfiles)); 
+    .get(clearSearchProfilesResult, searchController.renderSearchProfilesForm)
+    .post(clearSearchProfilesResult, validateProfileSearch, catchAsync(searchController.searchProfiles)); 
 
 //routes for rendering results of searching experts
-router.get('/experts/result', isLoggedIn, hasSearchProfilesResult, paginate.middleware(20, 100), catchAsync(searchController.renderSearchProfilesResult)); 
+router.get('/experts/result', hasSearchProfilesResult, paginate.middleware(20, 100), catchAsync(searchController.renderSearchProfilesResult)); 
 
 module.exports = router;
