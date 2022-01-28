@@ -9,14 +9,12 @@
                 <div class="card-body">
                     <h3 class="card-title">Search Experts</h3>
 
-
-                    <form action="/search/experts" method="POST" class="needs-validation" novalidate>
-                        
+                    <form action="/search/experts" method="POST" class="needs-validation" novalidate>   
                         <!-- radio button group for search category selection -->
                         <div class="mt-3 mb-2">
-                            
                             <input type="radio" class="btn-check" name="search-type" id="all" value="all" autocomplete="off" checked>
                             <label class="btn btn-outline-primary" for="all">Any</label>
+
                             <input type="radio" class="btn-check" name="search-type" id="location" value="location" autocomplete="off" >
                             <label class="btn btn-outline-info" for="location">By Location</label>
 
@@ -27,11 +25,7 @@
                             <label class="btn btn-outline-info" for="offerings">By Service Offerings</label>
                             
                             <input type="radio" class="btn-check" name="search-type" id="introduction" value="introduction" autocomplete="off" >
-                            <label class="btn btn-outline-info" for="introduction">By Introduction</label>
-                            
-                            <!-- <div> 
-                            <span class="text-muted">Comprehnsively option searches for all of name, location, expertise, and offering services</span>
-                            </div> -->
+                            <label class="btn btn-outline-info" for="introduction">By Introduction</label>       
                         </div>
                         
                         <!-- radio button group for availability filter selection -->
@@ -47,34 +41,22 @@
 
                             <input type="radio" class="btn-check" name="availability" id="unavailable" value="unavailable" autocomplete="off" >
                             <label class="btn btn-outline-warning" for="unavailable">Unavailable Only</label>
-
                         </div>
 
                         <!-- text input of search keyword -->
                         <div class="mb-3 validate-me">
                             <label class="form-label" for="keyword">Search Keyword</label>
                             <input class="form-control" type="text" id="keyword" name="keyword" placeholder="Enter Keyword..." autofocus required>
-                           
                         </div>
-                     
-                        
+                                             
                             <button class="btn btn-outline-success btn-block">Search</button>
-                       
-     
                     </form>
 
-
-                    <!-- <div class="mt-3">
-                        <span class="text"> Do not have an account? <a href="/account/register">Register</a> 
-                        <span class="text"> Do not have an account? <a href="/account/register">Register</a> 
-                        </span>
-                    </div> -->
                 </div>
                 
             </div>
             
         </div>
-
 
     </div>
 </div>
