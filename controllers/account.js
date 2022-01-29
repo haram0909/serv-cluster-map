@@ -35,7 +35,7 @@ module.exports.loginAndRedirect = async (req, res) => {
     //if req.session.returnTo is falsy, redirect to /profiles path
     const redirectUrl = req.session.returnTo || '/profiles';
     //clean the req.session.returnTo data by setting it back to undefined
-    req.session.returnTo = undefined;
+    req.session.returnTo = null;
     res.redirect(redirectUrl);
 }
 
@@ -44,6 +44,16 @@ module.exports.logout = (req, res) => {
     if (!req.user) {
         req.flash('error', 'No account is currently logged in.');
         return res.redirect('/account/login')
+    }
+    //set returnTo in session to null, if any
+    if(req.session.returnTo){
+        // console.log('logout = cleared returnTo , from session')
+        req.session.returnTo = null;
+    }
+    //set search profiles results in session to null, if any
+    if(req.session.searchProfilesResult){
+        // console.log('logout = clear searchProfilesResult , if any, from session')
+        req.session.searchProfilesResult = null
     }
     req.logout();
     req.flash('success', 'Successfully logged out');
@@ -69,6 +79,15 @@ module.exports.register = async (req, res) => {
           });
         // await account.save(); -> because .register method would have already saved
         req.flash('success', 'Successfully created a new account!');
+        if(req.session.returnTo){
+            // console.log()
+            // console.log('inside of register = returnTo = ')
+            // console.log(req.session.returnTo)
+            // console.log()
+            req.session.returnTo = req.session.returnTo.replace('/review','');
+            const redirectUrl = req.session.returnTo;
+            return res.redirect(redirectUrl);
+        }
         return res.redirect(`/account/${registeredAccount._id}`);
     } catch (err) {
         req.flash('error', err.message);
