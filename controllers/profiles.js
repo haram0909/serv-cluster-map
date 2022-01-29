@@ -95,6 +95,14 @@ module.exports.showDetail = async (req, res) => {
     //check whether the currentAccount is the owner of this profile to pass ownership flag or not
     const isProfileOwner = (res.locals.currentAccount && res.locals.currentAccount._id.equals(profile.account._id));
     const reviewsForProfile = await Review.find({ 'about': req.params.id }).populate({ path: 'author', select: 'firstname lastname _id' });
+
+    //save the profile url, if user is not logged in, but logs in to see the profile's contact info
+    if(!req.isAuthenticated()){
+        // console.log('at Profile showDetail. NOT logged in. Setting redirect')
+        req.session.returnTo = `/profiles/${req.params.id}`;
+    }
+
+
     res.render('profiles/show.ejs', { profile, reviewsForProfile, isProfileOwner });
 }
 
