@@ -1,0 +1,147 @@
+<% layout('layouts/boilerplate.ejs') %>
+
+<div class="container">
+    
+    <!-- load cluster map only on the 1st page -->
+    <% if(!hasPreviousPage){ %> 
+    <h1 class="mb-3"> 🗺️ Here are the found Experts!</h1>
+    <div id="index-cluster-map"></div>
+    <% } %> 
+    
+    <!-- have a search box -->
+    <!-- <form class="d-flex">
+        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+        <button class="btn btn-outline-success" type="submit">Search</button>
+      </form> -->
+ 
+    <!-- search experts index -->
+    <h2 class="my-3"> 📍 <%=itemCount%> Experts Found!</h2>
+
+
+    <!-- //show full index of paginated search result profiles -->
+    <% for (let i=0; i< profiles.length; i++) {%>
+            <div class="card mb-3" >
+                <div class="row">
+                    <div class="col-md-4">
+                        <% if(profiles[i].images.length > 0){ %>
+                            <img class="img-fluid" src="<%= profiles[i].images[0].url %>" class="img-fluid rounded-start"
+                                alt="First image related to <%= profiles[i].account.fullname %>">
+                        <% }else{ %>
+                            <img class="img-fluid" src="https://res.cloudinary.com/servclustermap/image/upload/v1639571306/servclustermap-NO-Img_placeholder_jiijxv.jpg" class="img-fluid rounded-start"
+                                alt="There is no image related to <%= profiles[i].account.fullname %>">
+                        <% } %>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                    <!-- <a href="/profiles/  %=profiles[i]._id%>"> -->
+                                    <%= profiles[i].account.fullname %>
+                                </a></h5>
+                            <p class="card-text">
+                                <%= profiles[i].introduction %>
+                            </p>
+                            <p class="card-text"><small class="text-muted">
+                                    <%= profiles[i].location %>
+                                </small></p>
+                            <a class="btn <%= profiles[i].availability ? "btn-success" : "btn-outline-warning" %>" href="/profiles/<%=profiles[i]._id%>">View <%=profiles[i].account.firstname%></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    <% } %>
+
+    <!-- pagination navigation -->
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-end">
+          
+        <% if(!hasPreviousPage && hasNextPage){ %> 
+          <li class="page-item disabled">
+            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+          </li>
+
+          <% pages.forEach((page, index) => { %> 
+            <% if(index===0){ %>
+                <li class="page-item active" aria-current="page">
+                    <span class="page-link"><%=page.number%></span>
+                </li>
+            <% }else{ %>
+            <li class="page-item"><a class="page-link" href="<%=page.url%>"><%=page.number%></a></li>
+            <% } %>
+      <% }) %>  
+
+          <li class="page-item">
+            <a class="page-link" href="<%= pages[1].url %>">Next</a>
+          </li>
+
+        <% }else if(!hasNextPage && hasPreviousPage){ %> 
+            <li class="page-item ">
+                <a class="page-link" href="<%= pages[0].url %>" >Previous</a>
+              </li>
+    
+              <% pages.forEach((page, index) => { %> 
+                    <% if(index===2){ %>
+                        <li class="page-item active" aria-current="page">
+                            <span class="page-link"><%=page.number%></span>
+                        </li>
+                    <% }else{ %>
+                    <li class="page-item"><a class="page-link" href="<%=page.url%>"><%=page.number%></a></li>
+                    <% } %> 
+              <% }) %> 
+    
+              <li class="page-item disabled">
+                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Next</a>
+              </li>
+            
+        <!-- there are more than 1 page to show -->
+        <% }else if(hasNextPage && hasPreviousPage){ %> 
+            <!-- only show Previous page button if there are more than 1 pages -->
+            <% if(pages[0]){ %>
+              <li class="page-item ">
+                <a class="page-link" href="<%= pages[0].url %>" >Previous</a>
+              </li>
+            <% } %>
+
+            <!-- loop through all of the pages -->
+              <% pages.forEach((page, index) => { %> 
+                <% if(index===1){ %>
+                    <li class="page-item active" aria-current="page">
+                        <span class="page-link"><%=page.number%></span>
+                    </li>
+                <% }else{ %>
+                <li class="page-item"><a class="page-link" href="<%=page.url%>"><%=page.number%></a></li>
+                <% } %> 
+          <% }) %> 
+                
+          <% if(pages[2]){ %>
+              <li class="page-item">
+                <a class="page-link" href="<%= pages[2].url %>" >Next</a>
+              </li>
+          <% } %>
+        <!-- there is only 1 page -->
+        <% }else{ %>
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                </li>
+
+            <!-- set pages[0] as current page, if there is only 1 page -->
+                <li class="page-item active" aria-current="page">
+                    <span class="page-link">1</span>
+                </li>
+            
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Next</a>
+                </li>
+        <% } %>
+        </ul>
+      </nav>
+  
+
+</div>
+
+<script>
+    const mapToken = '<%-process.env.MAPBOX_TOKEN%>';
+    //would be better if we could use ajax to request the target doc
+        //but at least html here has been sanitized with joi and sanitize-html packages
+    const profilesCluster = { features: <%- JSON.stringify(profilesCluster) %>};
+</script>
+<script src="/javascripts/indexClusterMap.js"></script>
