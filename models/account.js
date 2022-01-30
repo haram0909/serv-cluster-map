@@ -28,7 +28,8 @@ const AccountSchema = new Schema({
             ref: 'Review'
         }
     ]
-});
+},
+{ timestamps: true });
 
 // passport-local-mongoose plugin will auto add username and password fields automatically
     //also gives methods such as .register, etc 
@@ -37,5 +38,11 @@ AccountSchema.plugin(passportLocalMongoose);
 AccountSchema.virtual('fullname').get(function () {
     return `${this.firstname}, ${this.lastname.charAt(0)}`;
 });
+
+//concerned with overhead... is it actually worth it?
+//for cursor based pagination, will need unique incremental key index 
+//add text index to accountSchema to enable searchability with pagination
+    //https://docs.mongodb.com/manual/core/index-text/
+    // AccountSchema.index({firstname: 'text'}, {lastname: 'text'});
 
 module.exports = mongoose.model("Account", AccountSchema);
