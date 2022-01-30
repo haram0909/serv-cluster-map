@@ -13,7 +13,7 @@ ImageSchema.virtual('thumbnail').get(function(){
 })
 
 //Mongoose option to pass virtual properties when converting doc to JSON
-const opts = { toJSON: { virtuals: true } };
+const opts = { toJSON: { virtuals: true }, timestamps: true };
 
 const ProfileSchema = new Schema({
     account: {
@@ -97,5 +97,11 @@ ProfileSchema.virtual('properties.popUpMarkUp').get(function(){
     <a href="/profiles/${this._id}"> Profile Page</a>
     <p> ${this.availability ? '<strong>Available to Work</strong>' : 'Currently Unavailable to Work'}</p>`
 })
+
+//concerned with overhead... is it actually worth it?
+//for cursor based pagination, will need unique incremental key index 
+//add text index to profileSchema to enable searchability with pagination
+    //https://docs.mongodb.com/manual/core/index-text/
+// ProfileSchema.index({location: 'text'}, {availability: 'text'}, {offerings: 'text'}, {skills: 'text'});
 
 module.exports = mongoose.model('Profile', ProfileSchema);
