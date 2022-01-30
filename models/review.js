@@ -12,6 +12,7 @@ const ReviewSchema = new Schema({
             type: Schema.Types.ObjectId,
             ref: 'Profile'
     }
-});
+},
+{ timestamps: true });
 
 module.exports = mongoose.model("Review", ReviewSchema);
