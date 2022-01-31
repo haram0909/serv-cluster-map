@@ -9,11 +9,7 @@ const passport = require('passport');
 //cloudinary for image storage
 const { cloudinary } = require('../cloudinary/cloudinaryConfig.js');
 
-
-
-
-//controller functions related to reviews
-
+//controller functions related to account
 module.exports.renderLoginForm = async (req, res) => {
     //check if the user is already logged in
     if (req.user) {
@@ -80,10 +76,6 @@ module.exports.register = async (req, res) => {
         // await account.save(); -> because .register method would have already saved
         req.flash('success', 'Successfully created a new account!');
         if(req.session.returnTo){
-            // console.log()
-            // console.log('inside of register = returnTo = ')
-            // console.log(req.session.returnTo)
-            // console.log()
             req.session.returnTo = req.session.returnTo.replace('/review','');
             const redirectUrl = req.session.returnTo;
             return res.redirect(redirectUrl);
@@ -203,8 +195,7 @@ module.exports.showRatingsIndex = async (req, res) => {
     res.render('accounts/ratings.ejs', {reviewsByAccount} );
 }
 
-//$$$$$$!!!!!!! All profile routes need authorization check before any edit ability
-//should only be allowed when current account does NOT have profile
+//creating profile should only be allowed when the current account does NOT have profile
 module.exports.renderCreateProfileForm = async (req, res) => {
     const account = await Account.findById(req.params.id);
     //confirm that the account does NOT have a valid linked profile
