@@ -3,12 +3,7 @@ const Profile = require('../models/profile.js');
 const Account = require('../models/account.js');
 const Review = require('../models/review.js');
 
-
-
-
-
 //controller functions related to reviews
-
 module.exports.createReview = async (req, res) => {
     const profile = await Profile.findById(req.params.id).populate('reviews');
     if (!profile) {
@@ -28,7 +23,7 @@ module.exports.createReview = async (req, res) => {
             break;
         }
     }
-    // An account is only allowed to leave 1 review for a profile
+    // An account is only allowed to leave 1 review per profile
     if (wroteReview) {
         req.flash('error', 'Cannot leave more than 1 review for a profile!');
         return res.redirect(`/profiles/${req.params.id}`)
