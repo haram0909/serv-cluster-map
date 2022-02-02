@@ -5,11 +5,7 @@ const Account = require('../models/account.js');
 //express-pagination
 const paginate = require('express-paginate');
 
-
-
-
 //controller functions related to searching profiles
-
 module.exports.renderSearchProfilesForm = (req, res) => {
     res.render('search/searchProfilesForm.ejs');
 }
@@ -131,7 +127,7 @@ module.exports.searchProfiles = async (req, res) => {
         }
     ]);
 
-//save the array of _id output of aggregate pipeline to session
+    //save the array of _id output of aggregate pipeline to session
     req.session.searchProfilesResult = resultsIds
     res.redirect('/search/experts/result');
 }
