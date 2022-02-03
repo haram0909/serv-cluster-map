@@ -2,15 +2,8 @@ mapboxgl.accessToken = mapToken;
 const map = new mapboxgl.Map({
     container: 'index-cluster-map',
     style: 'mapbox://styles/mapbox/light-v10',
-    //currently centers at north America region
-    // center: [-103.59179687498357, 40.66995747013945],
-    //below is for North Atlantic Ocean
-    // center: [-16.540997, 8.428959],
-    //below is somewhere in Nigiria, but centered to hold the globe in a shot
-    // center: [12.287104, 8.509727],
     //North Pacific Ocean
     center: [-113.396468, 11.802888],
-    // zoom: 3
     zoom: 1.2
 });
 
@@ -18,9 +11,9 @@ map.addControl(new mapboxgl.NavigationControl());
 
 
 
-// console.log(profiles)
-    //Adding fullname for each of the profile, which popUpMarkUp will use to show popup message for unclustered-point
-    //this puts pressure on client-side processing, but for 500 entry, should be ok...)
+
+//Adding fullname for each of the profile, which popUpMarkUp will use to show popup message for unclustered-point
+    //this puts pressure on client-side processing...)
 for(let profile of profilesCluster.features){ 
      profile.properties.fullname = `${profile.account.firstname}, ${profile.account.lastname[0]}`;   
  } 
@@ -48,9 +41,6 @@ map.on('load', function () {
         paint: {
             // Use step expressions (https://docs.mapbox.com/mapbox-gl-js/style-spec/#expressions-step)
             // with three steps to implement three types of circles:
-            //   * Light Blue, 15px circles when point count is less than 100
-            //   * Light Green, 30px circles when point count is between 100 and 750
-            //   * Light Purple, 40px circles when point count is greater than or equal to 750
             'circle-color': [
                 'step',
                 ['get', 'point_count'],
@@ -121,15 +111,9 @@ map.on('load', function () {
     // the location of the feature, with
     // description HTML from its properties.
     map.on('click', 'unclustered-point', function (e) {
-        // console.log('CLICKED UNCLUSTERED-POINT')
             //looped through profiles.features already at earlier point of this file... (heavy on client-side processing, but for 500 entry, should be ok...)
         const popUpMarkup  = `<strong>${e.features[0].properties.fullname}</strong> <br> ${e.features[0].properties.popUpMarkUp}`;
-        // console.log(e.features[0]);
-        // console.log(e.features[0].properties.popUpMarkup) //!!!! for some reason, this line is  'undefined'
-        // console.log(e.features[0].properties.popUpMarkUp) // !!!! when this line shows expected value.....
-
         const coordinates = e.features[0].geometry.coordinates.slice();
-
 
         // Ensure that if the map is zoomed out such that
         // multiple copies of the feature are visible, the
