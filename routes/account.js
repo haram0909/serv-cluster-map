@@ -16,14 +16,6 @@ const {
     isAccountOwner,
     wroteReview } = require('../middleware.js');
 
-//models
-// const Profile = require('../models/profile.js');
-// const Account = require('../models/account.js');
-// const Review = require('../models/review.js');
-
-//packages
-// const passport = require('passport');
-
 //controllers
 const accountController = require('../controllers/account.js');
 
