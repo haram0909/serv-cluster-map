@@ -19,13 +19,9 @@ const paginate = require('express-paginate');
 //controller functions related to profiles
 module.exports.showIndex = async (req, res) => {
     //get newest profiles first
-    // const profiles = await Profile.find().sort({ _id: -1 }).populate('account');
-    //get oldest profiles first
-    // const profiles = await Profile.find().populate('account');
         const [ results, itemCount ] = await Promise.all([
           Profile.find({}).sort({ _id: -1 }).limit(req.query.limit).skip(req.skip).populate('account').exec(),
-        //   because of deprecation, Profile.count({}) has been replaced with below  
-          Profile.countDocuments({})
+          Profile.countDocuments({}) //because of deprecation, Profile.count({}) has been replaced 
         ]);
      
         const pageCount = Math.ceil(itemCount / req.query.limit);
@@ -36,7 +32,6 @@ module.exports.showIndex = async (req, res) => {
             req.flash('success', 'Be the first one to create an account and profile!')
             return res.redirect('/account/login')
         }
-
         if(pageCount < parseInt(req.query.page)){
             req.flash('error', `There is no page ${req.query.page}, but here is the last page.`);
             return res.redirect(`/profiles?page=${pageCount}&limit=${req.query.limit}`);
@@ -101,8 +96,7 @@ module.exports.createProfile = async (req, res) => {
         return res.redirect(`/account/${account._id}`);
     }
 
-    //using mapbox instance, 
-        //forward goecode to generate long and lat for location string
+    //using mapbox instance, forward goecode to generate long and lat for location string
     const forwardGeocodedLocation = await geocoder.forwardGeocode({
         query: res.locals.profile.location,
         limit: 1
@@ -112,7 +106,7 @@ module.exports.createProfile = async (req, res) => {
         req.flash('error','Location of the profile was not identifiable. Location map will point to a default location.');
     } 
 
-    //If null, i.e., cannot get coordinate of the location, hardcode to Antarctic Ice shield, Antarctica coordinate     
+    //If null, i.e., cannot get coordinate of the location, hardcode to default location of Antarctic Ice shield, Antarctica coordinate     
     const geoData = (forwardGeocodedLocation.body.features[0])? forwardGeocodedLocation.body.features[0].geometry : {type:"Point", coordinates:[38.897957, -77.036560]} ;
 
     //link the currentAccount with the newly created profile
@@ -134,7 +128,7 @@ module.exports.createProfile = async (req, res) => {
 
 module.exports.updateProfile = async (req, res) => {
     const updatedProfile = await Profile.findByIdAndUpdate(req.params.id, { $set: res.locals.profile }, { upsert: true, new: true });
-    
+
     //save image files uploaded to cloudinary's filename and path(url)
         //extract path and filename and create array of objects containing {url: path value, filename: filename value}
     const images = req.files.map(file => ({ url: file.path, filename: file.filename  }));
@@ -145,7 +139,6 @@ module.exports.updateProfile = async (req, res) => {
     if(req.body.deleteImages){
         //delete selected images from cloudinary storage
         for(let filename of req.body.deleteImages){
-            //may NOT want to do await here for perceived performance...?
             await cloudinary.uploader.destroy(filename);
         }
         //pull out images deleted from cloudinary for this profile
@@ -167,7 +160,7 @@ module.exports.destroyProfile = async (req, res) => {
         req.flash('error', 'Failed to delete! Cannot find that profile!');
         return res.redirect('/profiles');
     }
-    //delete reviews written on the profile to delete, if any
+    //delete reviews written on the profile, if any
     if (profileToDelete.reviews.length > 0) {
         await Review.deleteMany({ _id: { $in: profileToDelete.reviews } });
         req.flash('success', 'Successfully deleted reviews on the profile.');
@@ -175,18 +168,16 @@ module.exports.destroyProfile = async (req, res) => {
         req.flash('success', 'There was no reviews on the profile.');
     }
 
-    //delete all images from cloudinary, if the profile has any image uploaded to cloudinary
+    //if the profile has any image uploaded to cloudinary, delete all images uploaded by the profile from cloudinary storage
     if(profileToDelete.images.length > 0){
-        //delete selected images from cloudinary storage
         for(let image of profileToDelete.images){
-            //may NOT want to do await here for perceived performance...?
             await cloudinary.uploader.destroy(image.filename);
         }
         req.flash('success', 'Successfully deleted all images uploaded by this profile.');
     }    
 
     await Profile.findByIdAndDelete(req.params.id);
-    //set the profile linked account's profile property to null -> allow the account to create new profile
+    //set the profile's linked account's profile property to null -> allow the account to create new profile
     await Account.findByIdAndUpdate(req.body.accountId, { profile: null });
     req.flash('success', 'Successfully deleted the profile!');
     res.redirect('/profiles');
