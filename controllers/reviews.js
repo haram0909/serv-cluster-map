@@ -15,7 +15,7 @@ module.exports.createReview = async (req, res) => {
         req.flash('error', 'Cannot find the account that is attempting to leave a review!');
         return res.redirect('/profiles');
     }
-    //this now validates whether the current account exists as an author of any of the reviews for this profile...
+    //check if the current account wrote any review for this profile
     let wroteReview = false;
     for (let review of profile.reviews) {
         if (review.author._id.equals(res.locals.currentAccount._id)) {
@@ -23,12 +23,11 @@ module.exports.createReview = async (req, res) => {
             break;
         }
     }
-    // An account is only allowed to leave 1 review per profile
     if (wroteReview) {
-        req.flash('error', 'Cannot leave more than 1 review for a profile!');
+        req.flash('error', 'Cannot leave more than 1 review for a profile!'); 
         return res.redirect(`/profiles/${req.params.id}`)
     }
-   //create new review 
+    //create new review 
     const review = new Review(res.locals.review);
     review.about = req.params.id;
     review.author = res.locals.currentAccount._id;
@@ -39,6 +38,7 @@ module.exports.createReview = async (req, res) => {
     //add new review to reviews array of account
     account.reviews.push(review);
     await account.save()
+
     req.flash('success', 'Successfully added a new review to this profile!');
     res.redirect(`/profiles/${profile._id}`);
 }
@@ -58,9 +58,9 @@ module.exports.destroyReview = async (req, res) => {
     await Account.findByIdAndUpdate(reviewToDelete.author._id, { $pull: { reviews: req.body.reviewId } });
     //delete the review from the profile the review was written for
     await Profile.findByIdAndUpdate(reviewToDelete.about._id, { $pull: { reviews: req.body.reviewId } });
-
     //delete the review
     await Review.findByIdAndDelete(req.body.reviewId);
+
     req.flash('success', 'Successfully deleted reviews on the profile.');
     res.redirect(`/profiles/${req.params.id}`);
 }
