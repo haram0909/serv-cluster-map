@@ -15,45 +15,37 @@ module.exports.searchProfiles = async (req, res) => {
     const keyword = res.locals.searchProfile.keyword;
     const availability = res.locals.searchProfile.availability;
 
-//search/filter after populate
-//https://stackoverflow.com/questions/11303294/querying-after-populate-in-mongoose
-
+//search and filter then populate : consulted = https://stackoverflow.com/questions/11303294/querying-after-populate-in-mongoose
     //dynamically generate match object for Model.aggregate pipeline's $match stage
     let dynamicMatchObject = {};
-    //dynamically add $or based on search-type
-        //initialize dynamicMatchObject before dynamically add $or filter
-    dynamicMatchObject["$or"] = []
+    dynamicMatchObject["$or"] = [] //initialize dynamicMatchObject before dynamically add $or filter
 
-    //using $regex at $match stage documentation =
-    //https://docs.mongodb.com/manual/reference/operator/query/regex/#-regex
-        //only default case (case of search-type 'all') will have names based filter option included
-        //other search-types will NOT have name based filter to prevent potential profile scanning behavior
+    //dynamically add $or based on search-type
+    //using $regex at $match stage documentation = https://docs.mongodb.com/manual/reference/operator/query/regex/#-regex
     switch (searchType) {
         case 'location':
             const orConditionLocation =  
             { "location": { $regex: keyword, $options: 'i' } };
             dynamicMatchObject["$or"].push(orConditionLocation);
             break;
-
         case 'skills':
             const orConditionSkills =  
             { "skills.proglang": {$regex: keyword, $options: 'i' } }; 
             dynamicMatchObject["$or"].push(orConditionSkills);
             break;
-
         case 'offerings':
             const orConditionOfferings = 
             { "offerings.service": { $regex: keyword, $options: 'i' } };
             dynamicMatchObject["$or"].push(orConditionOfferings);
             break;
-
         case 'introduction':
             const orConditionIntroduction = 
             { "introduction": { $regex: keyword, $options: 'i' } };
             dynamicMatchObject["$or"].push(orConditionIntroduction);
             break;
-        
-        default:
+        //only default case (case of search-type 'all') will have names based filter option included
+        //other search-types will NOT have name based filter to prevent potential profile scanning behavior
+        default: 
             const orConditionAll = [
                 { "profileOwner.firstname": { $regex: keyword, $options: 'i' } },
                 { "profileOwner.lastname": { $regex: keyword, $options: 'i' } },
@@ -62,7 +54,6 @@ module.exports.searchProfiles = async (req, res) => {
                 { "skills.proglang": {$regex: keyword, $options: 'i' } }, 
                 { "offerings.service": { $regex: keyword, $options: 'i' } }
             ];
-
             dynamicMatchObject["$or"].push(...orConditionAll);
     }
 
@@ -71,24 +62,21 @@ module.exports.searchProfiles = async (req, res) => {
         case 'available':
             dynamicMatchObject["$and"] = [{"availability" : true }]
             break;
-
         case 'unavailable':
             dynamicMatchObject["$and"] = [{"availability" : false }]
             break;
-
         default:
             // console.log('treating availability filter as "any"');
     }
 
-//define and run aggregate pipeline 
+//define and run aggregate pipeline : consulted =
     //https://stackoverflow.com/questions/52498620/mongodb-elemmatch-with-regex-return-only-one-element-from-array-of-a-single-doc?rq=1
     //https://masteringjs.io/tutorials/mongoose/aggregate
     const resultsIds = await Profile.aggregate([
     //$lookup to grab profile's related Account information
         {
             $lookup: {
-                //'from' field needs collection name = Model.collection.name
-                from: Account.collection.name,
+                from: Account.collection.name, //'from' field needs collection name = Model.collection.name
                 localField: "account",
                 foreignField: "_id",
                 as: "profileOwner"
@@ -97,10 +85,7 @@ module.exports.searchProfiles = async (req, res) => {
     //$unwind fields of arrays will split each element of an array into separate documents
     //if using unwind, will want to use group at the end to combine the splitted documents by object id -> merging splitted docs with same object id back to 1 doc 
         //unwind behavior is NOT needed for below match purpose
-        //but group by object id is still needed 
-            // to prevent having to move documents around with credential information,
-            // but only return list of document _ids, which then can be used to find docs by ids to get documents without sensitive info, such as credentials
-    //https://docs.mongodb.com/manual/reference/operator/aggregation/unwind/
+        //https://docs.mongodb.com/manual/reference/operator/aggregation/unwind/
         // {
         //     $unwind: '$skills'
         //     // {
@@ -114,15 +99,15 @@ module.exports.searchProfiles = async (req, res) => {
         //     // }
         // }
         // ,
-    //$match stage of aggregate = where actual filtering occurs
-        //pass dynamically generate match object for $match stage
+    //$match stage of aggregate = where filtering occurs
         {
-            $match: dynamicMatchObject
+            $match: dynamicMatchObject //assign dynamically generated match object 
         },
     //$group by _id
+            // to prevent having to move documents around with credential information,
         {
             $group:{
-                _id: '$_id'
+                _id: '$_id' // by only return list of document _ids
             }
         }
     ]);
@@ -134,12 +119,7 @@ module.exports.searchProfiles = async (req, res) => {
 
 module.exports.renderSearchProfilesResult = async (req, res) => {
     const resultsIds = req.session.searchProfilesResult;
-    const results = await Profile.find({'_id': { $in: resultsIds}})
-                                 .sort({ _id: -1 })
-                                 .limit(req.query.limit)
-                                 .skip(req.skip)
-                                 .populate('account');
-    
+    const results = await Profile.find({'_id': { $in: resultsIds}}).sort({ _id: -1 }).limit(req.query.limit).skip(req.skip).populate('account');
     const itemCount = resultsIds.length;
     const pageCount = Math.ceil(itemCount / req.query.limit);
 
@@ -148,7 +128,6 @@ module.exports.renderSearchProfilesResult = async (req, res) => {
         req.flash('error', 'Oh no! There is no experts to show. Try some other keywords.');
         return res.redirect('/search/experts')
     }
-
     if (pageCount < parseInt(req.query.page)) {
         req.flash('error', `There is no page ${req.query.page} of the results, but here is the last page of the result.`);
         return res.redirect(`/search/experts/result?page=${pageCount}&limit=${req.query.limit}`);
