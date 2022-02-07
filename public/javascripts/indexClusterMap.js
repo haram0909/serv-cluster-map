@@ -9,15 +9,11 @@ const map = new mapboxgl.Map({
 
 map.addControl(new mapboxgl.NavigationControl());
 
-
-
-
 //Adding fullname for each of the profile, which popUpMarkUp will use to show popup message for unclustered-point
     //this puts pressure on client-side processing...)
 for(let profile of profilesCluster.features){ 
      profile.properties.fullname = `${profile.account.firstname}, ${profile.account.lastname[0]}`;   
  } 
-
 
 map.on('load', function () {
     // Add a new source from our GeoJSON data and
@@ -44,11 +40,11 @@ map.on('load', function () {
             'circle-color': [
                 'step',
                 ['get', 'point_count'],
-                '#42DADD',//'#6AA9D5',//'#4BB1CE',//'#00BCD4', //color of circle, if count is less than next line
+                '#42DADD', //color of circle, if count is less than next line
                 20,  //count
-                '#2bbd7e',//'#69f0ae',//'#81c784',//'#00B299',//'#22B6B0',//'#22B6B0',//'#046E8C',//'#057FA2',//'#2196F3', //color of circle, if count is more than prev line and less than next line
+                '#2bbd7e', //color of circle, if count is more than prev line and less than next line
                 40,  //count
-                '#447ED9'//'#0677B3'//'#4B62DC'//'#075790'//'#3461C1'//'#3753C4'//'#04576E'//'#3F51B5'  //color of circle, if count is more than prev line
+                '#447ED9' //color of circle, if count is more than prev line
             ],
             'circle-radius': [
                 'step',
@@ -106,18 +102,14 @@ map.on('load', function () {
         );
     });
 
-    // When a click event occurs on a feature in
-    // the unclustered-point layer, open a popup at
-    // the location of the feature, with
-    // description HTML from its properties.
+    // When a click event occurs on a feature in an unclustered-point layer,
+    // open a popup at the location of the feature with description HTML from its properties.
     map.on('click', 'unclustered-point', function (e) {
-            //looped through profiles.features already at earlier point of this file... (heavy on client-side processing, but for 500 entry, should be ok...)
         const popUpMarkup  = `<strong>${e.features[0].properties.fullname}</strong> <br> ${e.features[0].properties.popUpMarkUp}`;
         const coordinates = e.features[0].geometry.coordinates.slice();
 
-        // Ensure that if the map is zoomed out such that
-        // multiple copies of the feature are visible, the
-        // popup appears over the copy being pointed to.
+        // Ensure that if the map is zoomed out such that multiple copies of the feature are visible, 
+        // the popup appears over the copy being pointed to.
         while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
             coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
         }
