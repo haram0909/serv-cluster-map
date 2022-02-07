@@ -98,9 +98,8 @@ ProfileSchema.virtual('properties.popUpMarkUp').get(function(){
     <p> ${this.availability ? '<strong>Available to Work</strong>' : 'Currently Unavailable to Work'}</p>`
 })
 
-//concerned with overhead... is it actually worth it?
 //for cursor based pagination, will need unique incremental key index 
-//add text index to profileSchema to enable searchability with pagination
+//add text index to accountSchema to enable searchability with pagination, with trade-off of added overhead
     //https://docs.mongodb.com/manual/core/index-text/
 // ProfileSchema.index({location: 'text'}, {availability: 'text'}, {offerings: 'text'}, {skills: 'text'});
 
