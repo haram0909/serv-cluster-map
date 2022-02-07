@@ -39,9 +39,8 @@ AccountSchema.virtual('fullname').get(function () {
     return `${this.firstname}, ${this.lastname.charAt(0)}`;
 });
 
-//concerned with overhead... is it actually worth it?
 //for cursor based pagination, will need unique incremental key index 
-//add text index to accountSchema to enable searchability with pagination
+//add text index to accountSchema to enable searchability with pagination, with trade-off of added overhead
     //https://docs.mongodb.com/manual/core/index-text/
     // AccountSchema.index({firstname: 'text'}, {lastname: 'text'});
 
