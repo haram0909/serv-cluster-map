@@ -1,6 +1,6 @@
 
 // https://docs.mapbox.com/mapbox-gl-js/guides/install/
-// will be referencing the mapboxToken variable created from the ejs
+// reference the mapboxToken variable passed from the ejs
 mapboxgl.accessToken = mapToken;
 
 const map = new mapboxgl.Map({
