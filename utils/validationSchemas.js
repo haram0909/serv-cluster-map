@@ -54,7 +54,6 @@ module.exports.joiAccountUpdateSchema = Joi.object({
         firstname: Joi.string().required().escapeHTML(),
         lastname: Joi.string().required().escapeHTML(),
         email: Joi.string().email({ tlds: false }).required().escapeHTML(),
-        
     }).required()
 });
 

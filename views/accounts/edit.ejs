@@ -1,17 +1,11 @@
 <% layout('layouts/boilerplate.ejs') %>
 
     <div class="justify-content-center align-items-center mt-5 mb-5">
-
         <div class="card shadow">
-
-
-
-
             <div class="card-body">
                 <form action="/account/<%=account._id%>?_method=PATCH" method="POST" novalidate
                     class="needs-validation">
                     <h1 class="text-center"><strong>Update My Account</strong></h1>
-
                     <!-- email -->
                     <div class="mb-3 form-group validate-me">
                         <label class="form-label" for="email">Email</label>
@@ -40,28 +34,18 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="mb-3">
                         <button class="btn btn-outline-info col-4">Update My Account</button>
-                        
                     </div>
                 </form>
-               
                 <div>
-                   
                         <form class="d-inline" action="/account/<%=account._id%>?_method=DELETE" method="POST">
                             <a class="btn btn-outline-warning" href="/account/<%=account._id%>">Cancel Update</a>
                             <% if(haveProfile) {%>
                             <input type="hidden" id="profileId" name="profileId" value="<%=account.profile._id%>">
                             <% } %>
                             <button class="btn btn-outline-danger">Delete My Account</button>                                                    
-                            
-                        </form>
-                        
-                        
-                   
-
-                        
+                        </form>   
                 </div>
 
             </div>
