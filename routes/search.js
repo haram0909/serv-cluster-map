@@ -17,21 +17,12 @@ const {
     clearSearchProfilesResult,
     hasSearchProfilesResult } = require('../middleware.js');
 
-
-
 //controllers
 const searchController = require('../controllers/search.js');
 
 
 
 //all routes entering here are prefixed with '/search'
-    //although search is a core feature and is are more expensive on the database, 
-    // will not force a user to login, 
-//because incentive to make an account already exists by
-    //, profile's contact only becoming visible when logged in.
-    // instead, it makes sense to show what users might want already exists
-        //, then pointing them to create an account --> just browsing and searching is OK,
-        // but if actually want to contact and etc, need account and login to be able to use full feature(contact info & leaving reviews, etc)  
 
 //routes for searching experts
 router.route('/experts')
