@@ -2,17 +2,13 @@
 <link rel="stylesheet" href="/stylesheets/stars.css">
 
     <div class="justify-content-center align-items-center mt-5 mb-5">
-
         <div class="card shadow">
             <div class="card-body">
                 <h1 class="text-center"><strong>You Wrote Reviews for ...</strong></h1>
-
                 <!-- accordian of all the reviews written -->
                 <div class="accordion mt-3" id="accordionPanelsStayOpenExample">
-
                     <!-- looping over all reviews written  -->
                     <% for(let i=0; i<reviewsByAccount.length; i++){ %> 
-
                     <div class="accordion-item">
                       <h2 class="accordion-header" id="panelsStayOpen-heading<%= i+1 %>">
                         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapse<%= i+1 %>" aria-expanded="true" aria-controls="panelsStayOpen-collapse<%= i+1 %>">
@@ -36,11 +32,8 @@
                         </div>
                       </div>
                     </div>
-
                     <% } %>
-                   
-                  </div>
-
+                </div>
             </div>
         </div>
     </div>
