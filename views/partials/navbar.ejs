@@ -9,16 +9,12 @@
           <a class="nav-link" href="/">Home</a>
           <a class="nav-link" href="/profiles">All Experts</a>
           <a class="nav-link" href="/search/experts">Search Experts</a>
-          <!-- dropdown menu approach was canceled because of potential scalability issue as more filters and search options might be added -->
         </div> 
-          
-
         <div class="navbar-nav ms-auto">
         <% if(!currentAccount){ %> 
           <a class="nav-link" href="/account/login">Login</a>
           <a class="nav-link" href="/account/register">Register</a>
         <% }else{ %> 
-        
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               Hi, <%= currentAccount.firstname %> 
@@ -31,15 +27,11 @@
                 <a class="dropdown-item" href="<%= `/account/${currentAccount._id}/profile/new` %>">Create My Profile</a>
                 <% } %>
               <hr class="dropdown-divider">
-                <a class="dropdown-item" href="/account/logout">Logout</a>
-                
+                <a class="dropdown-item" href="/account/logout">Logout</a> 
             </ul>
           </li>
-     
-          <% } %> 
+        <% } %> 
         </div>
-
-
       </div>
     </div>
   </nav>
