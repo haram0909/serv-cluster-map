@@ -1,17 +1,13 @@
 <% layout('layouts/boilerplate.ejs') %>
 
-
-
     <div class="row mb-3">
         <h1 class="text-center">Create My Profile</h1>
         <div class="col-8 offset-2">
             <form action="/profiles" method="POST" novalidate class="needs-validation" enctype="multipart/form-data">
                 <input type="hidden" id="accountId" name="accountId" value="<%=accountId%>">
-
                 <div class="mb-3 form-group validate-me" >
                     <label class="form-label" for="introduction">Introduction</label>
                     <textarea class="form-control" type="text" id="introduction" name="profile[introduction]" aria-label="Introduction" aria-describedby="introduction"></textarea>
-                    
                 </div>
                 <div class="mb-3 form-group validate-me" >
                     <label class="form-label" for="location">location</label>
@@ -20,7 +16,6 @@
                         Looks good!
                     </div>
                 </div>
-
                 <!-- //image file(s) input -->
                 <div class="mb-3 form-file custom-file" >
                     <label class="form-file-label form-label" for="images">
@@ -28,10 +23,8 @@
                     </label>
                     <input class="form-control form-file-input custom-file-label" type="file" name="images" id="images" multiple aria-label="Upload one or multiple images" aria-describedby="images">
                 </div>
-
                 <!-- //https://stackoverflow.com/questions/34313657/html-form-post-an-array-of-objects
-        //https://stackoverflow.com/questions/56908497/post-list-of-objects-from-html-axios-with-multipart-form-data-to-drf-multipart-p/57013811#57013811 -->
-
+                //https://stackoverflow.com/questions/56908497/post-list-of-objects-from-html-axios-with-multipart-form-data-to-drf-multipart-p/57013811#57013811 -->
                 <!-- //skills  -->
                 <div class="mb-3" >
                     <label class="form-label" for="expertise">
@@ -48,42 +41,31 @@
                         </div>
                         <% } %>
                 </div>
-
                 <!-- //availability  -->
-                <div class="btn-group mb-3" role="group"
-                    aria-label="Radio toggle button group for availability for work">
-                    <input class="btn-check" type="radio" name="profile[availability]" id="availability-true"
-                        value="true" checked aria-label="Availability true">
+                <div class="btn-group mb-3" role="group" aria-label="Radio toggle button group for availability for work">
+                    <input class="btn-check" type="radio" name="profile[availability]" id="availability-true" value="true" checked aria-label="Availability true">
                     <label class="btn btn-outline-success" for="availability-true">Available for Work</label>
-                    <input class="btn-check" type="radio" name="profile[availability]" id="availability-false"
-                        value="false" aria-label="Availability false">
+                    <input class="btn-check" type="radio" name="profile[availability]" id="availability-false" value="false" aria-label="Availability false">
                     <label class="btn btn-outline-secondary" for="availability-false">Not Available</label>
                 </div>
-
                 <!-- //offerings  -->
                 <div class="mb-3">
                     <label class="form-label" for="offerings">
-                        <span id="offerings" 
-                        aria-label="List of services to offer">List of Offering Services</span>
+                        <span id="offerings" aria-label="List of services to offer">List of Offering Services</span>
                     </label>
                     <% for(let i=0; i<5; i++) { %>
                         <div class="input-group mb-2">
                             <span class="input-group-text" id="service<%=i%>">Add Service Item <%=i+1%></span>
-                            <input class="form-control" type="text" id="service<%=i%>"
-                                name="profile[offerings][<%=i%>][service]" placeholder="Service Item" aria-label="Add service item <%=i+1%>" aria-describedby="service<%=i%>">
+                            <input class="form-control" type="text" id="service<%=i%>" name="profile[offerings][<%=i%>][service]" placeholder="Service Item" aria-label="Add service item <%=i+1%>" aria-describedby="service<%=i%>">
                             <span class="input-group-text" id="price<%=i%>">$</span>
-                            <input class="form-control" type="number" id="price<%=i%>"
-                                name="profile[offerings][<%=i%>][price]" placeholder="Price in USD / Hour" aria-label="Price in USD per hour for service item <%=i+1%>" aria-describedby="price<%=i%>">
-                            </div>
-                        <% } %>
+                            <input class="form-control" type="number" id="price<%=i%>" name="profile[offerings][<%=i%>][price]" placeholder="Price in USD / Hour" aria-label="Price in USD per hour for service item <%=i+1%>" aria-describedby="price<%=i%>">
+                        </div>
+                    <% } %>
                 </div>
-
                <div>
                     <button class="btn btn-outline-info col-lg-3">Create Profile</button>
                     <a class="btn btn-outline-danger" href="/account/<%=accountId%>/">Cancel</a>
                 </div>
             </form>
-            
-
         </div>
     </div>
