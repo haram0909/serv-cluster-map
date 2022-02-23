@@ -1,58 +1,48 @@
 <% layout('layouts/boilerplate.ejs') %>
 <link rel="stylesheet" href="/stylesheets/stars.css">
 
-
     <div class="row my-3">
         <!-- left side -->
         <div class="col-6">
-
             <!-- images Carousel -->
             <div id="profileCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="false">
                 <div class="carousel-inner">
                     <% profile.images.forEach((img, i)=> { %>
                         <div class="carousel-item <%= i === 0 ? 'active' : ''%>">
-                            <img src="<%= img.url%>" class="d-block w-100 img-fluid"
-                                alt="An image uploaded by <%=profile.account.fullname%>">
+                            <img src="<%= img.url%>" class="d-block w-100 img-fluid" alt="An image uploaded by <%=profile.account.fullname%>">
                         </div>
-                        <% }) %>
-                        <% if(profile.images.length < 1){ %>
-                            <div class="carousel-item active">
-                                <img src="https://res.cloudinary.com/servclustermap/image/upload/v1639571306/servclustermap-NO-Img_placeholder_jiijxv.jpg" class="d-block w-100 img-fluid"
-                                    alt="No image uploaded by this profile. A placeholder image here.">
-                            </div>
-                            <% } %> 
+                    <% }) %>
+                    <% if(profile.images.length < 1){ %>
+                        <div class="carousel-item active">
+                            <img src="https://res.cloudinary.com/servclustermap/image/upload/v1639571306/servclustermap-NO-Img_placeholder_jiijxv.jpg" class="d-block w-100 img-fluid"
+                                alt="No image uploaded by this profile. A placeholder image here.">
+                        </div>
+                    <% } %> 
                 </div>
                 <% if(profile.images.length> 1) {%>
-                    <button class="carousel-control-prev" type="button" data-bs-target="#profileCarousel"
-                        data-bs-slide="prev">
+                    <button class="carousel-control-prev" type="button" data-bs-target="#profileCarousel" data-bs-slide="prev">
                         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                         <span class="visually-hidden">Previous</span>
                     </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#profileCarousel"
-                        data-bs-slide="next">
+                    <button class="carousel-control-next" type="button" data-bs-target="#profileCarousel" data-bs-slide="next">
                         <span class="carousel-control-next-icon" aria-hidden="true"></span>
                         <span class="visually-hidden">Next</span>
                     </button>
-                    <% } %>
+                <% } %>
             </div>
-
             <!-- card contents -->
             <div class="card mb-3 shadow">
                 <div class="card-body">
-                    
                     <h2 class="card-title ">
                         <%= profile.account.firstname + ', ' + profile.account.lastname.toUpperCase() %>
                     </h2>
-                    
                     <p class="card-text text-muted">
                         <%= profile.location %>
                     </p>
-                    
                     <p class="card-text">
                         <%= profile.introduction%>
                     </p>
                 </div>
-
                 <!-- depending on styling preference, consider dropping list-group-flush class from ol tags -->
                 <div class="card-body">
                     <h5 class="card-title">List of Expertise</h5>
@@ -66,10 +56,9 @@
                                     <%= profile.skills[i].experience %> Years of Experience
                                 </div>
                             </li>
-                            <% }%>
+                        <% }%>
                     </ol>
                 </div>
-
                 <div class="card-body">
                     <h5 class="card-title">List of Offering Services</h5>
                     <ol class="list-group list-group-numbered list-group-flush">
@@ -82,152 +71,102 @@
                                     $<%= profile.offerings[i].price %> (USD) / Hour
                                 </div>
                             </li>
-                            <% }%>
+                        <% }%>
                     </ol>
                 </div>
-
                 <div class="card-body">
-                    <div class=" card-title <%= profile.availability ? " text-success" : "text-danger" %>" ><strong>
-                        <%= profile.availability ? "Available to Work" : "Currently Unavailable to Work" %>
-                    </strong>
-                </div>
-                <% if(currentAccount ){ %> 
-                    <div class="card-text my-0">
-                        Contact: <%= profile.account.email %> 
+                    <div class=" card-title <%= profile.availability ? " text-success" : "text-danger" %>" >
+                        <strong>
+                            <%= profile.availability ? "Available to Work" : "Currently Unavailable to Work" %>
+                        </strong>
                     </div>
-                <% }else{ %>
-                    <div class="card-text my-0">
-                        <a class="text-primary" href="/account/register">Register</a> or <a class="text-primary"href="/account/login">Login</a> to view contacts of profiles 
-                    </div>
+                    <% if(currentAccount ){ %> 
+                        <div class="card-text my-0">
+                            Contact: <%= profile.account.email %> 
+                        </div>
+                    <% }else{ %>
+                        <div class="card-text my-0">
+                            <a class="text-primary" href="/account/register">Register</a> or <a class="text-primary"href="/account/login">Login</a> to view contacts of profiles 
+                        </div>
                     <% } %> 
                 </div>
-
             </div>
-
-            <div class="">
-
+            <div>
                 <% if(isProfileOwner){ %> 
-                <a class="card-link btn btn-outline-info mb-3" href="/profiles/<%=profile._id%>/edit">Edit
-                    Profile</a>
-                <form class="d-inline" action="/profiles/<%=profile._id%>?_method=DELETE" method="POST">
-                    <input type="hidden" id="accountId" name="accountId" value="<%=profile.account._id%>">
-                    <button class="btn btn-outline-danger mb-3">Delete Profile</button>
-                </form>
+                    <a class="card-link btn btn-outline-info mb-3" href="/profiles/<%=profile._id%>/edit">Edit Profile</a>
+                    <form class="d-inline" action="/profiles/<%=profile._id%>?_method=DELETE" method="POST">
+                        <input type="hidden" id="accountId" name="accountId" value="<%=profile.account._id%>">
+                        <button class="btn btn-outline-danger mb-3">Delete Profile</button>
+                    </form>
                 <% } %> 
-
-                <a class="card-link btn btn-success mb-3" href="/profiles/">All Profiles Page</a>
+                    <a class="card-link btn btn-success mb-3" href="/profiles/">All Profiles Page</a>
             </div>
-
         </div>
-
         <!-- right side -->
         <div class="col-6">
-            <!-- Clustermap placeholder -->
-            <!-- <div class="text-center mb-3" id='maptitle'> CLUSTERMAP PLACEHOLDER</div> -->
             <div id='map' ></div>
-
             <!-- list of reviews = used to be populated profile.reviews-->
             <% if(reviewsForProfile && reviewsForProfile.length){ %> 
-                    <div class="card-body shadow mb-3">
-                        <h3 class="card-title mb-3">Reviews about <%=profile.account.firstname%></h3>
-                        <ol class="list-group list-group-flush">
-
-                            <% for(let i=0; i<reviewsForProfile.length; i++){ %> 
-
-
-                                <li class="list-group-item d-flex justify-content-between align-items-start">
-                                    <div class="ms-2 me-auto">
-                                        
-                                        <div class="card-text fw-bold">
-                                            <!-- should be getting the fullname, but will be undefined for now-->
-                                            <!--eventually drop by written by, just leave the author-->
-
-                                            <!-- SEEMS THAT WITH EJS AND MONGOOSE, THE POPULATE GETS FILLED LATER ON,  -->
-                                             <!--THUS AT THIS STAGE, IT IS NULL THROWING NULL ERROR.......  -->
-                                            <!-- Written by : < profile.reviews[i].author%> -->
-                                            <!-- Written by : < reviewsForProfile[i].author.fullname%> -->
-                                             <%= reviewsForProfile[i].author.firstname%>, <%=reviewsForProfile[i].author.lastname[0]%> 
-                                        </div>
-                                        <p class=" my-1 starability-result" data-rating="<%= reviewsForProfile[i].rating %>"> Rating : <%= reviewsForProfile[i].rating %> stars </p> 
-                                        <div class="card-text">
+                <div class="card-body shadow mb-3">
+                    <h3 class="card-title mb-3">Reviews about <%=profile.account.firstname%></h3>
+                    <ol class="list-group list-group-flush">
+                        <% for(let i=0; i<reviewsForProfile.length; i++){ %> 
+                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                                <div class="ms-2 me-auto">
+                                    <div class="card-text fw-bold">
+                                        <%= reviewsForProfile[i].author.firstname%>, <%=reviewsForProfile[i].author.lastname[0]%> 
+                                    </div>
+                                    <p class=" my-1 starability-result" data-rating="<%= reviewsForProfile[i].rating %>"> Rating : <%= reviewsForProfile[i].rating %> stars </p> 
+                                    <div class="card-text">
                                         <%= reviewsForProfile[i].body %> 
-                                        </div>
-                                      
-                                         <!-- IF the author of the review is identical to the currentAccount by objectId, give delete button -->
-                                        <% if(currentAccount && reviewsForProfile[i].author._id.equals(currentAccount._id)){ %> 
-                                           
+                                    </div>
+                                    <!-- IF the author of the review is identical to the currentAccount by objectId, give delete button -->
+                                    <% if(currentAccount && reviewsForProfile[i].author._id.equals(currentAccount._id)){ %> 
                                         <form class="mt-2" action="/profiles/<%=profile._id%>/review?_method=DELETE" method="POST">
                                             <input type="hidden" id="reviewId" name="reviewId" value="<%=profile.reviews[i]._id%>">
                                             <button class="btn btn-outline-danger">Delete</button>
                                         </form>
-                                        <% } %> 
-                                        
-                                    </div>
-                                </li>
-                   
-                                <% } %>
-
-                        </ol>
-                    </div>
-
-
-
-                <% } %> 
-         
-
-
-                        <!-- form to leave review -->
-<div class="card-body shadow">
+                                    <% } %> 
+                                </div>
+                            </li>
+                        <% } %>
+                    </ol>
+                </div>
+            <% } %> 
+        <!-- form to leave review -->
+        <div class="card-body shadow">
             <h3 class="text-center">Leave a Review</h3>
             <form action="/profiles/<%=profile._id%>/review" novalidate class="needs-validation mb-3" method="POST">
-
-                    <!-- because it not the account of this profile, but the account of the review writer is needed -->
-                <!-- <input type="hidden" id="accountId" name="accountId" value=" =profile.account._id "> -->
                 <input type="hidden" id="profileId" name="profileId" value="<%=profile._id%>">
-
                 <div class="form-group validate-me">
-                <!-- <div class="mb-3">
-                    <label class="form-label" for="rating">Rating</label>
-                    <input class="form-range" type="range" min="1" max="5" name="review[rating]" id="rating">
-                </div> -->
-
-
-                <div class="mt-3">
-                <fieldset class="starability-basic">
-                    
-                    <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="0" checked
-                    aria-label="No rating." />
-                    <input type="radio" id="first-rate1" name="review[rating]" value="1" />
-                    <label for="first-rate1" title="Terrible">1 star</label>
-                    <input type="radio" id="first-rate2" name="review[rating]" value="2" />
-                    <label for="first-rate2" title="Not good">2 stars</label>
-                    <input type="radio" id="first-rate3" name="review[rating]" value="3" />
-                    <label for="first-rate3" title="Average">3 stars</label>
-                    <input type="radio" id="first-rate4" name="review[rating]" value="4" />
-                    <label for="first-rate4" title="Very good">4 stars</label>
-                    <input type="radio" id="first-rate5" name="review[rating]" value="5" />
-                    <label for="first-rate5" title="Amazing">5 stars</label>
-                </fieldset>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label" for="body">Write Review:</label>
-                    <textarea class="form-control" name="review[body]" id="body" cols="30" rows="5" required></textarea>
-                    <div class="valid-feedback">
-                        Looks good!
+                    <div class="mt-3">
+                        <fieldset class="starability-basic">
+                            <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="0" checked aria-label="No rating." />
+                            <input type="radio" id="first-rate1" name="review[rating]" value="1" />
+                            <label for="first-rate1" title="Terrible">1 star</label>
+                            <input type="radio" id="first-rate2" name="review[rating]" value="2" />
+                            <label for="first-rate2" title="Not good">2 stars</label>
+                            <input type="radio" id="first-rate3" name="review[rating]" value="3" />
+                            <label for="first-rate3" title="Average">3 stars</label>
+                            <input type="radio" id="first-rate4" name="review[rating]" value="4" />
+                            <label for="first-rate4" title="Very good">4 stars</label>
+                            <input type="radio" id="first-rate5" name="review[rating]" value="5" />
+                            <label for="first-rate5" title="Amazing">5 stars</label>
+                        </fieldset>
+                    </div>
+                    <div class="mb-3">
+                        <textarea class="form-control" name="review[body]" id="body" cols="30" rows="5" required></textarea>
+                        <div class="valid-feedback">
+                            <label class="form-label" for="body">Write Review:</label>
+                            Looks good!
+                        </div>
                     </div>
                 </div>
-              </div>
-
                 <button class="btn btn-success">Submit Review</button>
-
             </form>
         </div>
-
-        </div>
-
     </div>
-
+</div>
 
 <!-- to pass process.env.MAPBOX_TOKEN value into the showProfileMap.js inside public dir linked to the show.ejs -->
 <!-- also pass profile's geometry coordinates to the below linked showProfileMap.js -->
