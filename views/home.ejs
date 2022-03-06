@@ -11,7 +11,6 @@
 </head>
 
 <body class="d-flex flex-column text-center text-white bg-dark">
-    
         <header class="mb-auto">
                 <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-dark">
                     <div class="container-fluid">
@@ -26,43 +25,34 @@
                           <a class="nav-link" href="/search/experts">Search Experts</a>
                           <!-- dropdown menu approach was canceled because of potential scalability issue as more filters and search options might be added -->
                         </div> 
-                          
-                
                         <div class="navbar-nav ms-auto">
                         <% if(!currentAccount){ %> 
                           <a class="nav-link" href="/account/login">Login</a>
                           <a class="nav-link" href="/account/register">Register</a>
                         <% }else{ %> 
-                        
                           <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                               Hi, <%= currentAccount.firstname %> 
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark" aria-labelledby="navbarDropdown">
                               <a class="dropdown-item" href="<%= `/account/${currentAccount._id}` %>">My Account</a>
-                              <% if(currentAccount.profile){ %> 
-                              <a class="dropdown-item" href="<%= `/profiles/${currentAccount.profile._id}` %>">My Profile</a>
-                              <% }else{ %>
-                                <a class="dropdown-item" href="<%= `/account/${currentAccount._id}/profile/new` %>">Create My Profile</a>
+                                <% if(currentAccount.profile){ %> 
+                                  <a class="dropdown-item" href="<%= `/profiles/${currentAccount.profile._id}` %>">My Profile</a>
+                                <% }else{ %>
+                                  <a class="dropdown-item" href="<%= `/account/${currentAccount._id}/profile/new` %>">Create My Profile</a>
                                 <% } %>
                               <hr class="dropdown-divider">
                                 <a class="dropdown-item" href="/account/logout">Logout</a>
-                                
                             </ul>
                           </li>
-                     
                           <% } %> 
                         </div>
-                
-                
                       </div>
                     </div>
-                  </nav>
-            
+                </nav>
         </header>
         <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
         <main class="my-auto px-3">
-      
             <h1>MappedExps</h1>
             <div class="my-5">
             <p class="lead"> Welcome to MappedExps! 
@@ -72,18 +62,12 @@
             <a href="/profiles" class="btn btn-lg btn-secondary font-weight-bold border-white bg-white">View
                 All Experts</a>
         </main>
-
         <footer class="footer py-2 mt-auto">
             <div class="container">
                 <span class="text-muted">&copy; MappedExps 2022</span>
             </div>
         </footer>
     </div>
-
-    
-    
-
-
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
                 integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
