@@ -138,7 +138,6 @@ module.exports.fileSizeIsBelowLimit = async (req, res, next) => {
     // console.dir(req.headers['content-length'])
     //set file size limit for uploading at once to 10MB
     const fileSizeLimit = 10485760; // 10 Mb //5242880; //10MB  
-
     //if the file size in total is larger than 10MB 
     if (req.headers['content-length'] && fileSizeLimit < parseInt(req.headers['content-length'])) {
         // console.log(`File(s) to upload is larger than 10MB`);
@@ -160,13 +159,10 @@ module.exports.fileSizeIsBelowLimit = async (req, res, next) => {
                 // return res.redirect(`/account/${req.params.id}/profile/new`);
             }
         })
-       
     } else {
         // console.log(`Total size of files to upload are less than 10MB`);
         next();
-
     }
-
 }
 
 //check if the account has any valid reviews
