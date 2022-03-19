@@ -211,13 +211,8 @@ passport.deserializeUser(Account.deserializeUser());
 
 //custom middlewares should return at next() to prevent any further code, even if there is, from executing after next()
 
-// --> implement pagination later 
-// npm i express-paginate
-// https://www.npmjs.com/package/express-paginate
-
 //flash and currentAccount helper
-app.use((req, res, next) => {
-    
+app.use((req, res, next) => {    
     //if there is anything under req.flash.success,
     //set that under res.locals.sucessMsg & pass along to destination path
     res.locals.success = req.flash('success');
@@ -242,11 +237,6 @@ app.use('/search', searchRouter);
 app.get('/', (req, res) => {
     res.render('home.ejs');
 });
-
-
-//need edit review route - patch? 
-//--> needs form and view for review edit... will skip Edit for now... 
-
 
 //artificial error
 app.get('/error', (req, res) => {
